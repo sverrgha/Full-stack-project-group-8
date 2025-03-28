@@ -398,3 +398,17 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+target/
+*.jar
+*.war
+.idea/
+.vscode/
+*.class
+logs/
+.env
+
+# Ignore dependencies and build files
+node_modules/
+dist/
+.DS_Store
