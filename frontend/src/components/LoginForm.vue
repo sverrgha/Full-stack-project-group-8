@@ -46,7 +46,6 @@ const register = () => {
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   background-color: #ffffff;
-  font-family: 'Segoe UI', sans-serif;
 }
 
 h1 {
