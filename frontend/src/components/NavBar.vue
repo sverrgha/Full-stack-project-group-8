@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import messageIcon from '@/assets/message.svg';
-import addIcon from '@/assets/addIcon.svg';
-import bellIcon from '@/assets/bellIcon.svg';
-import productIcon from '@/assets/Products.svg';
-import logo from '@/assets/logo.png';
-import user from '@/assets/user.svg';
+import messageIcon from '../assets/message.svg';
+import addIcon from '../assets/addIcon.svg';
+import bellIcon from '../assets/bellIcon.svg';
+import productIcon from '../assets/Products.svg';
+import logo from '../assets/logo.png';
+import user from '../assets/user.svg';
 
 const isMenuOpen = ref(false);
 
