@@ -91,7 +91,6 @@ onUnmounted(() => {
   position: relative;
 }
 
-/* Navigation Links */
 .nav-links {
   list-style: none;
   display: flex;
@@ -108,7 +107,7 @@ onUnmounted(() => {
   padding: 8px 15px;
   border-radius: 8px;
   transition: background 0.2s;
-  white-space: nowrap; /* Prevent text from wrapping */
+  white-space: nowrap;
 
 }
 
@@ -132,8 +131,8 @@ onUnmounted(() => {
 }
 
 .logo img {
-  width: 150px; /* Adjust as needed */
-  height: auto; /* Maintain aspect ratio */
+  width: 150px;
+  height: auto;
 }
 
 /* Mobile Styles */
