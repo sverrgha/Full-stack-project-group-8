@@ -397,12 +397,11 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
-*.sln.iml
-
 target/
 *.jar
 *.war
 .idea/
+*.iml
 .vscode/
 *.class
 logs/
