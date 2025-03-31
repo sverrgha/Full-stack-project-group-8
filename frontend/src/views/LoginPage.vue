@@ -27,8 +27,6 @@ const toggleForm = () => {
   padding: 2rem;
 }
 
-
-
 .form-toggle span {
   color: #4f46e5;
   font-weight: 600;
