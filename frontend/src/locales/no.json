@@ -5,5 +5,14 @@
     "newListing": "Ny annonse",
     "messages": "Meldinger",
     "language": "No"
+  },
+  "loginPage": {
+    "loginForm": {
+      "email": "E-post",
+      "password": "Passord",
+      "login": "Logg inn",
+      "register": "Registrer deg her",
+      "notRegistered": "Ingen bruker?"
+    }
   }
 }
