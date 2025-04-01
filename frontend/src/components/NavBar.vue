@@ -6,6 +6,9 @@ import bellIcon from '../assets/bellIcon.svg';
 import productIcon from '../assets/Products.svg';
 import logo from '../assets/logo.png';
 import user from '../assets/user.svg';
+import { useRouter} from 'vue-router';
+
+const router = useRouter();
 
 const isMenuOpen = ref(false);
 
@@ -22,6 +25,10 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', closeMenu);
 });
+
+const toProfilePage = () => {
+  router.push('/profile');
+};
 </script>
 
 <template>
@@ -66,20 +73,31 @@ onUnmounted(() => {
         <li>
           <a href="#">
             <div class="userLogo">
-              <img :src="user" alt="User" />
+              <img :src="user" alt="User" @click="toProfilePage"/>
             </div>
           </a>
         </li>
       </ul>
     </div>
   </nav>
+  <div class="navbar-spacer"></div>
 </template>
 
 <style scoped>
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: white;
   box-shadow: 0 1px 0 #ddd;
   border-bottom: none;
   padding: 10px 20px;
+}
+
+.navbar-spacer {
+  height: 60px;
 }
 
 .nav-container {
@@ -108,7 +126,6 @@ onUnmounted(() => {
   border-radius: 8px;
   transition: background 0.2s;
   white-space: nowrap;
-
 }
 
 .nav-links img {
@@ -160,6 +177,7 @@ onUnmounted(() => {
     width: 200px;
     padding: 10px;
     border-radius: 8px;
+    z-index: 1001;
   }
 
   .nav-links.open {
