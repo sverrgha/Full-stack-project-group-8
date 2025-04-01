@@ -6,11 +6,20 @@ import bellIcon from '../assets/bellIcon.svg';
 import productIcon from '../assets/Products.svg';
 import logo from '../assets/logo.png';
 import user from '../assets/user.svg';
-import { useRouter} from 'vue-router';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
+import flagNo from '../assets/flag_no.jpg';
+import flagEn from '../assets/flag_en.jpg';
+import { useI18n } from 'vue-i18n';
 
 const isMenuOpen = ref(false);
+const { locale, t } = useI18n();
+
+const toggleLanguage = () => {
+  locale.value = (locale.value === 'no' ? 'en' : 'no');
+};
+
 
 const closeMenu = (event) => {
   if (!event.target.closest('.nav-container')) {
@@ -49,25 +58,25 @@ const toProfilePage = () => {
         <li>
           <a href="#" class="active">
             <img :src="productIcon" alt="Products" />
-            <span>Products</span>
+            <span>{{ t('nav.products') }}</span>
           </a>
         </li>
         <li>
           <a href="#">
             <img :src="bellIcon" alt="Notifications" />
-            <span>Notifications</span>
+            <span>{{ t('nav.notifications') }}</span>
           </a>
         </li>
         <li>
           <a href="#">
             <img :src="addIcon" alt="New Listing" />
-            <span>New Listing</span>
+            <span>{{ t('nav.newListing') }}</span>
           </a>
         </li>
         <li>
           <a href="#">
             <img :src="messageIcon" alt="Messages" />
-            <span>Messages</span>
+            <span>{{ t('nav.messages') }}</span>
           </a>
         </li>
         <li>
@@ -76,6 +85,14 @@ const toProfilePage = () => {
               <img :src="user" alt="User" @click="toProfilePage"/>
             </div>
           </a>
+        </li>
+        <li>
+          <div class="language-toggle" @click="toggleLanguage">
+            <img :src="locale === 'no' ? flagNo : flagEn"
+                 :alt="locale === 'no' ? 'Switch to English' : 'Switch to Norwegian'"
+                 id="language_image"/>
+            <span>{{ t('nav.language') }}</span>
+          </div>
         </li>
       </ul>
     </div>
@@ -109,14 +126,14 @@ const toProfilePage = () => {
   position: relative;
 }
 
-.nav-links {
+.nav-links, div.language-toggle {
   list-style: none;
   display: flex;
   gap: 10px;
   transition: all 0.3s ease-in-out;
 }
 
-.nav-links a {
+.nav-links a , div.language-toggle{
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -137,7 +154,7 @@ const toProfilePage = () => {
   background: #f5f5f5;
 }
 
-.nav-links a:hover {
+.nav-links a:hover, div.language-toggle:hover {
   background: #f0f0f0;
 }
 
@@ -152,6 +169,18 @@ const toProfilePage = () => {
   height: auto;
 }
 
+div.language-toggle {
+  cursor: pointer;
+}
+
+#language_image {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid black;
+  object-fit: cover;
+}
+
 /* Mobile Styles */
 .menu-toggle {
   display: none;
@@ -161,7 +190,7 @@ const toProfilePage = () => {
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 910px) {
   .menu-toggle {
     display: block;
   }
