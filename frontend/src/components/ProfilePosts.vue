@@ -1,13 +1,18 @@
+<!-- ProfilePosts.vue - Lower part of the ProfilePage,
+including categorise, and items-->
+
 <script setup>
 import { ref, computed } from 'vue'
 
+// Active tab. Default is 'posts'
 const activeTab = ref('posts')
 
-// Dummy data
+// Placeholders items to categorise
 const posts = ['Chair', 'Desk', 'Skis', 'Snowboard']
 const favorites = ['Bicycle', 'Tickets', 'Pants', 'Shoes', 'Suit', 'Phone', 'Laptop']
 const purchased = ['Books', 'Shirts']
 
+// Show items based on active tab
 const itemsToShow = computed(() => {
   if (activeTab.value === 'posts') return posts
   if (activeTab.value === 'favorites') return favorites
@@ -17,11 +22,14 @@ const itemsToShow = computed(() => {
 
 <template>
   <div class="profile-posts card">
+    <!-- Tab navigation -->
     <div class="tab-nav">
       <button :class="{ active: activeTab === 'posts' }" @click="activeTab = 'posts'">Posts</button>
       <button :class="{ active: activeTab === 'favorites' }" @click="activeTab = 'favorites'">Favorites</button>
       <button :class="{ active: activeTab === 'purchased' }" @click="activeTab = 'purchased'">Purchased</button>
     </div>
+
+    <!-- Items grid -->
     <div class="grid">
       <div class="thumbnail" v-for="(item, index) in itemsToShow" :key="index">
         {{ item }}

@@ -1,11 +1,18 @@
+<!-- ProfileSettings.vue - The ProfileSettings component used
+in ProfileSettingsPage-->
+
 <script setup>
+// Importing reactive and watch from Vue
 import { ref, watch } from 'vue'
 
-const activeSection = ref('name') // Default to 'name' section
+//Reactive reference to track the active section, default is 'name'
+const activeSection = ref('name')
 
+//Placeholder user data
 const userData = ref({
   name: 'John Doe',
-  bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+  biography: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
   profilePicture: '../assets/user.png'
 })
 
@@ -14,6 +21,7 @@ const changeSection = (section) => {
   activeSection.value = section
 }
 
+// Error messages for name and picture
 const nameError = ref('')
 const pictureError = ref('')
 
@@ -23,7 +31,7 @@ const isValidName = (name) => {
   return regex.test(name.trim())
 }
 
-// Function to save changes (placeholder)
+// Function to save name changes, with validation
 const saveChanges = () => {
   if (activeSection.value === 'name') {
     if (!isValidName(userData.value.name)) {
@@ -33,17 +41,17 @@ const saveChanges = () => {
       nameError.value = ''
     }
   }
-
   alert('Changes saved successfully!')
 }
 
-// Live validation while typing name
+// Wather to clear name error when name changes
 watch(() => userData.value.name, (newVal) => {
   if (nameError.value && isValidName(newVal)) {
     nameError.value = ''
   }
 })
 
+// Function to handle profile picture change with validation
 const handleProfilePictureChange = (event) => {
   const file = event.target.files[0]
   if (!file) return
@@ -69,7 +77,6 @@ const handleProfilePictureChange = (event) => {
   }
   reader.readAsDataURL(file)
 }
-
 </script>
 
 <template>
@@ -79,14 +86,17 @@ const handleProfilePictureChange = (event) => {
     <div class="settings-content">
       <!-- Sidebar navigation -->
       <div class="settings-sidebar">
+        <!-- Name button -->
         <button :class="['sidebar-button', { active: activeSection === 'name' }]"
                 @click="changeSection('name')">First- and lastname
         </button>
 
-        <button :class="['sidebar-button', { active: activeSection === 'bio' }]"
-                @click="changeSection('bio')">Biography
+        <!-- Biography button -->
+        <button :class="['sidebar-button', { active: activeSection === 'biography' }]"
+                @click="changeSection('biography')">Biography
         </button>
 
+        <!-- Profile Picture button -->
         <button :class="['sidebar-button', { active: activeSection === 'profilePicture' }]"
                 @click="changeSection('profilePicture')">Profile Picture
         </button>
@@ -94,7 +104,7 @@ const handleProfilePictureChange = (event) => {
 
       <!-- Main content area - changes based on active section -->
       <div class="settings-main">
-        <!-- Name section -->
+        <!-- Name edit section -->
         <div v-if="activeSection === 'name'" class="settings-section">
           <h2>Update Your Name</h2>
           <div class="form-group">
@@ -112,14 +122,14 @@ const handleProfilePictureChange = (event) => {
           <button class="save-button" @click="saveChanges">Save Changes</button>
         </div>
 
-        <!-- Biography section -->
-        <div v-if="activeSection === 'bio'" class="settings-section">
+        <!-- Biography edit section -->
+        <div v-if="activeSection === 'biography'" class="settings-section">
           <h2>Update Your Biography</h2>
           <div class="form-group">
             <label for="bio-input">Biography</label>
             <textarea
                 id="bio-input"
-                v-model="userData.bio"
+                v-model="userData.biography"
                 placeholder="Tell us about yourself"
                 class="form-textarea"
                 rows="5"
@@ -128,7 +138,7 @@ const handleProfilePictureChange = (event) => {
           <button class="save-button" @click="saveChanges">Save Changes</button>
         </div>
 
-        <!-- Profile Picture section -->
+        <!-- Profile Picture edit section -->
         <div v-if="activeSection === 'profilePicture'" class="settings-section">
           <h2>Update Profile Picture</h2>
           <div class="profile-picture-container">

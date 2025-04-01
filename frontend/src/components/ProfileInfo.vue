@@ -1,24 +1,39 @@
+<!-- ProfileInfo.vue - The upper part of the ProfilePage, including profile picture
+ name, biography and settings icon-->
+
 <script setup>
 import { useRouter } from 'vue-router'
 
+//Initialize router
 const router = useRouter()
+
+//Placeholders to profile text
 const name = 'John Doe'
-const about = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+const biography = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+
+//Navigate to profile settings page
 const settings = () => router.push('/profile/settings')
 </script>
 
 <template>
   <div class="profile-info card">
+    <!-- Settings icon -->
     <div class="settings-icon-wrapper">
       <img src="../assets/settings.png" alt="Settings" @click="settings" class="settings-icon" />
     </div>
+
+    <!-- Profile picture, name and biography -->
     <div class="profile-content">
+
+      <!-- Profile picture -->
       <div class="profile-image">
         <img src="../assets/user.png" alt="Profile Image" />
       </div>
+
+      <!-- Name and biography -->
       <div class="profile-text">
         <h1>{{ name }}</h1>
-        <p>{{ about }}</p>
+        <p>{{ biography }}</p>
       </div>
     </div>
   </div>
