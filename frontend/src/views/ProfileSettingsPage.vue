@@ -161,6 +161,7 @@ const updateUserData = (newUserData) => {
 <style scoped>
 .settings-container {
   max-width: 1000px;
+  min-height: 700px;
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
