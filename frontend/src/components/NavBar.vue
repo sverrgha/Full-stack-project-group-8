@@ -6,12 +6,13 @@ import bellIcon from '../assets/bellIcon.svg';
 import productIcon from '../assets/Products.svg';
 import logo from '../assets/logo.png';
 import user from '../assets/user.svg';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
 import flagNo from '../assets/flag_no.jpg';
 import flagEn from '../assets/flag_en.jpg';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+
+const router = useRouter();
+
 
 const isMenuOpen = ref(false);
 const { locale, t } = useI18n();
