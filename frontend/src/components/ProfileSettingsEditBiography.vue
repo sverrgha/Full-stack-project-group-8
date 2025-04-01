@@ -79,7 +79,7 @@ const handleSave = () => {
 }
 
 .form-textarea {
-  width: 100%;
+  width: 90%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;
