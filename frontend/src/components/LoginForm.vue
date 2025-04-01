@@ -1,7 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const email = ref('')
 const password = ref('')
 
@@ -19,21 +21,21 @@ const register = () => {
 
 <template>
   <div class="login-form">
-    <h1>Login</h1>
+    <h1>{{ t('loginForm.login') }}</h1>
     <form @submit.prevent="login">
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ t('loginForm.email') }}</label>
         <input type="email" id="email" v-model="email" required />
       </div>
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ t('loginForm.password') }}</label>
         <input type="password" id="password" v-model="password" required />
       </div>
-      <button type="submit" class="btn primary">Login</button>
+      <button type="submit" class="btn primary">{{ t('loginForm.login') }}</button>
 
       <p class="register-text">
-        Don’t have an account?
-        <span @click="register">Register here</span>
+        {{ t('loginForm.notRegistered') }}
+        <span @click="register">{{ t('loginForm.register')}}</span>
       </p>
     </form>
   </div>
@@ -42,6 +44,7 @@ const register = () => {
 <style scoped>
 .login-form {
   max-width: 400px;
+  min-width: 300px;
   margin: 5vh auto;
   padding: 2rem;
   border-radius: 12px;
