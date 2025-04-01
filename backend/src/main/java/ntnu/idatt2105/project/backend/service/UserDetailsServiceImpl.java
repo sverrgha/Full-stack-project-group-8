@@ -31,20 +31,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * If the user is not found, it throws a UsernameNotFoundException.
      * The method returns a UserDetails object containing the user's information.
      * 
-     * @param username The username of the user to be loaded.
+     * @param email The email of the user to be loaded.
      * @return A UserDetails object containing the user's information.
      * @throws UsernameNotFoundException If the user is not found in the database.
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
                 new ArrayList<>());
     }
-    
-
 }
