@@ -22,12 +22,9 @@ const toggleForm = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
   background-color: #f9fafb;
   padding: 2rem;
 }
-
-
 
 .form-toggle span {
   color: #4f46e5;
