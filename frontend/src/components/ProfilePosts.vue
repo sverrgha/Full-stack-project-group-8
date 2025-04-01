@@ -9,8 +9,8 @@ const activeTab = ref('posts')
 
 // Placeholders items to categorise
 const posts = ['Chair', 'Desk', 'Skis', 'Snowboard']
-const favorites = ['Bicycle', 'Tickets', 'Pants', 'Shoes', 'Suit', 'Phone', 'Laptop']
-const purchased = ['Books', 'Shirts']
+const favorites = ['Bicycle', 'Tickets', 'Pants', 'Shoes', 'Suit', 'Phone', 'Laptop', 'Door', 'Table', 'Cabinet']
+const purchased = []
 
 // Show items based on active tab
 const itemsToShow = computed(() => {
@@ -71,7 +71,6 @@ const itemsToShow = computed(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
-  min-height: 320px;
   transition: all 0.3s ease;
 }
 
