@@ -7,6 +7,9 @@ import productIcon from '../assets/Products.svg';
 import logo from '../assets/logo.png';
 import user from '../assets/user.svg';
 import { useRouter} from 'vue-router';
+import flagNo from '../assets/flag_no.jpg';
+import flagEn from '../assets/flag_en.jpg';
+import { useI18n } from "vue-i18n";
 
 const router = useRouter();
 
