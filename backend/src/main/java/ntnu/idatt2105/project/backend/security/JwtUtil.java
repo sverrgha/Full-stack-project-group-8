@@ -9,6 +9,9 @@ import java.util.Map;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
@@ -100,14 +103,20 @@ public class JwtUtil {
      * @param token The JWT token to be checked.
      * @return true if the token is expired, false otherwise.
      */
-    private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(getKey().getEncoded()))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getExpiration();
-        return expiration.before(new Date());
+    boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(getKey().getEncoded()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /*
@@ -115,7 +124,7 @@ public class JwtUtil {
      * 
      * @return The secret key as a Key object.
      */
-    private Key getKey() {
+    Key getKey() {
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
