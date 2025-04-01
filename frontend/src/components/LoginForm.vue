@@ -20,21 +20,21 @@ const register = () => {
 
 <template>
   <div class="login-form">
-    <h1>{{ t('loginPage.loginForm.login') }}</h1>
+    <h1>{{ t('loginForm.login') }}</h1>
     <form @submit.prevent="login">
       <div class="form-group">
-        <label for="email">{{ t('loginPage.loginForm.email') }}</label>
+        <label for="email">{{ t('loginForm.email') }}</label>
         <input type="email" id="email" v-model="email" required />
       </div>
       <div class="form-group">
-        <label for="password">{{ t('loginPage.loginForm.password') }}</label>
+        <label for="password">{{ t('loginForm.password') }}</label>
         <input type="password" id="password" v-model="password" required />
       </div>
-      <button type="submit" class="btn primary">{{ t('loginPage.loginForm.login') }}</button>
+      <button type="submit" class="btn primary">{{ t('loginForm.login') }}</button>
 
       <p class="register-text">
-        {{ t('loginPage.loginForm.notRegistered') }}
-        <span @click="register">{{ t('loginPage.loginForm.register')}}</span>
+        {{ t('loginForm.notRegistered') }}
+        <span @click="register">{{ t('loginForm.register')}}</span>
       </p>
     </form>
   </div>

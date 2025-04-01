@@ -1,8 +1,10 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from "vue-i18n";
 
 const router = useRouter()
+const { t } = useI18n()
 
 const form = reactive({
   name: '',
@@ -26,23 +28,23 @@ const register = () => {
 
   // Validation error messages showing when register is clicked
   if (!form.name.trim()) {
-    errors.name = 'Name is required.'
+    errors.name = 'registerForm.nameRequired'
   }
 
   if (!/\S+@\S+\.\S+/.test(form.email)) {
-    errors.email = 'Enter a valid email.'
+    errors.email = 'registerForm.invalidEmail'
   }
 
   if (!/^[0-9]+$/.test(form.phone)) {
-    errors.phone = 'Phone number must contain digits only.'
+    errors.phone = 'registerForm.invalidPhoneNumber'
   }
 
   if (form.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters.'
+    errors.password = 'registerForm.passwordLength'
   }
 
   if (form.password !== form.confirmPassword) {
-    errors.confirmPassword = 'Passwords do not match.'
+    errors.confirmPassword = 'registerForm.passwordsMustMatch'
   }
 
   // If no errors, proceed
@@ -66,62 +68,62 @@ const goToLogin = () => {
 
 <template>
   <div class="register-form">
-    <h1>Register</h1>
+    <h1>{{ t('registerForm.register') }}</h1>
     <form @submit.prevent="register">
       <!-- Name -->
       <div class="form-group">
-        <label for="name">Name</label>
+        <label for="name">{{ t('registerForm.name') }}</label>
         <input type="text" id="name" v-model="form.name"
             :class="{ invalid: errors.name }"
         />
-        <p v-if="errors.name" class="error-message">{{ errors.name }}</p>
+        <p v-if="errors.name" class="error-message">{{ t(errors.name) }}</p>
       </div>
 
       <!-- Email -->
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ t('registerForm.email') }}</label>
         <input type="email" id="email" v-model="form.email"
             :class="{ invalid: errors.email }"
         />
-        <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
+        <p v-if="errors.email" class="error-message">{{ t(errors.email) }}</p>
       </div>
 
       <!-- Phone -->
       <div class="form-group">
-        <label for="phone">Phone number</label>
+        <label for="phone">{{ t('registerForm.phoneNumber') }}</label>
         <input type="text" id="phone" v-model="form.phone"
             :class="{ invalid: errors.phone }"
         />
-        <p v-if="errors.phone" class="error-message">{{ errors.phone }}</p>
+        <p v-if="errors.phone" class="error-message">{{ t(errors.phone) }}</p>
       </div>
 
       <!-- Password -->
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ t('registerForm.password') }}</label>
         <input type="password" id="password" v-model="form.password"
             :class="{ invalid: errors.password }"
         />
-        <p v-if="errors.password" class="error-message">{{ errors.password }}</p>
+        <p v-if="errors.password" class="error-message">{{ t(errors.password) }}</p>
       </div>
 
       <!-- Confirm Password -->
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
+        <label for="confirmPassword">{{  t('registerForm.confirmPassword') }}</label>
         <input type="password" id="confirmPassword" v-model="form.confirmPassword"
             :class="{ invalid: errors.confirmPassword }"
         />
-        <p v-if="errors.confirmPassword" class="error-message">{{ errors.confirmPassword }}</p>
+        <p v-if="errors.confirmPassword" class="error-message">{{ t(errors.confirmPassword) }}</p>
       </div>
 
       <!-- Register Button -->
       <button type="submit" class="btn primary">
-        Register
+        {{ t('registerForm.register') }}
       </button>
 
       <!-- Link to Login -->
       <p class="login-text">
-        Already have an account?
-        <span @click="goToLogin">Login here</span>
+        {{ t('registerForm.alreadyRegistered') }}
+        <span @click="goToLogin">{{ t('registerForm.login') }}</span>
       </p>
     </form>
   </div>
@@ -130,6 +132,7 @@ const goToLogin = () => {
 <style scoped>
 .register-form {
   max-width: 400px;
+  min-width: 300px;
   margin: 5vh auto;
   padding: 2rem;
   border-radius: 12px;

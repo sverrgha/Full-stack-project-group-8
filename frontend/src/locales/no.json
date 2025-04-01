@@ -6,13 +6,26 @@
     "messages": "Meldinger",
     "language": "No"
   },
-  "loginPage": {
-    "loginForm": {
-      "email": "E-post",
-      "password": "Passord",
-      "login": "Logg inn",
-      "register": "Registrer deg her",
-      "notRegistered": "Ingen bruker?"
-    }
+  "loginForm": {
+    "email": "E-post",
+    "password": "Passord",
+    "login": "Logg inn",
+    "register": "Registrer deg her",
+    "notRegistered": "Ingen bruker?"
+  },
+  "registerForm": {
+    "name": "Navn",
+    "nameRequired": "Navn er påkrevd",
+    "email": "E-post",
+    "invalidEmail": "Skriv inn en gyldig e-post",
+    "phoneNumber": "Telefon nummer",
+    "invalidPhoneNumber": "Skriv inn et gyldig telefonnummer",
+    "password": "Passord",
+    "passwordLength": "Passord må være minst 6 tegn",
+    "confirmPassword": "Bekreft passord",
+    "passwordsMustMatch": "Passordene er ikke like",
+    "register": "Registrer deg",
+    "login": "Logg inn her",
+    "alreadyRegistered": "Allerede registrert?"
   }
 }
