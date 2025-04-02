@@ -4,6 +4,8 @@ import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
+import NewListing from '../components/NewListing.vue'
+
 
 const routes = [
     {
@@ -29,6 +31,11 @@ const routes = [
         path: '/profile/settings',
         name: 'ProfileSettings',
         component: ProfileSettingsPage,
+    },
+    {
+        path: '/new-listing',
+        name: 'NewListing',
+        component: NewListing,
     }
 
 ]
