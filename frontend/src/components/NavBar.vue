@@ -113,10 +113,6 @@ onUnmounted(() => {
   height: 20px;
 }
 
-.nav-links a.active {
-  background: #f5f5f5;
-}
-
 .nav-links a:hover, div.language-toggle:hover {
   background: #f0f0f0;
 }
