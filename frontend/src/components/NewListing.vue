@@ -484,15 +484,21 @@ onMounted(() => {
 <style scoped>
 .new-listing-container {
   max-width: 800px;
-  margin: 3rem auto;
-  padding: 0 1rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
 }
 
+
 .new-listing-form {
-  padding: 2rem;
+  padding: 3em;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   background-color: var(--bg-color, white);
+  width: 100%;
 }
 
 h1 {
@@ -567,12 +573,6 @@ input.invalid:focus, textarea.invalid:focus, select.invalid:focus {
   font-size: 0.85rem;
   margin-top: 0.25rem;
   animation: fadeIn 0.2s;
-}
-
-.helper-text {
-  color: #666;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
 }
 
 .price-input {
@@ -661,12 +661,6 @@ input[type="number"]::-webkit-outer-spin-button {
   height: 48px;
   opacity: 0.6;
   margin-bottom: 0.5rem;
-}
-
-.upload-formats {
-  font-size: 0.85rem;
-  color: #666;
-  margin-top: 0.5rem;
 }
 
 .image-previews {
@@ -827,9 +821,9 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 @media (max-width: 676px) {
-  .new-listing-form {
-    padding: 1.5rem;
-    margin: 1rem 0;
+  .new-listing-container {
+    padding: 1rem;
+    min-height: auto;
   }
 
   .condition-options {
