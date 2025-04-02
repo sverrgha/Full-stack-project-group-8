@@ -65,6 +65,7 @@
   },
   "common": {
     "cancel": "Avbryt",
-    "submitting": "Sender inn..."
+    "submitting": "Sender inn...",
+    "requiredField": "Obligatorisk felt"
   }
 }

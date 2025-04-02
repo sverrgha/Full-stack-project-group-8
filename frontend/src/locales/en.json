@@ -65,6 +65,7 @@
   },
   "common": {
     "cancel": "Cancel",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "requiredField": "Required field"
   }
 }
