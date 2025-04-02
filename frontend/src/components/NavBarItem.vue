@@ -8,10 +8,10 @@ import messageIcon from '../assets/message.svg';
 import addIcon from '../assets/addIcon.svg';
 import bellIcon from '../assets/bellIcon.svg';
 import productIcon from '../assets/Products.svg';
+import userIcon from '../assets/user.svg';
 
 const { t } = useI18n();
 const route = useRoute();
-
 const props = defineProps({
   text: {
     type: String,
@@ -32,7 +32,8 @@ const iconMap = {
   'products': productIcon,
   'notifications': bellIcon,
   'newListing': addIcon,
-  'messages': messageIcon
+  'messages': messageIcon,
+  'profile': userIcon
 };
 
 // Get the appropriate icon based on text
@@ -75,6 +76,7 @@ img {
 
 a.active {
   background: #f5f5f5;
+  border: 2px solid blue;
 }
 
 a:hover {
