@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import logo from '../assets/logo.png';
-import user from '../assets/user.svg';
 import flagNo from '../assets/flag_no.jpg';
 import flagEn from '../assets/flag_en.jpg';
 import { useRouter } from 'vue-router';
@@ -53,14 +52,7 @@ onUnmounted(() => {
         <nav-bar-item to="#" text="notifications"/>
         <nav-bar-item to="#" text="newListing"/>
         <nav-bar-item to="#" text="messages"/>
-        
-        <li>
-          <router-link to="/profile">
-            <div class="userLogo">
-              <img :src="user" alt="User"/>
-            </div>
-          </router-link>
-        </li>
+        <nav-bar-item to="/profile" text="profile"/>
         <li>
           <div class="language-toggle" @click="toggleLanguage">
             <img :src="locale === 'no' ? flagNo : flagEn"
