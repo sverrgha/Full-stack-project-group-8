@@ -3,12 +3,8 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import logo from '../assets/logo.png';
 import flagNo from '../assets/flag_no.jpg';
 import flagEn from '../assets/flag_en.jpg';
-import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import NavBarItem from "./NavBarItem.vue";
-
-const router = useRouter();
-
 
 const isMenuOpen = ref(false);
 const { locale, t } = useI18n();
