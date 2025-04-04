@@ -39,7 +39,7 @@ const register = () => {
     errors.phone = 'registerForm.invalidPhoneNumber'
   }
 
-  if (form.password.length < 6) {
+  if (form.password.length < 8) {
     errors.password = 'registerForm.passwordLength'
   }
 
