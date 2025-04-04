@@ -81,9 +81,9 @@ const toProfilePage = () => {
           </a>
         </li>
         <li>
-          <a href="#">
+          <a href="#" @click="toProfilePage">
             <div class="userLogo">
-              <img :src="user" alt="User" @click="toProfilePage"/>
+              <img :src="user" alt="User"/>
             </div>
           </a>
         </li>
