@@ -20,7 +20,7 @@ import ntnu.idatt2105.project.backend.repository.UserRepo;
  * The method returns a UserDetails object containing the user's information.
  */
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserService implements UserDetailsService {
     
     @Autowired
     private UserRepo userRepo;

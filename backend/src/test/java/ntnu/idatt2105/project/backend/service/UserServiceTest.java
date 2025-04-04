@@ -16,13 +16,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import ntnu.idatt2105.project.backend.model.User;
 import ntnu.idatt2105.project.backend.repository.UserRepo;
 
-class UserDetailsServiceImplTest {
+class UserServiceTest {
 
     @Mock
     private UserRepo userRepo;
 
     @InjectMocks
-    private UserDetailsServiceImpl userDetailsService;
+    private UserService userDetailsService;
 
     @BeforeEach
     void setUp() {
