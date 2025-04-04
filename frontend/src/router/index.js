@@ -4,6 +4,7 @@ import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
+import ProductsPage from '../views/ProductsPage.vue'
 
 const routes = [
     {
@@ -28,9 +29,13 @@ const routes = [
     {
         path: '/profile/settings',
         name: 'ProfileSettings',
-        component: ProfileSettingsPage,
+        component: ProfileSettingsPage
+    },
+    {
+        path: '/products',
+        name: 'Products',
+        component: ProductsPage
     }
-
 ]
 
 const router = createRouter({
