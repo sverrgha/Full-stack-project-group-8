@@ -46,7 +46,9 @@
     "categoryRequired": "Vennligst velg en kategori",
     "imageRequired": "Minst ett bilde er påkrevd",
     "maxImagesError": "Maksimalt 5 bilder tillatt",
-    "selectCategory": "Velg en kategori"
+    "selectCategory": "Velg en kategori",
+    "postalCode": "Postnummer",
+    "invalidPostalCode": "Vennligst skriv inn et gyldig postnummer (4 siffer)"
   },
   "categories": {
     "electronics": "Elektronikk",

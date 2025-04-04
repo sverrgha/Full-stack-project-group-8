@@ -46,7 +46,9 @@
     "categoryRequired": "Please select a category",
     "imageRequired": "At least one image is required",
     "maxImagesError": "Maximum 5 images allowed",
-    "selectCategory": "Select a category"
+    "selectCategory": "Select a category",
+    "postalCode": "Postal Code",
+    "invalidPostalCode": "Please enter a valid postal code (4 digits)"
   },
   "categories": {
     "electronics": "Electronics",
