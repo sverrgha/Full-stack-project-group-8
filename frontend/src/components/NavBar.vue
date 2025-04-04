@@ -1,18 +1,10 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import messageIcon from '../assets/message.svg';
-import addIcon from '../assets/addIcon.svg';
-import bellIcon from '../assets/bellIcon.svg';
-import productIcon from '../assets/Products.svg';
 import logo from '../assets/logo.png';
-import user from '../assets/user.svg';
 import flagNo from '../assets/flag_no.jpg';
 import flagEn from '../assets/flag_en.jpg';
-import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-
-const router = useRouter();
-
+import NavBarItem from "./NavBarItem.vue";
 
 const isMenuOpen = ref(false);
 const { locale, t } = useI18n();
@@ -35,10 +27,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', closeMenu);
 });
-
-const toProfilePage = () => {
-  router.push('/profile');
-};
 </script>
 
 <template>
@@ -56,37 +44,11 @@ const toProfilePage = () => {
 
       <!-- Navigation Links -->
       <ul class="nav-links" :class="{ 'open': isMenuOpen }">
-        <li>
-          <a href="#" class="active">
-            <img :src="productIcon" alt="Products" />
-            <span>{{ t('nav.products') }}</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img :src="bellIcon" alt="Notifications" />
-            <span>{{ t('nav.notifications') }}</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img :src="addIcon" alt="New Listing" />
-            <span>{{ t('nav.newListing') }}</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img :src="messageIcon" alt="Messages" />
-            <span>{{ t('nav.messages') }}</span>
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <div class="userLogo">
-              <img :src="user" alt="User" @click="toProfilePage"/>
-            </div>
-          </a>
-        </li>
+        <nav-bar-item to="/profile/settings" text="products"/>
+        <nav-bar-item to="#" text="notifications"/>
+        <nav-bar-item to="#" text="newListing"/>
+        <nav-bar-item to="#" text="messages"/>
+        <nav-bar-item to="/profile" text="profile"/>
         <li>
           <div class="language-toggle" @click="toggleLanguage">
             <img :src="locale === 'no' ? flagNo : flagEn"
@@ -149,10 +111,6 @@ const toProfilePage = () => {
 .nav-links img {
   width: 20px;
   height: 20px;
-}
-
-.nav-links a.active {
-  background: #f5f5f5;
 }
 
 .nav-links a:hover, div.language-toggle:hover {
