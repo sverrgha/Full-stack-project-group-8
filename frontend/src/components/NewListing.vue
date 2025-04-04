@@ -2,13 +2,14 @@
 import { reactive, ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { debounce } from 'lodash' // Assuming you have lodash installed
+import { debounce } from 'lodash'
 
 const router = useRouter()
 const { t } = useI18n()
 const isSubmitting = ref(false)
 const formRef = ref(null)
 const dragActive = ref(false)
+const postalCity = ref('')
 
 // Form data structure
 const form = reactive({
@@ -18,17 +19,18 @@ const form = reactive({
   price: '',
   category: '',
   condition: 'new',
-  images: []
+  images: [],
+  postalCode: ''
 })
 
 // Form validation errors
 const errors = reactive({
   title: '',
-  briefDescription: '',
   description: '',
   price: '',
   category: '',
-  images: ''
+  images: '',
+  postalCode: ''
 })
 
 // Character counts and limits
@@ -194,6 +196,18 @@ const validateField = (field) => {
     }
   }
 
+  if (field === 'postalCode' || field === 'all') {
+    if (!form.postalCode) {
+      errors.postalCode = 'newListing.invalidPostalCode'
+      postalCity.value = ''
+      isValid = false
+    } else {
+      validatePostalCode(form.postalCode).then(valid => {
+        isValid = isValid && valid
+      })
+    }
+  }
+
   return isValid
 }
 
@@ -231,18 +245,7 @@ const createListing = async () => {
   isSubmitting.value = true
 
   try {
-    // Here you would implement your API call to submit the form
-    // const formData = new FormData()
-    // for (const key in form) {
-    //   if (key === 'images') {
-    //     form.images.forEach(image => {
-    //       formData.append('images', image)
-    //     })
-    //   } else {
-    //     formData.append(key, form[key])
-    //   }
-    // }
-    // await api.post('/listings', formData)
+    //api call to post listing goes here
 
     console.log('Creating listing:', form)
 
@@ -250,7 +253,7 @@ const createListing = async () => {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Redirect to product page or listing success page
-    router.push('/products')
+    await router.push('/products')
   } catch (error) {
     console.error('Error creating listing:', error)
   } finally {
@@ -267,6 +270,42 @@ onMounted(() => {
   const titleInput = document.getElementById('title')
   if (titleInput) titleInput.focus()
 })
+
+const validatePostalCode = async (postalCode) => {
+  if (!/^\d{4}$/.test(postalCode)) {
+    errors.postalCode = 'newListing.invalidPostalCode'
+    postalCity.value = ''
+    return false;
+  }
+
+  try {
+    const response = await fetch(`https://ws.geonorge.no/adresser/v1/sok?fuzzy=false&postnummer=${postalCode}&utkoordsys=4258&treffPerSide=1&side=0&asciiKompatibel=true`)
+
+    if (!response.ok) {
+      errors.postalCode = 'newListing.invalidPostalCode'
+      postalCity.value = ''
+      return false;
+    }
+
+    const data = await response.json();
+
+    if (!data || !data.adresser || data.adresser.length === 0) {
+      errors.postalCode = 'newListing.invalidPostalCode'
+      postalCity.value = ''
+      return false;
+    }
+
+    postalCity.value = data.adresser[0].poststed;
+    errors.postalCode = ''
+    return true
+  } catch (error) {
+    console.error('Error validating postal code:', error)
+    postalCity.value = ''
+    errors.postalCode = 'newListing.invalidPostalCode'
+    return false
+  }
+}
+
 </script>
 
 <template>
@@ -337,7 +376,7 @@ onMounted(() => {
         <!-- Price -->
         <div class="form-group">
           <label for="price">{{ t('newListing.price') }} <span class="required">*</span></label>
-          <div class="price-input">
+          <div class="number-input">
             <input
                 type="number"
                 id="price"
@@ -455,6 +494,27 @@ onMounted(() => {
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Postal Code -->
+        <div class="form-group">
+          <label for="postalCode">{{ t('newListing.postalCode') }} <span class="required">*</span></label>
+          <div class="postalcode-input-and-city">
+            <div class="number-input">
+              <input
+                type="text"
+                id="postalCode"
+                v-model="form.postalCode"
+                :class="{ invalid: errors.postalCode }"
+                :aria-invalid="errors.postalCode ? 'true' : 'false'"
+                :aria-describedby="errors.postalCode ? 'postalCode-error' : null"
+                maxlength="4"
+                @input="debouncedValidate('postalCode')"
+              />
+            </div>
+            <span v-if="postalCity" class="city-name">  {{ postalCity }}</span>
+          </div>
+          <p v-if="errors.postalCode" id="postalCode-error" class="error-message">{{ t(errors.postalCode) }}</p>
         </div>
 
         <!-- Required fields note -->
@@ -575,11 +635,24 @@ input.invalid:focus, textarea.invalid:focus, select.invalid:focus {
   animation: fadeIn 0.2s;
 }
 
-.price-input {
+.number-input {
   position: relative;
   display: flex;
   align-items: center;
-  max-width: 200px;
+  max-width: 150px;
+}
+
+.postalcode-input-and-city{
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+}
+
+.city-name {
+  margin-left: 10px;
+  color: #666;
+  white-space: nowrap;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
