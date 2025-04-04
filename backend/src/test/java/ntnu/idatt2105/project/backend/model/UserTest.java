@@ -28,7 +28,7 @@ public class UserTest {
         assertEquals(firstname, user.getFirstname());
         assertEquals(lastname, user.getLastname());
         assertEquals(email, user.getEmail());
-        assertEquals(phonenumber, user.getPhonenumber());
+        assertEquals(phonenumber, user.getPhoneNumber());
         assertEquals(password, user.getPassword());
         assertTrue(user.isAdmin());
         assertEquals(createdAt, user.getCreatedAt());
@@ -50,7 +50,7 @@ public class UserTest {
         user.setFirstname(firstname);
         user.setLastname(lastname);
         user.setEmail(email);
-        user.setPhonenumber(phonenumber);
+        user.setPhoneNumber(phonenumber);
         user.setPassword(password);
         user.setAdmin(admin);
         user.setCreatedAt(createdAt);
@@ -59,7 +59,7 @@ public class UserTest {
         assertEquals(firstname, user.getFirstname());
         assertEquals(lastname, user.getLastname());
         assertEquals(email, user.getEmail());
-        assertEquals(phonenumber, user.getPhonenumber());
+        assertEquals(phonenumber, user.getPhoneNumber());
         assertEquals(password, user.getPassword());
         assertFalse(user.isAdmin());
         assertEquals(createdAt, user.getCreatedAt());
