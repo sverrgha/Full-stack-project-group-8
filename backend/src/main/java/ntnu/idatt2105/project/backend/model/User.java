@@ -2,10 +2,6 @@ package ntnu.idatt2105.project.backend.model;
 
 import java.sql.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,32 +17,64 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("users")
 public class User {
-    
-    @Id
-    private long id;
 
-    @Column("firstname")
-    private String firstname;
-    
-    @Column("lastname")
-    private String lastname;
-    
-    @Column("email")
-    private String email;
-    
-    @Column("phonenumber")
-    private String phonenumber;
-    
-    @Column("password")
-    private String password;
-    
-    @Column("admin")
-    private boolean admin;
+  private long id;
 
-    @Column("createdAt")
-    private Date createdAt;
+  private String firstname;
+
+  private String lastname;
+
+  private String email;
+
+  private String phoneNumber;
+
+  private String password;
+
+  private boolean isAdmin;
+
+  private Date createdAt;
+
+  /**
+   * Constructor for User class. This constructor is used to create a new user object, where
+   * isAdmin is set to false by default.
+   *
+   * @param firstname   the first name of the user
+   * @param lastname    the last name of the user
+   * @param email       the email of the user
+   * @param phoneNumber the phone number of the user
+   * @param password    the password of the user
+   */
+  public User(String firstname, String lastname, String email, String phoneNumber, String password) {
+
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.isAdmin = false;
+  }
+
+  /**
+   * Constructor for User class. This constructor is used to create a new user object
+   * including if they are admin or not.
+   *
+   * @param firstname   the first name of the user
+   * @param lastname    the last name of the user
+   * @param email       the email of the user
+   * @param phoneNumber the phone number of the user
+   * @param password    the password of the user
+   * @param isAdmin     the admin status of the user
+   */
+  public User(String firstname, String lastname, String email, String phoneNumber, String password, boolean isAdmin) {
+
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.email = email.toLowerCase();
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.isAdmin = isAdmin;
+  }
 }
 
     
