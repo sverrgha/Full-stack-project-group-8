@@ -4,7 +4,7 @@ import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
-import NewListing from '../components/NewListing.vue'
+import NewListingPage from '../views/NewListingPage.vue'
 
 
 const routes = [
@@ -35,7 +35,7 @@ const routes = [
     {
         path: '/new-listing',
         name: 'NewListing',
-        component: NewListing,
+        component: NewListingPage,
     }
 
 ]
