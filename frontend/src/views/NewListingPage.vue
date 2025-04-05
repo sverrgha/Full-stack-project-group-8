@@ -8,6 +8,7 @@ import NumberInputField from "../components/form/NumberInputField.vue";
 import TextAreaField from "../components/form/TextAreaField.vue";
 import ImageUploader from "../components/form/ImageUploader.vue";
 import SelectField from "../components/form/SelectField.vue";
+import RadioButtonGroup from "../components/form/RadioButtonGroup.vue";
 
 const router = useRouter()
 const { t } = useI18n()
@@ -128,14 +129,6 @@ const validateField = (field) => {
 // Full form validation
 const validateForm = () => {
   return validateField('all')
-}
-
-// Handle condition selection with keyboard
-const handleConditionKeyDown = (event, condition) => {
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    form.condition = condition
-  }
 }
 
 // Submit form
@@ -288,28 +281,13 @@ const handleImageUpdate = (data) => {
         />
 
         <!-- Condition -->
-        <div class="form-group">
-          <label id="condition-label">{{ t('newListing.condition') }}</label>
-          <div
-              class="condition-options"
-              role="radiogroup"
-              aria-labelledby="condition-label"
-          >
-            <div
-                v-for="condition in conditions"
-                :key="condition"
-                class="condition-option"
-                :class="{ selected: form.condition === condition }"
-                @click="form.condition = condition"
-                @keydown="handleConditionKeyDown($event, condition)"
-                role="radio"
-                :aria-checked="form.condition === condition"
-                tabindex="0"
-            >
-              {{ t(`conditions.${condition}`) }}
-            </div>
-          </div>
-        </div>
+        <RadioButtonGroup
+            id="condition"
+            :label="t('newListing.condition')"
+            v-model="form.condition"
+            :options="conditions"
+            translationPrefix="conditions"
+        />
 
         <ImageUploader
             :label="t('newListing.images')"
@@ -381,10 +359,6 @@ h1 {
   color: var(--text-color, #333);
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
 label {
   display: block;
   margin-bottom: 0.5rem;
@@ -418,37 +392,6 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-.condition-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.condition-option {
-  padding: 10px 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  user-select: none;
-}
-
-.condition-option:hover {
-  border-color: #4f46e5;
-  background-color: rgba(79, 70, 229, 0.05);
-}
-
-.condition-option:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-}
-
-.condition-option.selected {
-  background-color: #4f46e5;
-  color: white;
-  border-color: #4f46e5;
 }
 
 .image-preview img {
@@ -552,10 +495,6 @@ input[type="number"]::-webkit-outer-spin-button {
   .new-listing-container {
     padding: 1rem;
     min-height: auto;
-  }
-
-  .condition-options {
-    flex-direction: column;
   }
 
   .form-actions {
