@@ -84,6 +84,21 @@ public class JwtUtil {
     }
 
     /*
+     * This method extracts the user ID from the given JWT token.
+     * 
+     * @param token The JWT token from which to extract the user ID.
+     * @return The user ID extracted from the token.
+     */
+    public long extractUserId(String token) {
+        return Long.parseLong(Jwts.parser()
+                .verifyWith(Keys.hmacShaKeyFor(getKey().getEncoded()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("id", String.class));
+    }
+
+    /*
      * This method validates the given JWT token against the provided user details.
      * It checks if the username in the token matches the username in the user details
      * and if the token is not expired.
