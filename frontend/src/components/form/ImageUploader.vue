@@ -1,7 +1,8 @@
-<!-- ImageUploader.vue -->
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 import {useI18n} from "vue-i18n";
+
+import uploadIcon from '/src/assets/upload.svg';
 
 const props = defineProps({
   maxImages: {
@@ -137,7 +138,7 @@ const removeImage = (index) => {
           aria-labelledby="images-label"
       />
       <div v-if="imagePreviewUrls.length === 0" class="upload-placeholder">
-        <img src="../assets/upload.svg" alt="" class="upload-icon" aria-hidden="true" />
+        <img :src="uploadIcon" alt="" class="upload-icon" aria-hidden="true" />
         <p>{{ t('newListing.dragOrClick') }}</p>
       </div>
     </div>
