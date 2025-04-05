@@ -1,4 +1,3 @@
-<!-- TextAreaField.vue -->
 <script setup>
 import { computed } from 'vue';
 

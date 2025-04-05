@@ -1,6 +1,4 @@
-<!-- NumberInputField.vue -->
 <script setup>
-import { computed } from 'vue';
 
 const props = defineProps({
   id: {

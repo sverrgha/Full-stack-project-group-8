@@ -134,8 +134,8 @@ const validateField = async (field) => {
 }
 
 // Full form validation
-const validateForm = () => {
-  return validateField('all')
+const validateForm = async () => {
+  return await validateField('all')
 }
 
 // Submit form

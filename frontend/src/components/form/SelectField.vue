@@ -1,4 +1,3 @@
-<!-- SelectField.vue -->
 <script setup>
 const props = defineProps({
   id: {
