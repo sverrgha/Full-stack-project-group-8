@@ -9,6 +9,7 @@ import TextAreaField from "../components/form/TextAreaField.vue";
 import ImageUploader from "../components/form/ImageUploader.vue";
 import SelectField from "../components/form/SelectField.vue";
 import RadioButtonGroup from "../components/form/RadioButtonGroup.vue";
+import { validatePostalCode as postalCodeService } from "../services/postalCodeService";
 
 const router = useRouter()
 const { t } = useI18n()
@@ -58,12 +59,12 @@ const conditions = [
 ]
 
 // Set up debounced validation
-const debouncedValidate = debounce((field) => {
-  validateField(field)
+const debouncedValidate = debounce(async (field) => {
+  await validateField(field)
 }, 300)
 
 // Field-level validation
-const validateField = (field) => {
+const validateField = async (field) => {
   let isValid = true
 
   if (field === 'title' || field === 'all') {
@@ -117,9 +118,15 @@ const validateField = (field) => {
       postalCity.value = ''
       isValid = false
     } else {
-      validatePostalCode(form.postalCode).then(valid => {
-        isValid = isValid && valid
-      })
+      const result = await postalCodeService(form.postalCode)
+      if (result.valid) {
+        postalCity.value = result.city
+        errors.postalCode = ''
+      } else {
+        errors.postalCode = 'newListing.invalidPostalCode'
+        postalCity.value = ''
+        isValid = false
+      }
     }
   }
 
@@ -133,7 +140,7 @@ const validateForm = () => {
 
 // Submit form
 const createListing = async () => {
-  if (!validateForm()) {
+  if (!await validateForm()) {
     // Scroll to the first error
     const firstErrorField = formRef.value.querySelector('.invalid')
     if (firstErrorField) {
@@ -171,41 +178,6 @@ onMounted(() => {
   const titleInput = document.getElementById('title')
   if (titleInput) titleInput.focus()
 })
-
-const validatePostalCode = async (postalCode) => {
-  if (!/^\d{4}$/.test(postalCode)) {
-    errors.postalCode = 'newListing.invalidPostalCode'
-    postalCity.value = ''
-    return false;
-  }
-
-  try {
-    const response = await fetch(`https://ws.geonorge.no/adresser/v1/sok?fuzzy=false&postnummer=${postalCode}&utkoordsys=4258&treffPerSide=1&side=0&asciiKompatibel=true`)
-
-    if (!response.ok) {
-      errors.postalCode = 'newListing.invalidPostalCode'
-      postalCity.value = ''
-      return false;
-    }
-
-    const data = await response.json();
-
-    if (!data || !data.adresser || data.adresser.length === 0) {
-      errors.postalCode = 'newListing.invalidPostalCode'
-      postalCity.value = ''
-      return false;
-    }
-
-    postalCity.value = data.adresser[0].poststed;
-    errors.postalCode = ''
-    return true
-  } catch (error) {
-    console.error('Error validating postal code:', error)
-    postalCity.value = ''
-    errors.postalCode = 'newListing.invalidPostalCode'
-    return false
-  }
-}
 
 const handleImageUpdate = (data) => {
   if (data.error) {
