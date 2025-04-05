@@ -14,7 +14,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ntnu.idatt2105.project.backend.service.UserDetailsServiceImpl;
+import ntnu.idatt2105.project.backend.service.UserService;
 
 
 /*
@@ -32,7 +32,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private UserService userDetailsService;
 
     /*
      * This method is called for every incoming request.
