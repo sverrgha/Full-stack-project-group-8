@@ -3,7 +3,8 @@ package ntnu.idatt2105.project.backend.controller;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
-import ntnu.idatt2105.project.backend.dto.response.LoginResponse;
+import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,12 +30,12 @@ public class AuthController {
    * @return ResponseEntity with login response containing email, message and token
    */
   @PostMapping("/register")
-  public ResponseEntity<LoginResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
+  public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
     logger.info("Received register request for user: " + request.getEmail());
     try {
-      LoginResponse response = userService.registerUser(request);
+      AuthResponse response = userService.registerUser(request);
 
-      if (response.getToken().isEmpty()) {
+      if (response.getToken() == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
       }
       logger.info("User registered successfully: " + request.getEmail());
@@ -43,7 +44,8 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error registering user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-              new LoginResponse(request.getEmail(), "Error registering user: " + e.getMessage(), null));
+              new AuthResponse(request.getEmail(),
+                      AuthResponseMessage.SAVING_USER_ERROR.getMessage() + e.getMessage(), null));
     }
   }
 
@@ -58,12 +60,13 @@ public class AuthController {
    * @return ResponseEntity with login response containing email, message and token
    */
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
+  public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest request) {
     logger.info("Received login request for user: " + request.getEmail());
     try {
-      LoginResponse response = userService.loginUser(request);
+      AuthResponse response = userService.loginUser(request);
 
-      if (response.getToken().isEmpty()) {
+      if (response.getMessage().equals(AuthResponseMessage.INVALID_CREDENTIALS.getMessage())) {
+        logger.warning("Invalid credentials for user: " + request.getEmail());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
       }
       logger.info("User logged in successfully: " + request.getEmail());
@@ -72,7 +75,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error logging in user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-              new LoginResponse(request.getEmail(), "Error logging in user: " + e.getMessage(), null));
+              new AuthResponse(request.getEmail(),
+                      AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
+                              + e.getMessage(), null));
     }
   }
 }

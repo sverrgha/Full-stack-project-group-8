@@ -7,7 +7,8 @@ import java.util.Optional;
 
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
-import ntnu.idatt2105.project.backend.dto.response.LoginResponse;
+import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,11 +60,11 @@ class UserServiceTest {
     when(jwtUtil.generateToken(request.getEmail())).thenReturn("mockedToken");
     when(userRepo.save(any(User.class))).thenReturn(Optional.of(new User(request.getFirstname(), request.getLastname(), request.getEmail(), request.getPhoneNumber(), PasswordUtil.hashPassword(request.getPassword()))));
 
-    LoginResponse response = userService.registerUser(request);
+    AuthResponse response = userService.registerUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("User registered successfully", response.getMessage());
+    assertEquals(AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(), response.getMessage());
     assertEquals("mockedToken", response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, times(1)).save(any(User.class));
@@ -86,11 +87,11 @@ class UserServiceTest {
 
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.of(existingUser));
 
-    LoginResponse response = userService.registerUser(request);
+    AuthResponse response = userService.registerUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("User already exists", response.getMessage());
+    assertEquals(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), response.getMessage());
     assertNull(response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, never()).save(any(User.class));
@@ -113,11 +114,12 @@ class UserServiceTest {
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.empty());
     when(userRepo.save(any(User.class))).thenThrow(new RuntimeException("Database error"));
 
-    LoginResponse response = userService.registerUser(request);
+    AuthResponse response = userService.registerUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("Error saving user: Database error", response.getMessage());
+    assertEquals(AuthResponseMessage.SAVING_USER_ERROR.getMessage()
+            + "Database error", response.getMessage());
     assertNull(response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, times(1)).save(any(User.class));
@@ -139,11 +141,11 @@ class UserServiceTest {
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.of(existingUser));
     when(jwtUtil.generateToken(request.getEmail())).thenReturn("mockedToken");
 
-    LoginResponse response = userService.loginUser(request);
+    AuthResponse response = userService.loginUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("User logged in successfully", response.getMessage());
+    assertEquals(AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), response.getMessage());
     assertEquals("mockedToken", response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, times(1)).generateToken(request.getEmail());
@@ -162,11 +164,11 @@ class UserServiceTest {
 
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.empty());
 
-    LoginResponse response = userService.loginUser(request);
+    AuthResponse response = userService.loginUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("User not found", response.getMessage());
+    assertEquals(AuthResponseMessage.USER_NOT_FOUND.getMessage(), response.getMessage());
     assertNull(response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());
@@ -185,11 +187,11 @@ class UserServiceTest {
     User existingUser = new User("Ola", "Nordmann", request.getEmail(), "12345678", PasswordUtil.hashPassword("correctPassword"));
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.of(existingUser));
 
-    LoginResponse response = userService.loginUser(request);
+    AuthResponse response = userService.loginUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals("Invalid password", response.getMessage());
+    assertEquals(AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), response.getMessage());
     assertNull(response.getToken());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());

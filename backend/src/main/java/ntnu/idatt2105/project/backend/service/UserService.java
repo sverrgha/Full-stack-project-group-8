@@ -6,7 +6,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
-import ntnu.idatt2105.project.backend.dto.response.LoginResponse;
+import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,9 +39,9 @@ public class UserService implements UserDetailsService {
    *
    * @param request The RegisterRequest object containing the user's information.
    * @return A RegisterResponse object containing the user's email, a message, and a JWT token
-   *      (token is null if user is not saved).
+   * (token is null if user is not saved).
    */
-  public LoginResponse registerUser(RegisterRequest request) {
+  public AuthResponse registerUser(RegisterRequest request) {
     String email = request.getEmail();
     String hashedPassword = PasswordUtil.hashPassword(request.getPassword());
     String firstName = request.getFirstname();
@@ -49,17 +50,20 @@ public class UserService implements UserDetailsService {
 
     Optional<User> existingUser = userRepo.findByEmail(email);
     if (existingUser.isPresent()) {
-      return new LoginResponse(email, "User already exists", null);
+      return new AuthResponse(email, AuthResponseMessage
+              .USER_ALREADY_EXISTS.getMessage(), null);
     }
 
     try {
       userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
     } catch (Exception e) {
-      return new LoginResponse(email, "Error saving user: " + e.getMessage(), null);
+      return new AuthResponse(email, AuthResponseMessage
+              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null);
     }
     String token = jwtUtil.generateToken(email);
 
-    return new LoginResponse(email, "User registered successfully", token);
+    return new AuthResponse(email, AuthResponseMessage
+            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token);
   }
 
   /**
@@ -71,19 +75,20 @@ public class UserService implements UserDetailsService {
    * @param request The LoginRequest object containing the user's email and password.
    * @return A LoginResponse object containing the user's email, a message, and a JWT token
    */
-  public LoginResponse loginUser(LoginRequest request) {
+  public AuthResponse loginUser(LoginRequest request) {
     String email = request.getEmail();
     Optional<User> user = userRepo.findByEmail(email);
     if (user.isEmpty()) {
-      return new LoginResponse(email, "User not found", null);
+      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null);
     }
     if (!PasswordUtil.verifyPassword(request.getPassword(), user.get().getPassword())) {
-      return new LoginResponse(email, "Invalid password", null);
+      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null);
     }
 
     String token = jwtUtil.generateToken(email);
 
-    return new LoginResponse(email, "User logged in successfully", token);
+    return new AuthResponse(email,
+            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token);
   }
 
   /**
