@@ -6,6 +6,8 @@ import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.service.UserService;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -41,6 +45,20 @@ class AuthControllerTest {
 
   @MockitoBean
   private UserService userService;
+
+  @Container
+	private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4")
+																	.withDatabaseName("testdb")
+																	.withUsername("test")
+																	.withPassword("test");
+
+	@BeforeAll
+	static void beforeAll() {
+					mysql.start(); // Ensure the container starts
+					System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
+					System.setProperty("spring.datasource.username", mysql.getUsername());
+					System.setProperty("spring.datasource.password", mysql.getPassword());
+	}
 
   /**
    * Tests the registerUser method with a valid request.
