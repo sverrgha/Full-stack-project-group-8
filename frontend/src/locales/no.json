@@ -28,5 +28,47 @@
     "register": "Registrer deg",
     "login": "Logg inn her",
     "alreadyRegistered": "Allerede registrert?"
+  },
+  "newListing": {
+    "createNewListing": "Opprett ny annonse",
+    "title": "Tittel",
+    "brief-description": "Kort beskrivelse (valgfritt)",
+    "description": "Beskrivelse",
+    "price": "Pris",
+    "category": "Kategori",
+    "condition": "Tilstand",
+    "images": "Bilder",
+    "maxImages": "Maks 5 bilder",
+    "dragOrClick": "Dra filer hit eller klikk for å laste opp",
+    "createListing": "Opprett annonse",
+    "titleRequired": "Tittel er påkrevd",
+    "descriptionRequired": "Beskrivelsen må være minst 10 tegn",
+    "invalidPrice": "Vennligst angi en gyldig pris",
+    "categoryRequired": "Vennligst velg en kategori",
+    "imageRequired": "Minst ett bilde er påkrevd",
+    "maxImagesError": "Maksimalt 5 bilder tillatt",
+    "selectCategory": "Velg en kategori",
+    "postalCode": "Postnummer",
+    "invalidPostalCode": "Vennligst skriv inn et gyldig postnummer (4 siffer)"
+  },
+  "categories": {
+    "electronics": "Elektronikk",
+    "clothing": "Klær",
+    "furniture": "Møbler",
+    "books": "Bøker",
+    "sports": "Sport",
+    "other": "Annet"
+  },
+  "conditions": {
+    "new": "Ny",
+    "likeNew": "Som ny",
+    "good": "God",
+    "fair": "Brukbar",
+    "poor": "Slitt"
+  },
+  "common": {
+    "cancel": "Avbryt",
+    "submitting": "Sender inn...",
+    "requiredField": "Obligatorisk felt"
   }
 }
