@@ -1,6 +1,5 @@
 package ntnu.idatt2105.project.backend.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -14,7 +13,7 @@ public class ListingImage {
    * The ID of the image.
    * This is a unique identifier for the image in the database.
    */
-  private long id;
+  private Long id;
 
   /**
    * The path to the image file.
@@ -26,7 +25,7 @@ public class ListingImage {
    * The ID of the listing that this image belongs to.
    * This is a foreign key reference to the Listing table.
    */
-  private long listingId;
+  private Long listingId;
 
   /**
    * Constructor for ListingImage.
