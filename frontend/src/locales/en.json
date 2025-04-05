@@ -28,5 +28,47 @@
     "register": "Register",
     "login": "Login here",
     "alreadyRegistered": "Already registered?"
+  },
+  "newListing": {
+    "createNewListing": "Create New Listing",
+    "title": "Title",
+    "brief-description": "Brief description (optional)",
+    "description": "Description",
+    "price": "Price",
+    "category": "Category",
+    "condition": "Condition",
+    "images": "Images",
+    "maxImages": "Max 5 images",
+    "dragOrClick": "Drag files here or click to upload",
+    "createListing": "Create Listing",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description must be at least 10 characters",
+    "invalidPrice": "Please enter a valid price",
+    "categoryRequired": "Please select a category",
+    "imageRequired": "At least one image is required",
+    "maxImagesError": "Maximum 5 images allowed",
+    "selectCategory": "Select a category",
+    "postalCode": "Postal Code",
+    "invalidPostalCode": "Please enter a valid postal code (4 digits)"
+  },
+  "categories": {
+    "electronics": "Electronics",
+    "clothing": "Clothing",
+    "furniture": "Furniture",
+    "books": "Books",
+    "sports": "Sports",
+    "other": "Other"
+  },
+  "conditions": {
+    "new": "New",
+    "likeNew": "Like New",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "requiredField": "Required field"
   }
 }
