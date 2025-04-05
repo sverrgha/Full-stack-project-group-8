@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,8 +21,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
+/**
+ * This class contains unit tests for the AuthController class.
+ * It uses MockMvc to perform HTTP requests and verify the responses.
+ * The tests cover various scenarios for user registration and login,
+ * including valid and invalid requests, as well as error handling.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -38,6 +42,11 @@ class AuthControllerTest {
   @MockBean
   private UserService userService;
 
+  /**
+   * Tests the registerUser method with a valid request.
+   * It verifies that the user is registered successfully and a token is generated.
+   * It also checks that the correct response is returned with status 201 Created.
+   */
   @Test
   @WithAnonymousUser
   void registerUser_validRequest_returnsCreatedAndLoginResponse() throws Exception {
@@ -64,6 +73,14 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
                     .value("mockedToken"));
   }
+
+  /**
+   * Tests the registerUser method with an existing user.
+   * It verifies that the user is not registered again and the correct response is
+   * returned. It also checks that the status is 400 Bad Request.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void registerUser_existingUser_returnsBadRequestAndLoginResponse() throws Exception {
@@ -91,6 +108,13 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
   }
 
+  /**
+   * Tests the registerUser method with an invalid request.
+   * It verifies that the request is not valid and the correct response is returned.
+   * It also checks that the status is 400 Bad Request.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void registerUser_invalidRequest_returnsBadRequest() throws Exception {
@@ -107,6 +131,13 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
+  /**
+   * Tests the registerUser method when the userService throws an exception.
+   * It verifies that the exception is handled and the correct response is returned.
+   * It also checks that the status is 500 Internal Server Error.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void registerUser_userServiceThrowsException_returnsInternalServerError() throws Exception {
@@ -132,6 +163,13 @@ class AuthControllerTest {
                     .isEmpty());
   }
 
+  /**
+   * Tests the loginUser method with valid credentials.
+   * It verifies that the user is logged in successfully and a token is generated.
+   * It also checks that the correct response is returned with status 200 OK.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void loginUser_validCredentials_returnsOkAndLoginResponse() throws Exception {
@@ -156,6 +194,13 @@ class AuthControllerTest {
                     .value("token"));
   }
 
+  /**
+   * Tests the loginUser method with invalid credentials.
+   * It verifies that the user is not found and the correct response is returned.
+   * It also checks that the status is 401 Unauthorized.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void loginUser_invalidCredentials_returnsUnauthorizedAndLoginResponse() throws Exception {
@@ -179,6 +224,13 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
   }
 
+  /**
+   * Tests the loginUser method when the loginUser in UserService throws.
+   * It verifies that the request is not valid and the correct response is returned.
+   * It also checks that the status is 500 internal server error.
+   *
+   * @throws Exception if an error occurs during the test execution
+   */
   @Test
   @WithAnonymousUser
   void loginUser_userServiceThrowsException_returnsInternalServerError() throws Exception {
@@ -196,7 +248,7 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.email")
                     .value("ola.nordman@gmail.com"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
-                    .value( AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
+                    .value(AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
                             + "Service error"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
   }
