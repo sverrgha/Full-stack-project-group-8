@@ -13,8 +13,6 @@ CREATE TABLE `users` (
 
 CREATE TABLE `locations` (
                              `postal_code` int NOT NULL,
-                             `latitude` decimal(10,6) NOT NULL,
-                             `longitude` decimal(11,6) NOT NULL,
                              `city` varchar(255) DEFAULT NULL,
                              `country` varchar(255) DEFAULT NULL,
                              `geo` point NOT NULL /*!80003 SRID 4326 */,
@@ -35,6 +33,7 @@ CREATE TABLE listings (
                           `description` text,
                           `user_id` int NOT NULL,
                           `status` enum('active','sold','reserved','archived') NOT NULL,
+                          `condition` enum('new', 'like_new', 'good', 'fair', 'poor') DEFAULT 'new',
                           `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
                           `reserved_by_user_id` int DEFAULT NULL,
                           `reserved_at` timestamp NULL DEFAULT NULL,
