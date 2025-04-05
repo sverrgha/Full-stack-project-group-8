@@ -5,6 +5,7 @@ import RegisterPage from '../views/RegisterPage.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
+import NewListingPage from '../views/NewListingPage.vue'
 
 const routes = [
     {
@@ -35,6 +36,11 @@ const routes = [
         path: '/products',
         name: 'Products',
         component: ProductsPage
+    },
+    {
+        path: '/new-listing',
+        name: 'NewListing',
+        component: NewListingPage,
     }
 ]
 
