@@ -1,7 +1,10 @@
 <!-- ProfileSettingsSideBar.vue - Sidebar navigation component -->
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   activeSection: {
@@ -18,12 +21,12 @@ const changeSection = (section) => {
   emit('change-section', section)
 }
 
-// Navigation items
-const navItems = [
-  { id: 'name', label: 'First- and lastname' },
-  { id: 'biography', label: 'Biography' },
-  { id: 'profilePicture', label: 'Profile Picture' }
-]
+// Navigation items with proper translations - made reactive with computed()
+const navItems = computed(() => [
+  { id: 'name', label: t('profileSettingsSideBar.name') },
+  { id: 'biography', label: t('profileSettingsSideBar.biography') },
+  { id: 'profilePicture', label: t('profileSettingsSideBar.profilePicture') }
+])
 </script>
 
 <template>

@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // Define refs with proper types
 const searchQuery = ref('');
@@ -119,7 +122,7 @@ const handleSubmit = (e) => {
             ref="inputElement"
             v-model="searchQuery"
             type="text"
-            placeholder="What are you looking for?"
+            :placeholder="t('productPage.search')"
             @focus="handleFocus"
         />
       </form>

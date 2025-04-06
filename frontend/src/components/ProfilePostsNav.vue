@@ -1,7 +1,9 @@
 <!-- ProfilePostsNav.vue - Navigation tabs for profile page content -->
 
 <script setup>
-import {  computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Props with default to make parent component aware of active tab
 const props = defineProps({
@@ -26,19 +28,19 @@ const setActiveTab = (tab) => {
         :class="{ active: modelValue === 'posts' }"
         @click="setActiveTab('posts')"
     >
-      <img src="../assets/grid.svg" class="icon" /> Posts
+      <img src="../assets/grid.svg" class="icon" /> {{ t('profilePage.posts') }}
     </button>
     <button
         :class="{ active: modelValue === 'favorites' }"
         @click="setActiveTab('favorites')"
     >
-      <img src="../assets/heart1.svg" class="icon" /> Favorites
+      <img src="../assets/heart1.svg" class="icon" /> {{ t('profilePage.favorites') }}
     </button>
     <button
         :class="{ active: modelValue === 'purchased' }"
         @click="setActiveTab('purchased')"
     >
-      <img src="../assets/purchased.svg" class="icon" /> Purchased
+      <img src="../assets/purchased.svg" class="icon" /> {{ t('profilePage.purchased') }}
     </button>
   </div>
 </template>

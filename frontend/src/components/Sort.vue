@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const isOpen = ref(false);
 const selectedOption = ref({ value: '', label: 'Sort' });
@@ -48,7 +50,7 @@ onBeforeUnmount(() => {
         @click="toggleDropdown"
         :class="{ 'active': isOpen }"
     >
-      <span>{{ selectedOption.label }}</span>
+      <span>{{ t('productPage.sortBy')}}</span>
       <img
           src="../assets/dropdown-arrow.svg"
           alt="Dropdown arrow"
