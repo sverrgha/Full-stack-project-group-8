@@ -45,10 +45,9 @@ onUnmounted(() => {
       <!-- Navigation Links -->
       <ul class="nav-links" :class="{ 'open': isMenuOpen }">
         <nav-bar-item to="/products" text="products"/>
-        <nav-bar-item to="#" text="notifications"/>
-        <nav-bar-item to="#" text="newListing"/>
-        <nav-bar-item to="#" text="messages"/>
-        <nav-bar-item to="/profile" text="profile"/>        
+        <nav-bar-item to="/new-listing" text="newListing"/>
+        <nav-bar-item to="/messages" text="messages"/>
+        <nav-bar-item to="/profile" text="profile"/>
         <li>
           <div class="language-toggle" @click="toggleLanguage">
             <img :src="locale === 'no' ? flagNo : flagEn"
