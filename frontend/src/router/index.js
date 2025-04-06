@@ -6,6 +6,7 @@ import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
+import MessagePage from "../views/MessagePage.vue";
 
 const routes = [
     {
@@ -41,6 +42,11 @@ const routes = [
         path: '/new-listing',
         name: 'NewListing',
         component: NewListingPage,
+    },
+    {
+        path: '/messages',
+        name: 'messages',
+        component: MessagePage,
     }
 ]
 
