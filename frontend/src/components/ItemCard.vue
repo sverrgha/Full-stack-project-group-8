@@ -46,7 +46,7 @@ const props = defineProps({
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
   background: white;
-  max-width: 300px;
+  max-width: 400px;
 }
 
 .item-card:hover {
@@ -54,7 +54,6 @@ const props = defineProps({
 }
 
 .image-container {
-  height: 300px;
   overflow: hidden;
 }
 
