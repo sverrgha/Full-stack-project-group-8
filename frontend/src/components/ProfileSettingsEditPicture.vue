@@ -2,6 +2,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   userData: {
@@ -31,7 +34,7 @@ const handleProfilePictureChange = (event) => {
 
 <template>
   <div class="settings-section">
-    <h2>Update Profile Picture</h2>
+    <h2>{{ t('profileSettingsEditPicture.h2') }}</h2>
     <div class="profile-picture-container">
       <div class="picture-upload-wrapper">
         <img
@@ -39,7 +42,7 @@ const handleProfilePictureChange = (event) => {
             alt="Current profile picture"
             class="current-picture"
         />
-        <label for="picture-input" class="file-input-label">Change profile picture</label>
+        <label for="picture-input" class="file-input-label">{{ t('profileSettingsEditPicture.profilePicture') }}</label>
         <input
             id="picture-input"
             type="file"
@@ -48,11 +51,11 @@ const handleProfilePictureChange = (event) => {
             @change="handleProfilePictureChange"
         />
         <p class="help-text">
-          Allowed formats: JPG, PNG (max 2MB)
+          {{ t('profileSettingsEditPicture.helpText') }}
         </p>
       </div>
     </div>
-    <button class="save-button" @click="handleSave" type="button">Save Changes</button>
+    <button class="save-button" @click="handleSave" type="button">{{ t('profileSettingsEditPicture.save') }}</button>
   </div>
 </template>
 

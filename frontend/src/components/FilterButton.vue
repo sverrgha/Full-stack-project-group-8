@@ -1,4 +1,7 @@
 <script setup>
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 // This component is a button that toggles the visibility of a sidebar.
 const props = defineProps({
   isOpen: {
@@ -24,7 +27,7 @@ const toggleSidebar = () => {
       @click="toggleSidebar"
   >
     <img src="../assets/filters.svg" alt="Filter Icon" class="filter-icon" />
-    <span class="filter-text">Filters</span>
+    <span class="filter-text">{{ t('productPage.filters')}}</span>
   </button>
 </template>
 

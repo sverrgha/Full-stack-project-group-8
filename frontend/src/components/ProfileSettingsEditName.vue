@@ -2,6 +2,9 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   userData: {
@@ -35,9 +38,9 @@ const handleSave = () => {
 
 <template>
   <div class="settings-section">
-    <h2>Update Your Name</h2>
+    <h2>{{ t('profileSettingsEditName.h2') }}</h2>
     <div class="form-group">
-      <label for="name-input">First- and lastname</label>
+      <label for="name-input">{{ t('profileSettingsEditName.name') }}</label>
       <input
           id="name-input"
           type="text"
@@ -48,7 +51,7 @@ const handleSave = () => {
       />
     </div>
 
-    <button class="save-button" @click="handleSave" type="button">Save Changes</button>
+    <button class="save-button" @click="handleSave" type="button">{{ t('profileSettingsEditName.save') }}</button>
   </div>
 </template>
 

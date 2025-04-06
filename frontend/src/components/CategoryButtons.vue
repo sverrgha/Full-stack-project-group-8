@@ -1,5 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
+
+import { useI18n } from 'vue-i18n';
 
 // Import icons (SVGs)
 import VehicleIcon from '../assets/vehicle.svg';
@@ -10,16 +12,18 @@ import ActivityIcon from '../assets/activity.svg';
 import ElectronicsIcon from '../assets/electronics.svg';
 import BeautyIcon from '../assets/beauty.svg';
 
+const { t } = useI18n();
+
 // Define shopping categories
-const categories = [
-  { id: 1, name: 'Vehicle', icon: VehicleIcon  },
-  { id: 2, name: 'Clothing', icon: ClothingIcon },
-  { id: 3, name: 'Interior and Furniture', icon: FurnitureIcon },
-  { id: 4, name: 'Property', icon: PropertyIcon },
-  { id: 5, name: 'Activity', icon: ActivityIcon },
-  { id: 6, name: 'Electronics', icon: ElectronicsIcon },
-  { id: 7, name: 'Beauty', icon: BeautyIcon },
-];
+const categories = computed(() => [
+  { id: 1, name: t('productPage.vehicle'), icon: VehicleIcon  },
+  { id: 2, name: t('productPage.clothing'), icon: ClothingIcon },
+  { id: 3, name: t('productPage.interior'), icon: FurnitureIcon },
+  { id: 4, name: t('productPage.property'), icon: PropertyIcon },
+  { id: 5, name: t('productPage.activity'), icon: ActivityIcon },
+  { id: 6, name: t('productPage.electronics'), icon: ElectronicsIcon },
+  { id: 7, name: t('productPage.beauty'), icon: BeautyIcon },
+]);
 
 // ref variable to hold the selected category, default is null
 const selectedCategory = ref(null);
@@ -32,7 +36,7 @@ const selectCategory = (categoryId) => {
 
 <template>
   <div class="categories-container">
-    <h2 class="categories-title">Categories</h2>
+    <h2 class="categories-title">{{t('productPage.categories')}}</h2>
 
     <!-- Category buttons -->
     <div class="categories-row">
