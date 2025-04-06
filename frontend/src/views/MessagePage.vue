@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
-import InputField from '../components/form/BaseInputField.vue';
+import ConversationItem from "../components/message/ConversationItem.vue";
+import MessageBubble from "../components/message/MessageBubble.vue";
 
 // Mock data for conversations (would come from API in the future)
 // Update the conversations data to include profile images
@@ -128,30 +129,13 @@ const respondToOffer = (messageId, response) => {
         <h2>Messages</h2>
       </div>
 
-      <div
+      <ConversationItem
           v-for="conv in conversations"
           :key="conv.id"
-          class="conversation-item"
-          :class="{ 'selected': selectedConversation === conv.id, 'unread': conv.unread }"
-          @click="selectConversation(conv.id)"
-      >
-        <div class="avatar">
-          <img
-              v-if="conv.profileImage"
-              :src="conv.profileImage"
-              alt="Profile"
-              class="avatar-image"
-          />
-          <template v-else>{{ conv.username.charAt(0) }}</template>
-        </div>
-        <div class="conversation-info">
-          <div class="conversation-header">
-            <span class="username">{{ conv.username }}</span>
-            <span class="timestamp">{{ conv.timestamp }}</span>
-          </div>
-          <div class="last-message">{{ conv.lastMessage }}</div>
-        </div>
-      </div>
+          :conversation="conv"
+          :isSelected="selectedConversation === conv.id"
+          :onSelect="selectConversation"
+      />
 
     </div>
     <!-- Right side - Message content -->
@@ -176,36 +160,12 @@ const respondToOffer = (messageId, response) => {
       </div>
 
       <div class="messages-container">
-        <div
+        <MessageBubble
             v-for="msg in currentMessages"
             :key="msg.id"
-            class="message"
-            :class="{ 'sent': msg.isSent, 'received': !msg.isSent }"
-        >
-          <!-- Regular message -->
-          <div v-if="!msg.type" class="message-bubble">
-            {{ msg.content }}
-          </div>
-
-          <!-- Offer message -->
-          <div v-else-if="msg.type === 'offer'" class="message-bubble offer">
-            <div class="offer-text">
-              <strong>Price Offer</strong>
-              <div>Original: {{ msg.originalPrice }}</div>
-              <div>Offer: {{ msg.offerPrice }}</div>
-              <div v-if="msg.status === 'accepted'" class="offer-status accepted">Accepted</div>
-              <div v-else-if="msg.status === 'declined'" class="offer-status declined">Declined</div>
-              <div v-else class="offer-status pending">Pending</div>
-            </div>
-            <!-- Only show buttons if the offer was received and is still pending -->
-            <div v-if="!msg.isSent && msg.status === 'pending'" class="offer-actions">
-              <button @click="respondToOffer(msg.id, 'accepted')" class="accept-btn">Accept</button>
-              <button @click="respondToOffer(msg.id, 'declined')" class="decline-btn">Decline</button>
-            </div>
-          </div>
-
-          <div class="message-timestamp">{{ msg.timestamp }}</div>
-        </div>
+            :message="msg"
+            :onRespondToOffer="respondToOffer"
+        />
       </div>
 
       <div class="message-input">
@@ -264,167 +224,12 @@ const respondToOffer = (messageId, response) => {
   background-color: white;
 }
 
-.conversation-item {
-  display: flex;
-  padding: 15px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-}
-
-.conversation-item:hover {
-  background-color: #f9f9f9;
-}
-
-.conversation-item.selected {
-  background-color: #f0f7ff;
-}
-
-.conversation-item.unread .username {
-  font-weight: bold;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #007bff;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  font-weight: bold;
-  overflow: hidden;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.conversation-info {
-  flex: 1;
-}
-
-.conversation-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-}
-
-.timestamp {
-  font-size: 0.8rem;
-  color: #888;
-}
-
-.last-message {
-  font-size: 0.9rem;
-  color: #666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .messages-container {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-.message {
-  max-width: 70%;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.message.received {
-  align-self: flex-start;
-}
-
-.message.sent {
-  align-self: flex-end;
-}
-
-.message-bubble {
-  padding: 10px 15px;
-  border-radius: 18px;
-  background-color: #f1f1f1;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-.message.sent .message-bubble {
-  background-color: #007bff;
-  color: white;
-}
-
-.message-bubble.offer {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  padding: 12px;
-}
-
-.message.sent .message-bubble.offer {
-  background-color: #e6f2ff;
-  color: #333;
-  border-color: #b8daff;
-}
-
-.offer-text {
-  margin-bottom: 8px;
-}
-
-.offer-status {
-  font-size: 0.8rem;
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-.offer-status.pending {
-  color: #ffc107;
-}
-
-.offer-status.accepted {
-  color: #28a745;
-}
-
-.offer-status.declined {
-  color: #dc3545;
-}
-
-.offer-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.accept-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.decline-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.message-timestamp {
-  font-size: 0.7rem;
-  color: #888;
-  margin-top: 3px;
-  margin-left: 5px;
-  margin-right: 5px;
 }
 
 .message-input {
