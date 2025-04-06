@@ -28,6 +28,7 @@ CREATE TABLE categories (
 CREATE TABLE listings (
                           `id` int NOT NULL AUTO_INCREMENT,
                           `title` varchar(255) NOT NULL,
+                          `category_id` int unsigned NOT NULL,
                           `price` double NOT NULL,
                           `brief_description` varchar(255) DEFAULT NULL,
                           `description` text,
@@ -46,6 +47,7 @@ CREATE TABLE listings (
                           KEY `fk_reserved_user` (`reserved_by_user_id`),
                           KEY `fk_sold_user` (`sold_to_user_id`),
                           KEY `fk_listing_location` (`postal_code`),
+                          CONSTRAINT `fk_listing_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
                           CONSTRAINT `fk_listing_location` FOREIGN KEY (`postal_code`) REFERENCES `locations` (`postal_code`) ON DELETE SET NULL,
                           CONSTRAINT `fk_listing_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
                           CONSTRAINT `fk_reserved_user` FOREIGN KEY (`reserved_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
