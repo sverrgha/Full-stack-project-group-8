@@ -40,7 +40,7 @@ const routes = [
         path: '/products',
         name: 'Products',
         component: ProductsPage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: false }
     },
     {
         path: '/new-listing',
