@@ -6,6 +6,9 @@ import ProfileSettingsSidebar from "../components/ProfileSettingsSidebar.vue"
 import ProfileSettingsEditName from "../components/ProfileSettingsEditName.vue"
 import ProfileSettingsEditBiography from "../components/ProfileSettingsEditBiography.vue"
 import ProfileSettingsEditPicture from "../components/ProfileSettingsEditPicture.vue"
+import { useAuthStore } from '../stores/auth'
+
+const authStore = useAuthStore()
 
 // Reactive reference to track the active section, default is 'name'
 const activeSection = ref('name')
@@ -21,6 +24,11 @@ const userData = ref({
 // Message states
 const errorMessage = ref('')
 const successMessage = ref('')
+
+//handle logout
+const handleLogout = () => {
+  authStore.logout()
+}
 
 // Function to validate the name
 const isValidName = (name) => {
@@ -110,7 +118,11 @@ const updateUserData = (newUserData) => {
 
 <template>
   <div class="settings-container">
-    <h1 class="settings-title">Profile Settings</h1>
+
+    <div class="header">
+      <h1 class="settings-title">Profile Settings</h1>
+      <button class="logout-button" @click="handleLogout">Logout</button>
+    </div>
 
     <div class="settings-content">
       <!-- Using the ProfileSettings component only for layout/navigation -->
@@ -168,11 +180,32 @@ const updateUserData = (newUserData) => {
   font-family: 'Segoe UI', sans-serif;
 }
 
-.settings-title {
-  text-align: center;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
+}
+
+.settings-title {
   color: #333;
   font-size: 2rem;
+  margin: 0;
+}
+
+.logout-button {
+  background-color: #f56565;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #e53e3e;
 }
 
 .settings-content {
@@ -243,7 +276,6 @@ const updateUserData = (newUserData) => {
 
   .settings-title {
     font-size: 1.8rem;
-    margin-bottom: 1.5rem;
   }
 }
 
@@ -253,6 +285,16 @@ const updateUserData = (newUserData) => {
     max-width: 100%;
   }
 
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .logout-button {
+    align-self: flex-end;
+  }
+
   .settings-main {
     padding: 1rem;
     min-width: auto;
@@ -260,7 +302,6 @@ const updateUserData = (newUserData) => {
 
   .settings-title {
     font-size: 1.5rem;
-    margin-bottom: 1rem;
   }
 
   .message {
