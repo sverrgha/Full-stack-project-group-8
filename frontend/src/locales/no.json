@@ -121,6 +121,7 @@
       "clear": "Fjern alle",
       "price": "Prisklasse",
       "location": "Sted",
-      "condition": "Tilstand"
+      "condition": "Tilstand",
+      "apply": "Bruk filtre"
     }
 }

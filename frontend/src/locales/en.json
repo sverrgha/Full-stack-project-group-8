@@ -121,6 +121,7 @@
     "clear": "Clear All",
     "price": "Price Range",
     "location": "Location",
-    "condition": "Condition"
+    "condition": "Condition",
+    "apply": "Apply Filters"
   }
 }
