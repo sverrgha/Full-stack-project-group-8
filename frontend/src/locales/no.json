@@ -110,5 +110,17 @@
       "electronics": "Elektronikk",
       "activity": "Aktivitet og fritid",
       "beauty": "Skjønnhet og helse"
+    },
+      "sort": {
+        "newest": "Nyeste",
+        "oldest": "Eldste",
+        "priceLowToHigh": "Laveste pris først",
+        "priceHighToLow": "Høyeste pris først"
+      },
+    "productPageHidden":{
+      "clear": "Fjern alle",
+      "price": "Prisklasse",
+      "location": "Sted",
+      "condition": "Tilstand"
     }
 }

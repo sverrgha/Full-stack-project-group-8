@@ -110,5 +110,17 @@
     "activity": "Activity and leisure",
     "electronics": "Electronics",
     "beauty": "Beauty and health"
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "priceLowToHigh": "Lowest price first",
+    "priceHighToLow": "Highest price first"
+  },
+  "productPageHidden": {
+    "clear": "Clear All",
+    "price": "Price Range",
+    "location": "Location",
+    "condition": "Condition"
   }
 }
