@@ -165,7 +165,12 @@ public class ListingRepo {
             .toArray(Listing[]::new);
   }
 
-
+  /**
+   * Maps a ResultSet to a Listing object, and returns the Listing object.
+   * @param rs the ResultSet to be mapped
+   * @return the Listing object created
+   * @throws SQLException if an SQL error occurs
+   */
   private Listing mapResultSetToListing(ResultSet rs) throws SQLException {
     return new Listing(
             rs.getLong("id"),
