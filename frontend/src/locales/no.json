@@ -123,5 +123,21 @@
       "location": "Sted",
       "condition": "Tilstand",
       "apply": "Bruk filtre"
+    },
+    "itemDetailPage": {
+      "description": "Beskrivelse",
+      "condition": "Tilstand",
+      "location": "Sted",
+      "contactSeller": "Kontakt selger",
+      "itemDetails": "Vare detaljer",
+      "dateAdded": "Dato lagt til",
+      "seller": "Selger",
+      "category": "Kategori",
+      "id": "Produkt-ID",
+      "delete": "Slett",
+      "edit": "Rediger",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "maxPictures": "Maks 10 bilder"
     }
 }

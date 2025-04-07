@@ -123,5 +123,21 @@
     "location": "Location",
     "condition": "Condition",
     "apply": "Apply Filters"
+  },
+  "itemDetailPage": {
+    "description": "Description",
+    "condition": "Condition",
+    "location": "Location",
+    "contactSeller": "Contact Seller",
+    "itemDetails": "Item Details",
+    "dateAdded": "Date Added",
+    "seller": "Seller",
+    "category": "Category",
+    "id": "Product-ID",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "maxPictures": "Max 10 pictures"
   }
 }
