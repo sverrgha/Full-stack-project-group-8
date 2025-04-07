@@ -119,6 +119,18 @@ public class JwtUtil {
         }
     }
 
+    public Date getExpirationDate(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(getKey().getEncoded()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
     /*
      * This method retrieves the secret key used to sign the JWT tokens.
      * 

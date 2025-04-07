@@ -5,6 +5,7 @@ import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
+import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.service.UserService;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -21,6 +22,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+
+import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -43,22 +46,25 @@ class AuthControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @Autowired
+  private JwtUtil jwtUtil;
+
   @MockitoBean
   private UserService userService;
 
   @Container
-	private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4")
-																	.withDatabaseName("testdb")
-																	.withUsername("test")
-																	.withPassword("test");
+  private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4")
+          .withDatabaseName("testdb")
+          .withUsername("test")
+          .withPassword("test");
 
-	@BeforeAll
-	static void beforeAll() {
-					mysql.start(); // Ensure the container starts
-					System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
-					System.setProperty("spring.datasource.username", mysql.getUsername());
-					System.setProperty("spring.datasource.password", mysql.getPassword());
-	}
+  @BeforeAll
+  static void beforeAll() {
+    mysql.start();
+    System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
+    System.setProperty("spring.datasource.username", mysql.getUsername());
+    System.setProperty("spring.datasource.password", mysql.getPassword());
+  }
 
   /**
    * Tests the registerUser method with a valid request.
@@ -74,9 +80,13 @@ class AuthControllerTest {
     request.setEmail("ola.nordman@gmail.com");
     request.setPassword("password123");
     request.setPhoneNumber("12345678");
+    String token = jwtUtil.generateToken(request.getEmail());
+    Date expirationDate = jwtUtil.getExpirationDate(token);
+    when(userService.registerUser(any(RegisterRequest.class))).thenReturn(null);
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(), "mockedToken");
+            AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
+            expirationDate);
 
     when(userService.registerUser(any(RegisterRequest.class))).thenReturn(response);
 
@@ -89,7 +99,9 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
-                    .value("mockedToken"));
+                    .value(token))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate")
+                    .exists());
   }
 
   /**
@@ -110,7 +122,7 @@ class AuthControllerTest {
     request.setPhoneNumber("12345678");
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), null);
+            AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), null, null);
 
     when(userService.registerUser(any(RegisterRequest.class))).thenReturn(response);
 
@@ -123,7 +135,8 @@ class AuthControllerTest {
                     .value("ola.nordman@gmail.com"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
   }
 
   /**
@@ -178,6 +191,8 @@ class AuthControllerTest {
                     .value(AuthResponseMessage
                             .SAVING_USER_ERROR.getMessage() + "Service error"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
+                    .isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate")
                     .isEmpty());
   }
 
@@ -194,9 +209,12 @@ class AuthControllerTest {
     LoginRequest request = new LoginRequest();
     request.setEmail("ola.nordman@gmail.com");
     request.setPassword("password");
+    String token = jwtUtil.generateToken(request.getEmail());
+    Date expirationDate = jwtUtil.getExpirationDate(token);
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), "token");
+            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
+            expirationDate);
 
     when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -209,7 +227,9 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
-                    .value("token"));
+                    .value(token))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate")
+                    .exists());
   }
 
   /**
@@ -227,7 +247,7 @@ class AuthControllerTest {
     request.setPassword("wrongPassword");
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null);
+            AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
 
     when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -239,7 +259,8 @@ class AuthControllerTest {
                     .value("ola.nordman@gmail.com"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.INVALID_CREDENTIALS.getMessage()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
   }
 
   /**

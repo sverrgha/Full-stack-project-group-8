@@ -51,19 +51,20 @@ public class UserService implements UserDetailsService {
     Optional<User> existingUser = userRepo.findByEmail(email);
     if (existingUser.isPresent()) {
       return new AuthResponse(email, AuthResponseMessage
-              .USER_ALREADY_EXISTS.getMessage(), null);
+              .USER_ALREADY_EXISTS.getMessage(), null, null);
     }
 
     try {
       userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
     } catch (Exception e) {
       return new AuthResponse(email, AuthResponseMessage
-              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null);
+              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null);
     }
     String token = jwtUtil.generateToken(email);
 
     return new AuthResponse(email, AuthResponseMessage
-            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token);
+            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
+            jwtUtil.getExpirationDate(token));
   }
 
   /**
@@ -79,16 +80,17 @@ public class UserService implements UserDetailsService {
     String email = request.getEmail();
     Optional<User> user = userRepo.findByEmail(email);
     if (user.isEmpty()) {
-      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null);
+      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null);
     }
     if (!PasswordUtil.verifyPassword(request.getPassword(), user.get().getPassword())) {
-      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null);
+      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
     }
 
     String token = jwtUtil.generateToken(email);
 
     return new AuthResponse(email,
-            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token);
+            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
+            jwtUtil.getExpirationDate(token));
   }
 
   /**
