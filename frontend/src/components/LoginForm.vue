@@ -1,17 +1,37 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '../stores/auth'
 
 const { t } = useI18n()
-const email = ref('')
-const password = ref('')
-
 const router = useRouter()
+const authStore = useAuthStore()
+const isSubmitting = ref(false)
 
-const login = () => {
-  console.log('Logging in:', email.value, password.value)
-  router.push('/profile')
+const credentials = reactive({
+  email: '',
+  password: ''
+})
+
+const error = ref('')
+
+const login = async () => {
+  try {
+    isSubmitting.value = true
+    error.value = ''
+
+    // Call the login method from auth store
+    await authStore.login({
+      email: credentials.email,
+      password: credentials.password
+    })
+    // The store will handle the redirect after successful login
+  } catch (err) {
+    error.value = err.response?.data?.message || 'loginForm.loginFailed'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const register = () => {
@@ -22,16 +42,24 @@ const register = () => {
 <template>
   <div class="login-form">
     <h1>{{ t('loginForm.login') }}</h1>
+
+    <!-- Display API errors if any -->
+    <div v-if="error" class="api-error">
+      {{ t(error) }}
+    </div>
+
     <form @submit.prevent="login">
       <div class="form-group">
         <label for="email">{{ t('loginForm.email') }}</label>
-        <input type="email" id="email" v-model="email" required />
+        <input type="email" id="email" v-model="credentials.email" required />
       </div>
       <div class="form-group">
         <label for="password">{{ t('loginForm.password') }}</label>
-        <input type="password" id="password" v-model="password" required />
+        <input type="password" id="password" v-model="credentials.password" required />
       </div>
-      <button type="submit" class="btn primary">{{ t('loginForm.login') }}</button>
+      <button type="submit" class="btn primary" :disabled="isSubmitting">
+        {{ isSubmitting ? t('loginForm.loggingIn') : t('loginForm.login') }}
+      </button>
 
       <p class="register-text">
         {{ t('loginForm.notRegistered') }}
@@ -56,6 +84,14 @@ h1 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #333;
+}
+
+.api-error {
+  color: #e74c3c;
+  background-color: #fde2e2;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 .form-group {
@@ -99,6 +135,11 @@ input:focus {
 
 .btn.primary:hover {
   background-color: #4338ca;
+}
+
+.btn.primary:disabled {
+  background-color: #a5a5a5;
+  cursor: not-allowed;
 }
 
 .register-text {
