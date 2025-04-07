@@ -2,12 +2,12 @@
 import {reactive, ref} from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
-import { useAuthStore } from '../stores/auth' // Import the auth store
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
 const { t } = useI18n()
-const authStore = useAuthStore() // Initialize the auth store
-const isSubmitting = ref(false)// Track submission state
+const authStore = useAuthStore()
+const isSubmitting = ref(false)
 
 const form = reactive({
   firstname: '',
@@ -18,10 +18,9 @@ const form = reactive({
   confirmPassword: ''
 })
 
-// Track errors when register is clicked
 const errors = reactive({
-  firstname: '',  // Changed from name to firstname
-  lastname: '',   // Added lastname error field
+  firstname: '',
+  lastname: '',
   email: '',
   phone: '',
   password: '',
@@ -64,7 +63,6 @@ const register = async () => {
   try {
     isSubmitting.value = true;
 
-    // Map form data to what your API expects
     const userData = {
       email: form.email,
       password: form.password,

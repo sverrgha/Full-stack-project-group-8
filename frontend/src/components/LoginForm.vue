@@ -26,7 +26,6 @@ const login = async () => {
       email: credentials.email,
       password: credentials.password
     })
-    // The store will handle the redirect after successful login
   } catch (err) {
     error.value = 'loginForm.loginFailed'
   } finally {
