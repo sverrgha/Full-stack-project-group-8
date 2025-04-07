@@ -202,5 +202,8 @@ public class ListingService {
             .collect(Collectors.toList());
   }
 
+  public boolean listingExists(Long id) {
+    return listingRepo.getListingById(id).isPresent();
+  }
 
 }

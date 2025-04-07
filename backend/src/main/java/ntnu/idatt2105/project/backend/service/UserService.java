@@ -111,4 +111,9 @@ public class UserService implements UserDetailsService {
     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
             new ArrayList<>());
   }
+
+  public boolean userExists(long id) {
+    return userRepo.findById(id).isPresent();
+  }
+
 }
