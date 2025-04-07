@@ -1,5 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // Define component props with a reactive `isOpen` property, defaulting to `false`
 const props = defineProps({
@@ -78,7 +81,7 @@ const updateMaxPrice = (event) => {
   priceMax.value = value;
 };
 
-// Location options
+// Location options as an array of objects with checked property for multi-select
 const locations = ref([
   { id: 1, name: 'Oslo', checked: false },
   { id: 2, name: 'Bergen', checked: false },
@@ -87,14 +90,24 @@ const locations = ref([
   { id: 5, name: 'Tromsø', checked: false },
 ]);
 
-// Condition options
+// Condition options as an array of objects with checked property for multi-select
 const conditions = ref([
-  { id: 1, name: 'New', checked: false },
-  { id: 2, name: 'Like new', checked: false },
-  { id: 3, name: 'Good', checked: false },
-  { id: 4, name: 'Fair', checked: false },
-  { id: 5, name: 'Poor', checked: false },
+  { id: 1, name: 'new', checked: false },
+  { id: 2, name: 'likeNew', checked: false },
+  { id: 3, name: 'good', checked: false },
+  { id: 4, name: 'fair', checked: false },
+  { id: 5, name: 'poor', checked: false },
 ]);
+
+// Computed property for selected locations
+const selectedLocations = computed(() => {
+  return locations.value.filter(loc => loc.checked).map(loc => loc.name);
+});
+
+// Computed property for selected conditions
+const selectedConditions = computed(() => {
+  return conditions.value.filter(cond => cond.checked).map(cond => cond.name);
+});
 
 const applyFilters = () => {
   // Check if price range is valid before applying
@@ -105,8 +118,8 @@ const applyFilters = () => {
   // Collect all active filters
   const activeFilters = {
     priceRange: { min: priceMin.value, max: priceMax.value },
-    locations: locations.value.filter(loc => loc.checked).map(loc => loc.name),
-    conditions: conditions.value.filter(cond => cond.checked).map(cond => cond.name)
+    locations: selectedLocations.value,
+    conditions: selectedConditions.value
   };
 
   console.log('Applied filters:', activeFilters);
@@ -122,6 +135,7 @@ const resetFilters = () => {
   priceMax.value = 100000;
   priceError.value = '';
 
+  // Reset all checkboxes
   locations.value.forEach(loc => loc.checked = false);
   conditions.value.forEach(cond => cond.checked = false);
 };
@@ -136,7 +150,7 @@ const resetFilters = () => {
 
   <aside class="filter-sidebar" :class="{ 'open': isOpen }">
     <div class="sidebar-header">
-      <h2>Filters</h2>
+      <h2>{{ t('productPage.filters') }}</h2>
       <button class="close-button" @click="closeSidebar">
         <span>×</span>
       </button>
@@ -146,7 +160,7 @@ const resetFilters = () => {
 
       <!-- Price Range -->
       <div class="filter-section">
-        <h3>Price Range</h3>
+        <h3>{{ t('productPageHidden.price') }}</h3>
         <div class="price-inputs">
           <div class="input-group">
             <label for="price-min">Min</label>
@@ -190,9 +204,9 @@ const resetFilters = () => {
         </div>
       </div>
 
-      <!-- Location -->
+      <!-- Location with checkboxes for multi-select -->
       <div class="filter-section">
-        <h3>Location</h3>
+        <h3>{{ t('productPageHidden.location') }}</h3>
         <div class="checkbox-group">
           <div
               v-for="location in locations"
@@ -209,9 +223,9 @@ const resetFilters = () => {
         </div>
       </div>
 
-      <!-- Condition -->
+      <!-- Condition with checkboxes for multi-select -->
       <div class="filter-section">
-        <h3>Condition</h3>
+        <h3>{{ t('productPageHidden.condition') }}</h3>
         <div class="checkbox-group">
           <div
               v-for="condition in conditions"
@@ -223,21 +237,21 @@ const resetFilters = () => {
                 :id="`cond-${condition.id}`"
                 v-model="condition.checked"
             />
-            <label :for="`cond-${condition.id}`">{{ condition.name }}</label>
+            <label :for="`cond-${condition.id}`">{{ t(`conditions.${condition.name}`) }}</label>
           </div>
         </div>
       </div>
     </div>
 
     <div class="sidebar-footer">
-      <button class="reset-button" @click="resetFilters">Reset</button>
+      <button class="reset-button" @click="resetFilters">{{ t('productPageHidden.clear') }}</button>
       <button
           class="apply-button"
           @click="applyFilters"
           :disabled="!isPriceRangeValid"
           :class="{ 'button-disabled': !isPriceRangeValid }"
       >
-        Apply Filters
+        {{ t('productPageHidden.apply') }}
       </button>
     </div>
   </aside>

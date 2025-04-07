@@ -2,10 +2,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import ProfileSettingsSidebar from "../components/ProfileSettingsSidebar.vue"
-import ProfileSettingsEditName from "../components/ProfileSettingsEditName.vue"
-import ProfileSettingsEditBiography from "../components/ProfileSettingsEditBiography.vue"
-import ProfileSettingsEditPicture from "../components/ProfileSettingsEditPicture.vue"
+import ProfileSettingsSidebar from "../components/profile/ProfileSettingsSidebar.vue"
+import ProfileSettingsEditName from "../components/profile/ProfileSettingsEditName.vue"
+import ProfileSettingsEditBiography from "../components/profile/ProfileSettingsEditBiography.vue"
+import ProfileSettingsEditPicture from "../components/profile/ProfileSettingsEditPicture.vue"
 
 // Reactive reference to track the active section, default is 'name'
 const activeSection = ref('name')
