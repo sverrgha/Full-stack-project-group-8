@@ -12,7 +12,10 @@
     "password": "Password",
     "login": "Login",
     "register": "Register here",
-    "notRegistered": "Don't have an account?"
+    "notRegistered": "Don't have an account?",
+    "loginSuccess": "Success",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed"
   },
   "registerForm": {
     "firstname": "First name",

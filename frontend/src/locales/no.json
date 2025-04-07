@@ -12,7 +12,10 @@
     "password": "Passord",
     "login": "Logg inn",
     "register": "Registrer deg her",
-    "notRegistered": "Ingen bruker?"
+    "notRegistered": "Ingen bruker?",
+    "loginSuccess": "Suksess",
+    "loggingIn": "Logger inn...",
+    "loginFailed": "Logg inn feilet"
   },
   "registerForm": {
     "firstname": "Fornavn",
