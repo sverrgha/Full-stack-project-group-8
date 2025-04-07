@@ -338,7 +338,6 @@ const handleSortChange = (event) => {
   display: flex;
   align-items: center;
   background-color: #ffffff;
-  border: 1px solid #d1d5db;
   border-radius: 25px;
   color: #374151;
   font-size: 1rem;
