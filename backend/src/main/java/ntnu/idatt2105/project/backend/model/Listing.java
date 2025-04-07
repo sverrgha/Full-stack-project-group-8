@@ -2,6 +2,7 @@ package ntnu.idatt2105.project.backend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
@@ -16,6 +17,7 @@ import java.sql.Date;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Listing {
   /**
    * The status of the listing.
@@ -64,7 +66,7 @@ public class Listing {
    * The ID of the category to which the listing belongs.
    * This is a foreign key reference to the Category table.
    */
-  private long categoryId;
+  private Long categoryId;
 
   /**
    * The price of the listing.

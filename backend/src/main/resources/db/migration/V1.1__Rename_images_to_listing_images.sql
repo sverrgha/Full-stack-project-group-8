@@ -1,1 +1,0 @@
-RENAME TABLE images TO listing_images;
