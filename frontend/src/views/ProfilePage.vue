@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
-import ProfileInfo from '../components/ProfileInfo.vue'
-import ProfilePostsNav from '../components/ProfilePostsNav.vue'
+import ProfileInfo from '../components/profile/ProfileInfo.vue'
+import ProfilePostsNav from '../components/profile/ProfilePostsNav.vue'
 import ItemGrid from '../components/ItemGrid.vue'
 
 // Posts as default tab state

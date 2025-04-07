@@ -75,5 +75,58 @@
     "cancel": "Avbryt",
     "submitting": "Sender inn...",
     "requiredField": "Obligatorisk felt"
-  }
+  },
+  "profilePage": {
+    "posts": "Innlegg",
+    "favorites": "Favoritter",
+    "purchased": "Kjøpt"
+  },
+  "profileSettingsSideBar": {
+    "name": "For- og etternavn",
+    "biography": "Biografi",
+    "profilePicture": "Profilbilde"
+  },
+  "profileSettingsEditName": {
+    "h2": "Oppdater navnet ditt",
+    "name": "For- og etternavn",
+    "save": "Lagre"
+  },
+    "profileSettingsEditBiography": {
+        "h2": "Oppdater biografi",
+        "biography": "Biografi",
+        "save": "Lagre",
+        "helpText": "Skriv en kort beskrivelse av deg selv. Dette vil bli synlig for andre brukere."
+    },
+    "profileSettingsEditPicture": {
+        "h2": "Oppdater profilbilde",
+        "profilePicture": "Bytt profilbilde",
+        "save": "Lagre",
+        "helpText": "Gyldig format: JPG, PNG (maks 2MB)"
+    },
+    "productPage": {
+      "search": "Hva leter du etter?",
+      "filters": "Filtre",
+      "sortBy": "Sorter etter",
+      "categories": "Kategorier",
+      "vehicle": "Kjøretøy",
+      "clothing": "Klær",
+      "interior": "Interiør og møbler",
+      "property": "Eiendom",
+      "electronics": "Elektronikk",
+      "activity": "Aktivitet og fritid",
+      "beauty": "Skjønnhet og helse"
+    },
+      "sort": {
+        "newest": "Nyeste",
+        "oldest": "Eldste",
+        "priceLowToHigh": "Laveste pris først",
+        "priceHighToLow": "Høyeste pris først"
+      },
+    "productPageHidden":{
+      "clear": "Fjern alle",
+      "price": "Prisklasse",
+      "location": "Sted",
+      "condition": "Tilstand",
+      "apply": "Bruk filtre"
+    }
 }

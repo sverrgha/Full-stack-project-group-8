@@ -1,5 +1,10 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
+import BaseInputField from '../form/BaseInputField.vue';
+import searchIcon from '/src/assets/SearchIcon.svg';
+
+const { t } = useI18n();
 
 // Define refs with proper types
 const searchQuery = ref('');
@@ -70,7 +75,7 @@ const selectHistoryItem = (item) => {
     searchQuery.value = item;
     showHistory.value = false;
     if (inputElement.value) {
-      inputElement.value.focus();
+      inputElement.value.$el.querySelector('input').focus();
     }
   }
 };
@@ -96,7 +101,7 @@ const handleSubmit = (e) => {
   saveSearch();
   // Remove focus from input element after submission
   if (inputElement.value) {
-    inputElement.value.blur();
+    inputElement.value.$el.querySelector('input').blur();
   }
   // Here you would also handle the actual search functionality
 };
@@ -114,20 +119,24 @@ const handleSubmit = (e) => {
     <div ref="searchContainer" class="search-input-container">
       <!-- Search Input -->
       <form @submit="handleSubmit" class="search-input">
-        <img src="../assets/SearchIcon.svg" alt="Search icon" class="search-icon" />
-        <input
+        <BaseInputField
             ref="inputElement"
             v-model="searchQuery"
-            type="text"
-            placeholder="What are you looking for?"
+            id="product-search"
+            :label="t('productPage.search')"
+            :placeholder="t('productPage.search')"
+            hideLabel
             @focus="handleFocus"
+            class="search-field"
+            :iconSrc="searchIcon"
+            :iconAlt="'Search icon'"
         />
       </form>
 
       <!-- Search History Dropdown -->
       <div v-if="showHistory && searchHistory.length > 0" class="search-history">
         <div class="history-header">
-          <button @click="clearHistory" class="clear-history">Clear All</button>
+          <button @click="clearHistory" class="clear-history">{{ t('productPageHidden.clear') }}</button>
         </div>
         <ul>
           <li
@@ -160,11 +169,6 @@ const handleSubmit = (e) => {
   visibility: visible;
 }
 
-.search-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
 .search-input-container {
   position: relative;
   z-index: 200;
@@ -177,27 +181,16 @@ const handleSubmit = (e) => {
   width: 100%;
 }
 
-.search-input input {
+.search-field {
   width: 100%;
-  padding: 10px 10px 10px 40px;
-  border: 0.1rem solid gray;
+}
+
+.search-field :deep(input) {
   border-radius: 25px;
-  font-size: 16px;
-  outline: none;
-  transition: all 0.2s ease;
 }
 
-.search-input input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.search-icon {
-  position: absolute;
-  left: 15px;
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
+.search-field :deep(.form-group) {
+  margin-bottom: 0;
 }
 
 .search-history {
@@ -210,7 +203,7 @@ const handleSubmit = (e) => {
   border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  margin-top: 5px;
+  margin-top: -22px;
 }
 
 .history-header {

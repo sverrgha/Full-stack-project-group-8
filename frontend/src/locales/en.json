@@ -76,5 +76,58 @@
     "cancel": "Cancel",
     "submitting": "Submitting...",
     "requiredField": "Required field"
+  },
+  "profilePage": {
+    "posts": "Posts",
+    "favorites": "Favorites",
+    "purchased": "Purchased"
+  },
+  "profileSettingsSideBar": {
+    "name": "First- and lastname",
+    "biography": "Biography",
+    "profilePicture": "Profile picture"
+  },
+  "profileSettingsEditName": {
+    "h2": "Update your name",
+    "name": "First- and lastname",
+    "save": "Save"
+  },
+    "profileSettingsEditBiography": {
+        "h2": "Update your biography",
+        "biography": "Biography",
+        "save": "Save",
+        "helpText": "Tell us a bit about yourself. This will be visible to other users."
+    },
+    "profileSettingsEditPicture": {
+        "h2": "Update profile picture",
+        "profilePicture": "Change profile picture",
+        "save": "Save",
+        "helpText": "Allowed formats: JPG, PNG (max 2MB)"
+    },
+  "productPage": {
+    "search": "What are you looking for?",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "categories": "Categories",
+    "vehicle": "Vehicle",
+    "clothing": "Clothing",
+    "interior": "Interior and furniture",
+    "property": "Property",
+    "activity": "Activity and leisure",
+    "electronics": "Electronics",
+    "beauty": "Beauty and health"
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "priceLowToHigh": "Lowest price first",
+    "priceHighToLow": "Highest price first"
+  },
+  "productPageHidden": {
+    "clear": "Clear All",
+    "price": "Price Range",
+    "location": "Location",
+    "condition": "Condition",
+    "apply": "Apply Filters"
   }
 }
