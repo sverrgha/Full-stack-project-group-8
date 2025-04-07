@@ -6,8 +6,9 @@ import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
-import MessagePage from "../views/MessagePage.vue";
+import MessagePage from "../views/MessagePage.vue"
 import { useAuthStore } from "../stores/auth.js"
+import ItemDetailPage from "../views/ItemDetailPage.vue"
 
 const routes = [
     {
@@ -53,6 +54,11 @@ const routes = [
         name: 'messages',
         component: MessagePage,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/product/:id',
+        name: 'product',
+        component: ItemDetailPage
     }
 ]
 
