@@ -7,6 +7,7 @@ import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
 import MessagePage from "../views/MessagePage.vue";
+import { useAuthStore } from "../stores/auth.js"
 
 const routes = [
     {
@@ -26,33 +27,48 @@ const routes = [
     {
         path: '/profile',
         name: 'Profile',
-        component: ProfilePage
+        component: ProfilePage,
+        meta: { requiresAuth: true }
     },
     {
         path: '/profile/settings',
         name: 'ProfileSettings',
-        component: ProfileSettingsPage
+        component: ProfileSettingsPage,
+        meta: { requiresAuth: true }
     },
     {
         path: '/products',
         name: 'Products',
-        component: ProductsPage
+        component: ProductsPage,
+        meta: { requiresAuth: true }
     },
     {
         path: '/new-listing',
         name: 'NewListing',
         component: NewListingPage,
+        meta: { requiresAuth: true }
     },
     {
         path: '/messages',
         name: 'messages',
         component: MessagePage,
+        meta: { requiresAuth: true }
     }
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+// 🚨 Moved this after router creation
+router.beforeEach((to, from, next) => {
+    const auth = useAuthStore()
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        next('/login')
+    } else {
+        next()
+    }
 })
 
 export default router
