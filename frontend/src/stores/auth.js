@@ -56,7 +56,7 @@ export const useAuthStore = defineStore('auth', {
             authService.logout();
             this.user = null;
             this.token = null;
-            router.push('/auth/login');
+            router.push('/login');
         },
 
         setAuthData(data) {
