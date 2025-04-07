@@ -56,7 +56,6 @@ const register = async () => {
     errors.confirmPassword = 'registerForm.passwordsMustMatch'
   }
 
-  // If no errors, proceed
   const hasErrors = Object.values(errors).some(msg => msg !== '')
   if (hasErrors) return
 
