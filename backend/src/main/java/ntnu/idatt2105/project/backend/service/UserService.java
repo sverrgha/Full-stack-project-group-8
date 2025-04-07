@@ -115,5 +115,15 @@ public class UserService implements UserDetailsService {
   public boolean userExists(long id) {
     return userRepo.findById(id).isPresent();
   }
+  public boolean validateUserIdMatchesToken(long id, String token) {
+    Optional<User> user = userRepo.findById(id);
+    if (user.isPresent()) {
+      String email = user.get().getEmail();
+      String tokenEmail = jwtUtil.extractUsername(token);
+      return email.equals(tokenEmail);
+    } else {
+      return false;
+    }
+  }
 
 }

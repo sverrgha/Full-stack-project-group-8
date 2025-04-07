@@ -1,12 +1,8 @@
 package ntnu.idatt2105.project.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import ntnu.idatt2105.project.backend.model.Listing;
-import ntnu.idatt2105.project.backend.repository.ListingRepo;
 import ntnu.idatt2105.project.backend.repository.UserFavoritesRepo;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +11,7 @@ public class FavoriteService {
     private final ListingService listingService;
     private final UserService userService;
 
-  public void addListingAsFavorite(long userId, long listingId) {
+  public void addListingAsFavorite(long userId, long listingId, String token) {
     if (userId <= 0 || listingId <= 0) {
       throw new IllegalArgumentException("User ID and Listing ID must be positive");
     }
@@ -26,6 +22,21 @@ public class FavoriteService {
       throw new IllegalArgumentException("User not found");
     }
 
+    if (!userService.validateUserIdMatchesToken(userId, token)) {
+      throw new IllegalArgumentException("User ID does not match token");
+    }
+
     userFavoritesRepo.save(userId, listingId);
+  }
+
+  public void removeListingAsFavorite(long userId, long listingId, String token) {
+    if (userId <= 0 || listingId <= 0) {
+      throw new IllegalArgumentException("User ID and Listing ID must be positive");
+    }
+    if (!userService.validateUserIdMatchesToken(userId, token)) {
+      throw new IllegalArgumentException("User ID does not match token");
+    }
+
+    userFavoritesRepo.deleteByUserIdAndListingId(userId, listingId);
   }
 }

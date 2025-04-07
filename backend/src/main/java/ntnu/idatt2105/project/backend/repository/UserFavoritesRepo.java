@@ -4,6 +4,7 @@ import ntnu.idatt2105.project.backend.model.UserFavorite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -27,5 +28,10 @@ public class UserFavoritesRepo {
             rs.getLong("user_id"),
             rs.getLong("listing_id")
     ), userId);
+  }
+
+  public void deleteByUserIdAndListingId(long userId, long listingId) {
+    String sql = "DELETE FROM sverrgha_datab.user_favorites WHERE user_id = ? AND listing_id = ?";
+    jdbcTemplate.update(sql, userId, listingId);
   }
 }

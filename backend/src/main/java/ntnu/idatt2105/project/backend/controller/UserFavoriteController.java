@@ -1,6 +1,7 @@
 package ntnu.idatt2105.project.backend.controller;
 
 import ntnu.idatt2105.project.backend.service.FavoriteService;
+import ntnu.idatt2105.project.backend.util.TokenExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,8 @@ public class UserFavoriteController {
     logger.info("Received request to add favorite listing for user ID: "
             + userId + " and listing ID: " + listingId);
     try {
-      favoriteService.addListingAsFavorite(userId, listingId);
+      favoriteService.addListingAsFavorite(userId, listingId,
+              TokenExtractor.extractToken(authHeader));
       logger.info("Favorite listing added successfully for user ID: " + userId);
       return ResponseEntity.ok().body("Favorite listing added successfully");
     } catch (IllegalArgumentException e) {
@@ -40,4 +42,26 @@ public class UserFavoriteController {
     }
   }
 
+  @DeleteMapping
+  public ResponseEntity<String> removeFavorite(
+          @RequestParam Long userId,
+          @RequestParam Long listingId,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to remove favorite listing for user ID: "
+            + userId + " and listing ID: " + listingId);
+    try {
+      favoriteService.removeListingAsFavorite(userId, listingId,
+              TokenExtractor.extractToken(authHeader));
+      logger.info("Favorite listing removed successfully for user ID: " + userId);
+      return ResponseEntity.ok().body("Favorite listing removed successfully");
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid favorite request: " + e.getMessage());
+      return ResponseEntity.badRequest().body("Invalid favorite request: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while removing favorite listing: " + e.getMessage());
+      return ResponseEntity.internalServerError()
+              .body("Error while removing favorite listing: " + e.getMessage());
+    }
+  }
 }
