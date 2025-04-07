@@ -1,0 +1,145 @@
+package ntnu.idatt2105.project.backend.controller;
+
+import jakarta.validation.Valid;
+import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
+import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
+import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ntnu.idatt2105.project.backend.service.ListingService;
+
+import java.util.Collections;
+import java.util.logging.Logger;
+
+/**
+ * ListingController handles requests related to listings.
+ * It provides endpoints for adding, fetching, and filtering listings.
+ */
+
+@RestController
+@RequestMapping("/api/listing")
+public class ListingController {
+  private final ListingService listingService;
+  private static final Logger logger = Logger.getLogger(ListingController.class.getName());
+
+  /**
+   * Constructor for ListingController. Sets the listingService.
+   *
+   * @param listingService
+   */
+  @Autowired
+  public ListingController(ListingService listingService) {
+    this.listingService = listingService;
+  }
+
+  /**
+   * Endpoint for fetching listings based on filter criteria. If none are provided,
+   * it returns all listings.
+   * It also takes pagination parameters to limit the number of listings returned, and
+   * dividing them into pages.
+   *
+   * @param filterRequest the filter criteria for fetching listings
+   * @param pageable pagination parameters
+   * @return ResponseEntity with MultipleListingsResponse containing simple
+   */
+  @GetMapping
+  public ResponseEntity<MultipleListingsResponse> getListings(
+          @Valid ListingFilterRequest filterRequest,
+          @PageableDefault(size = 20, page = 1, sort = "created_at",
+                  direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+  ) {
+    logger.info("Received request for listings with filter: " + filterRequest);
+    try {
+      MultipleListingsResponse response = listingService
+              .getListingByFilter(filterRequest, pageable);
+      logger.info("Listings fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid filter request: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    } catch (Exception e) {
+      logger.severe("Error while fetching listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    }
+  }
+
+  /**
+   * Endpoint for adding a new listing.
+   *
+   * @param listing the listing to be added, with necessary information about the listing
+   * @return ResponseEntity with AddListingResponse containing the ID of the added and
+   *         a message
+   */
+  @PostMapping
+  public ResponseEntity<AddListingResponse> addListing(
+          @Valid @RequestBody AddListingRequest listing) {
+    logger.info("Received request to add listing: " + listing);
+    try {
+      AddListingResponse response = listingService.addListing(listing);
+      logger.info("Listing added successfully with ID: " + response.getId());
+      return ResponseEntity.ok(response);
+
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid listing data: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new AddListingResponse(
+              null, "Invalid listing data: " + e.getMessage()));
+
+    } catch (Exception e) {
+      logger.severe("Error while adding listing: " + e.getCause());
+      return ResponseEntity.internalServerError().body(new AddListingResponse(
+              null, "An unexpected error occurred while adding listing: "
+              + e.getMessage()));
+    }
+  }
+
+  /**
+   * Endpoint for fetching a listing by its ID, and retrieving all the information
+   * about it.
+   * @param id the ID of the listing to be fetched
+   * @return ResponseEntity with FullListingResponse containing all the information
+   */
+  @GetMapping("/{id}")
+  public ResponseEntity<FullListingResponse> getListingById(@PathVariable Long id) {
+    logger.info("Received request for listing with ID: " + id);
+    try {
+      FullListingResponse response = listingService.getListingById(id);
+      logger.info("Listing found with ID: " + id);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("No listing found with ID: " + id);
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  @GetMapping("/user/recomended")
+  public ResponseEntity<MultipleListingsResponse> getRecomendedListings(
+          @RequestParam Long userId,
+          @PageableDefault(size = 20, page = 1, sort = "created_at",
+                  direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+  ) {
+    logger.info("Received request for recommended listings for user ID: " + userId);
+    /*try {
+      MultipleListingsResponse response = listingService.getRecomendedListings(userId, pageable);
+      logger.info("Recommended listings fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid user ID: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse());
+    } catch (Exception e) {
+      logger.severe("Error while fetching recommended listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse());
+    }*/
+    return ResponseEntity.ok(new MultipleListingsResponse());
+  }
+}

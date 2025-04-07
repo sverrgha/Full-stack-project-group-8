@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+/**
+ * AuthController handles authentication-related requests such as user registration and login.
+ * It uses the UserService to perform the actual operations and returns appropriate responses.
+ * All requests are returning a AuthResponse object containing the email, a message and token.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

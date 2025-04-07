@@ -12,7 +12,9 @@ public class TestDatabaseConfig {
     MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("testdb")
             .withUsername("test")
-            .withPassword("test");
+            .withPassword("test")
+            .withInitScript("db/init.sql");
+
     mysql.start();
     return mysql;
   }
