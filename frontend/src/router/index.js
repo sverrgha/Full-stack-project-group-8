@@ -7,6 +7,7 @@ import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
 import MessagePage from "../views/MessagePage.vue";
+import ItemDetailPage from "../views/ItemDetailPage.vue";
 
 const routes = [
     {
@@ -47,6 +48,11 @@ const routes = [
         path: '/messages',
         name: 'messages',
         component: MessagePage,
+    },
+    {
+        path: '/product/:id',
+        name: 'product',
+        component: ItemDetailPage
     }
 ]
 
