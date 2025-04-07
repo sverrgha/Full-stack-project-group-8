@@ -1,3 +1,25 @@
 html, body {
     font-family: 'Segoe UI', sans-serif;
 }
+
+/* Global CSS Variables */
+:root {
+    /* Spacing variables */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* Color variables */
+    --text-color: #444;
+    --bg-color: #ffffff;
+    --primary-color: #4f46e5;
+    --error-color: #e53e3e;
+    --border-color: #ccc;
+    --hover-color: rgba(79, 70, 229, 0.05);
+    --focus-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    --error-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+}
+

@@ -19,7 +19,7 @@ const settings = () => router.push('/profile/settings')
   <div class="profile-info card">
     <!-- Settings icon -->
     <div class="settings-icon-wrapper">
-      <img src="../assets/settings.png" alt="Settings" @click="settings" class="settings-icon" />
+      <img src="../../assets/settings.png" alt="Settings" @click="settings" class="settings-icon" />
     </div>
 
     <!-- Profile picture, name and biography -->
@@ -27,7 +27,7 @@ const settings = () => router.push('/profile/settings')
 
       <!-- Profile picture -->
       <div class="profile-image">
-        <img src="../assets/user.png" alt="Profile Image" />
+        <img src="../../assets/user.png" alt="Profile Image" />
       </div>
 
       <!-- Name and biography -->

@@ -1,5 +1,4 @@
 <script setup>
-
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -30,29 +29,64 @@ const props = defineProps({
   maxLength: {
     type: Number,
     default: null
+  },
+  hideLabel: {
+    type: Boolean,
+    default: false
+  },
+  iconSrc: {
+    type: String,
+    default: ''
+  },
+  iconAlt: {
+    type: String,
+    default: 'Icon'
   }
 });
 
-defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'focus', 'blur', 'input']);
 
 const currentLength = computed(() => {
   return String(props.modelValue || '').length;
 });
 
+const handleInput = (event) => {
+  emit('update:modelValue', event.target.value);
+  emit('input', event);
+};
+
+const handleFocus = (event) => {
+  emit('focus', event);
+};
+
+const handleBlur = (event) => {
+  emit('blur', event);
+};
 </script>
 
 <template>
   <div class="form-group">
-    <label :for="id">
+    <label :for="id" :class="{ 'sr-only': hideLabel }">
       {{ label }} <span v-if="required" class="required">*</span>
     </label>
     <div class="input-wrapper">
+      <!-- Icon from props -->
+      <img v-if="iconSrc" :src="iconSrc" :alt="iconAlt" class="input-icon" />
+
+      <!-- Icon from slot -->
+      <slot name="icon"></slot>
+
       <input
           :type="type"
           :id="id"
           :value="modelValue"
-          @input="$emit('update:modelValue', $event.target.value)"
-          :class="{ invalid: error }"
+          @input="handleInput"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          :class="{
+            invalid: error,
+            'has-icon': iconSrc || $slots.icon
+          }"
           :aria-invalid="!!error"
           :aria-describedby="error ? `${id}-error` : null"
           :maxlength="maxLength"
@@ -67,7 +101,6 @@ const currentLength = computed(() => {
 </template>
 
 <style scoped>
-
 .form-group {
   margin-bottom: var(--space-lg, 1.5rem);
 }
@@ -79,6 +112,18 @@ label {
   font-weight: 600;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .required {
   color: #e53e3e;
   margin-left: 2px;
@@ -86,6 +131,19 @@ label {
 
 .input-wrapper {
   position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 23px;
+  height: 23px;
+  pointer-events: none;
+  z-index: 5;
 }
 
 input {
@@ -97,6 +155,10 @@ input {
   font-size: 1rem;
   background-color: var(--bg-color, white);
   color: var(--text-color, #333);
+}
+
+input.has-icon {
+  padding-left: 50px;
 }
 
 input:focus {
@@ -133,5 +195,4 @@ input.invalid:focus {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 </style>

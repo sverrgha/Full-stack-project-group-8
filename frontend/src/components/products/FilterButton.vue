@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
-// This component is a button that toggles the visibility of a sidebar.
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -10,7 +9,6 @@ const props = defineProps({
   }
 });
 
-// Emit event to parent component
 const emit = defineEmits(['toggle']);
 
 
@@ -20,13 +18,12 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-  <!-- Button to toggle sidebar visibility -->
   <button
       class="filter-button"
       :class="{ 'active': isOpen }"
       @click="toggleSidebar"
   >
-    <img src="../assets/filters.svg" alt="Filter Icon" class="filter-icon" />
+    <img src="../../assets/filters.svg" alt="Filter Icon" class="filter-icon" />
     <span class="filter-text">{{ t('productPage.filters')}}</span>
   </button>
 </template>
@@ -35,11 +32,14 @@ const toggleSidebar = () => {
 .filter-button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   background-color: white;
   border: 1px solid #d1d5db;
   border-radius: 25px;
   padding: 8px 16px;
+  height: 40px;
+  box-sizing: border-box;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -60,7 +60,8 @@ const toggleSidebar = () => {
 }
 
 .filter-text {
-  font-size: 0.875rem;
+  font-size: 1rem;
+  line-height: 1.25rem;
   color: #374151;
 }
 </style>

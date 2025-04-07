@@ -4,13 +4,13 @@ import {computed, ref} from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // Import icons (SVGs)
-import VehicleIcon from '../assets/vehicle.svg';
-import ClothingIcon from '../assets/clothing.svg';
-import FurnitureIcon from '../assets/furniture.svg';
-import PropertyIcon from '../assets/property.svg';
-import ActivityIcon from '../assets/activity.svg';
-import ElectronicsIcon from '../assets/electronics.svg';
-import BeautyIcon from '../assets/beauty.svg';
+import VehicleIcon from '../../assets/vehicle.svg';
+import ClothingIcon from '../../assets/clothing.svg';
+import FurnitureIcon from '../../assets/furniture.svg';
+import PropertyIcon from '../../assets/property.svg';
+import ActivityIcon from '../../assets/activity.svg';
+import ElectronicsIcon from '../../assets/electronics.svg';
+import BeautyIcon from '../../assets/beauty.svg';
 
 const { t } = useI18n();
 

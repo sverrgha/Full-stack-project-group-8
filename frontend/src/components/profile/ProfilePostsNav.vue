@@ -28,19 +28,19 @@ const setActiveTab = (tab) => {
         :class="{ active: modelValue === 'posts' }"
         @click="setActiveTab('posts')"
     >
-      <img src="../assets/grid.svg" class="icon" /> {{ t('profilePage.posts') }}
+      <img src="../../assets/grid.svg" class="icon" /> {{ t('profilePage.posts') }}
     </button>
     <button
         :class="{ active: modelValue === 'favorites' }"
         @click="setActiveTab('favorites')"
     >
-      <img src="../assets/heart1.svg" class="icon" /> {{ t('profilePage.favorites') }}
+      <img src="../../assets/heart1.svg" class="icon" /> {{ t('profilePage.favorites') }}
     </button>
     <button
         :class="{ active: modelValue === 'purchased' }"
         @click="setActiveTab('purchased')"
     >
-      <img src="../assets/purchased.svg" class="icon" /> {{ t('profilePage.purchased') }}
+      <img src="../../assets/purchased.svg" class="icon" /> {{ t('profilePage.purchased') }}
     </button>
   </div>
 </template>
