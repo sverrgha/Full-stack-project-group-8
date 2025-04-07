@@ -28,9 +28,12 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+/**
+ * Unit tests for the ListingService class.
+ * This class tests the methods in the ListingService class to ensure they work as expected.
+ */
 @ExtendWith(MockitoExtension.class)
 class ListingServiceTest {
 
@@ -50,6 +53,9 @@ class ListingServiceTest {
   private Listing listing2;
   private Location location1;
 
+  /**
+   * Sets up the test data before each test case.
+   */
   @BeforeEach
   void setUp() {
     listing1 = new Listing();
@@ -93,6 +99,11 @@ class ListingServiceTest {
     location1.setCity("Test City");
   }
 
+  /**
+   * Tests the getListingByFilter method with a valid filter.
+   * This test checks if the method returns the expected response
+   * with the correct number of listings and pagination information.
+   */
   @Test
   void getListingByFilter_validFilter_returnsMultipleListingsResponse() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
@@ -128,6 +139,11 @@ class ListingServiceTest {
     verify(listingRepo).getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class));
   }
 
+  /**
+   * Tests the getListingByFilter method with an invalid condition.
+   * This test checks if the method throws an IllegalArgumentException
+   * when an invalid condition is provided in the filter request.
+   */
   @Test
   void getListingByFilter_invalidCondition_throwsIllegalArgumentException() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
@@ -137,6 +153,11 @@ class ListingServiceTest {
     verifyNoInteractions(listingRepo);
   }
 
+  /**
+   * Tests the getListingByFilter method with null conditions.
+   * This test checks if the method returns multiple listings
+   * when the filter request has null conditions.
+   */
   @Test
   void getListingByFilter_nullConditions_returnsMultipleListingsResponse() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
@@ -177,6 +198,12 @@ class ListingServiceTest {
 
     verify(listingRepo).getAllListingsByCriteria(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class));
   }
+
+  /**
+   * Tests the addListing method with a valid request.
+   * This test checks if the method returns the expected response
+   * with the correct ID and success message.
+   */
   @Test
   void addListing_validRequest_returnsAddListingResponse() {
     AddListingRequest addListingRequest = new AddListingRequest();
@@ -221,6 +248,12 @@ class ListingServiceTest {
 
     verify(listingImageRepo, times(2)).save(eq(3L), anyString());
   }
+
+  /**
+   * Tests the addListing method with a request that fails to save.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing cannot be saved.
+   */
   @Test
   void addListing_saveFails_throwsIllegalArgumentException() {
     AddListingRequest addListingRequest = new AddListingRequest();
@@ -241,12 +274,17 @@ class ListingServiceTest {
     verifyNoInteractions(listingImageRepo);
   }
 
+  /**
+   * Tests the getListingById method with a valid ID.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and images.
+   */
   @Test
   void getListingById_validId_returnsFullListingResponse() {
     when(listingRepo.getListingById(1L)).thenReturn(Optional.of(listing1));
     when(listingImageRepo.getAllImagesByListingId(1L)).thenReturn(Arrays.asList("image1.jpg", "image2.jpg"));
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
-     FullListingResponse response = listingService.getListingById(1L);
+    FullListingResponse response = listingService.getListingById(1L);
 
     assertNotNull(response);
     assertEquals(listing1.getId(), response.getId());
@@ -273,6 +311,11 @@ class ListingServiceTest {
     verify(listingImageRepo).getAllImagesByListingId(1L);
   }
 
+  /**
+   * Tests the getListingById method with an invalid ID.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing is not found.
+   */
   @Test
   void getListingById_invalidId_throwsIllegalArgumentException() {
     when(listingRepo.getListingById(99L)).thenReturn(Optional.empty());
@@ -282,6 +325,11 @@ class ListingServiceTest {
     verifyNoInteractions(locationRepo, listingImageRepo);
   }
 
+  /**
+   * Tests the getListingByFilter method with a valid filter.
+   * This test checks if the method returns multiple listings
+   * with the correct details and images.
+   */
   @Test
   void getListingByFilter_validFilter2_returnsMultipleListingsResponse() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
@@ -292,11 +340,9 @@ class ListingServiceTest {
     filterRequest.setConditions(Collections.singletonList("NEW"));
     Pageable pageable = PageRequest.of(1, 10);
 
-    // Mock the repository to return our test listings
     when(listingRepo.getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class)))
             .thenReturn(new Listing[]{listing1, listing2});
 
-    // Mock the location and image retrieval
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
     when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
     when(listingImageRepo.getOneImageByListingId(1L)).thenReturn(Optional.of("image1.jpg"));
@@ -305,9 +351,8 @@ class ListingServiceTest {
     MultipleListingsResponse response = listingService.getListingByFilter(filterRequest, pageable);
 
     assertNotNull(response);
-    assertEquals(2, response.getElements().size()); // Now we expect two listings
+    assertEquals(2, response.getElements().size());
 
-    // Assertions for the first ShortListingResponse (based on listing1)
     ShortListingResponse shortListing1 = response.getElements().get(0);
     assertEquals(listing1.getId(), shortListing1.getId());
     assertEquals(listing1.getTitle(), shortListing1.getTitle());
@@ -316,7 +361,6 @@ class ListingServiceTest {
     assertEquals("image1.jpg", shortListing1.getPathToImage());
     assertEquals(listing1.getCondition().name().toLowerCase(), shortListing1.getCondition());
 
-    // Assertions for the second ShortListingResponse (based on listing2)
     ShortListingResponse shortListing2 = response.getElements().get(1);
     assertEquals(listing2.getId(), shortListing2.getId());
     assertEquals(listing2.getTitle(), shortListing2.getTitle());
@@ -325,7 +369,6 @@ class ListingServiceTest {
     assertNull(shortListing2.getPathToImage());
     assertEquals(listing2.getCondition().name().toLowerCase(), shortListing2.getCondition());
 
-    // Verify repository interactions
     verify(listingRepo).getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class));
     verify(locationRepo, times(2)).getLocationByPostalCode(anyInt());
     verify(listingImageRepo, times(2)).getOneImageByListingId(anyLong());

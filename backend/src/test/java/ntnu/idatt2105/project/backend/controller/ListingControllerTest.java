@@ -32,6 +32,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Test class for the ListingController.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -54,6 +57,9 @@ class ListingControllerTest {
   private ListingFilterRequest validFilterRequest;
   private ListingFilterRequest invalidFilterRequest;
 
+  /**
+   * Sets up the test data before each test.
+   */
   @BeforeEach
   void setUp() {
     listing1 = new Listing();
@@ -139,6 +145,11 @@ class ListingControllerTest {
     invalidFilterRequest.setConditions(Collections.singletonList("INVALID"));
   }
 
+  /**
+   * Tests the getListings method with a valid filter.
+   * Expects a 200 OK response with the correct listing data.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getListings_validFilter_returnsOk() throws Exception {
@@ -155,6 +166,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).getListingByFilter(any(ListingFilterRequest.class), any());
   }
 
+  /**
+   * Tests the getListings method with an invalid filter.
+   * Expects a 400 Bad Request response with an error message.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getListings_invalidFilter_returnsBadRequest() throws Exception {
@@ -170,6 +186,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).getListingByFilter(any(ListingFilterRequest.class), any());
   }
 
+  /**
+   * Tests the getListings method when the service throws an exception.
+   * Expects a 500 Internal Server Error response.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getListings_serviceError_returnsInternalServerError() throws Exception {
@@ -185,6 +206,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).getListingByFilter(any(ListingFilterRequest.class), any());
   }
 
+  /**
+   * Tests the addListing method with valid input.
+   * Expects a 200 OK response with the correct listing data.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addListing_validInput_returnsOk() throws Exception {
@@ -200,6 +226,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).addListing(any(AddListingRequest.class));
   }
 
+  /**
+   * Tests the addListing method with invalid input.
+   * Expects a 400 Bad Request response with an error message.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addListing_invalidInput_returnsBadRequest() throws Exception {
@@ -216,6 +247,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).addListing(any(AddListingRequest.class));
   }
 
+  /**
+   * Tests the addListing method when the service throws an exception.
+   * Expects a 500 Internal Server Error response.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addListing_serviceError_returnsInternalServerError() throws Exception {
@@ -232,6 +268,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).addListing(any(AddListingRequest.class));
   }
 
+  /**
+   * Tests the getListingById method with a valid ID.
+   * Expects a 200 OK response with the correct listing data.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getListingById_validId_returnsOk() throws Exception {
@@ -246,6 +287,11 @@ class ListingControllerTest {
     verify(listingService, times(1)).getListingById(1L);
   }
 
+  /**
+   * Tests the getListingById method with an invalid ID.
+   * Expects a 404 Not Found response.
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getListingById_invalidId_returnsNotFound() throws Exception {
