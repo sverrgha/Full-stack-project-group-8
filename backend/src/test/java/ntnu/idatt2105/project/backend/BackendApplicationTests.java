@@ -24,9 +24,5 @@ class BackendApplicationTests {
 		System.setProperty("spring.datasource.username", mysql.getUsername());
 		System.setProperty("spring.datasource.password", mysql.getPassword());
 	}
-	@Test
-	void contextLoads() {
-		System.out.println("Database URL: " + mysql.getJdbcUrl());
-	}
 
 }
