@@ -12,11 +12,16 @@
     "password": "Passord",
     "login": "Logg inn",
     "register": "Registrer deg her",
-    "notRegistered": "Ingen bruker?"
+    "notRegistered": "Ingen bruker?",
+    "loginSuccess": "Suksess",
+    "loggingIn": "Logger inn...",
+    "loginFailed": "Logg inn feilet"
   },
   "registerForm": {
-    "name": "Navn",
-    "nameRequired": "Navn er påkrevd",
+    "firstname": "Fornavn",
+    "lastname": "Etternavn",
+    "firstnameRequired": "Fornavn er påkrevd",
+    "lastnameRequired": "Etternavn er påkrevd",
     "email": "E-post",
     "invalidEmail": "Skriv inn en gyldig e-post",
     "phoneNumber": "Telefon nummer",

@@ -12,10 +12,16 @@
     "password": "Password",
     "login": "Login",
     "register": "Register here",
-    "notRegistered": "Don't have an account?"
+    "notRegistered": "Don't have an account?",
+    "loginSuccess": "Success",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed"
   },
   "registerForm": {
-    "name": "Name",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "firstnameRequired": "First name is required",
+    "lastnameRequired": "Last name is required",
     "nameRequired": "Name is required",
     "email": "Email",
     "invalidEmail": "Enter a valid email",
