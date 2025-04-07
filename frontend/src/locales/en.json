@@ -15,7 +15,10 @@
     "notRegistered": "Don't have an account?"
   },
   "registerForm": {
-    "name": "Name",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "firstnameRequired": "First name is required",
+    "lastnameRequired": "Last name is required",
     "nameRequired": "Name is required",
     "email": "Email",
     "invalidEmail": "Enter a valid email",

@@ -15,8 +15,10 @@
     "notRegistered": "Ingen bruker?"
   },
   "registerForm": {
-    "name": "Navn",
-    "nameRequired": "Navn er påkrevd",
+    "firstname": "Fornavn",
+    "lastname": "Etternavn",
+    "firstnameRequired": "Fornavn er påkrevd",
+    "lastnameRequired": "Etternavn er påkrevd",
     "email": "E-post",
     "invalidEmail": "Skriv inn en gyldig e-post",
     "phoneNumber": "Telefon nummer",
