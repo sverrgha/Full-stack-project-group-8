@@ -25,7 +25,7 @@ const filters = ref({
   searchQuery: '',
   priceMin: null,
   priceMax: null,
-  locations: [],
+  city: '',
   conditions: [],
   sortBy: 'created_at',
   sortDirection: 'DESC'
@@ -43,7 +43,7 @@ const fetchListings = async (resetPage = true) => {
     ...(filters.value.searchQuery && { query: filters.value.searchQuery }),
     ...(filters.value.priceMin && { minPrice: filters.value.priceMin }),
     ...(filters.value.priceMax && { maxPrice: filters.value.priceMax }),
-    ...(filters.value.locations?.length > 0 && { locations: filters.value.locations.join(',') }),
+    ...(filters.value.city && { city: filters.value.city }),
     ...(filters.value.conditions?.length > 0 && { conditions: filters.value.conditions.join(',') }),
     ...(filters.value.category && { categoryId: filters.value.category }),
     sortBy: filters.value.sortBy || 'created_at',
@@ -111,7 +111,7 @@ const applyFilters = (filterData) => {
     ...filters.value,
     priceMin: filterData.priceRange.min,
     priceMax: filterData.priceRange.max,
-    locations: filterData.locations,
+    city: filterData.city,
     conditions: filterData.conditions
   };
 
