@@ -47,10 +47,7 @@ jobs:
 
       - name: Configure Docker
         run: |
-          echo '{
-            "memory": "8g",
-            "cpus": 2
-          }' | sudo tee /etc/docker/daemon.json
+          echo '{"memory":"8g","cpus":2}' | sudo tee /etc/docker/daemon.json
           sudo systemctl restart docker
           docker info | grep Memory
 
@@ -60,13 +57,13 @@ jobs:
 
       - name: Build backend
         run: |
-          export MAVEN_OPTS="-Xmx2048m"
+          export MAVEN_OPTS="-Xmx3072m"
           mvn -B clean package --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false
         working-directory: backend
 
       - name: Run backend tests
         run: |
-          export MAVEN_OPTS="-Xmx3072m"
+          export MAVEN_OPTS="-Xmx4096m"
           mvn -B test --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false -Dspring.test.context.cache.maxSize=1
         working-directory: backend
         env:
