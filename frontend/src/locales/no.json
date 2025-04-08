@@ -5,6 +5,7 @@
     "newListing": "Ny annonse",
     "messages": "Meldinger",
     "profile": "Profil",
+    "admin": "Admin",
     "language": "No"
   },
   "loginForm": {
@@ -12,11 +13,16 @@
     "password": "Passord",
     "login": "Logg inn",
     "register": "Registrer deg her",
-    "notRegistered": "Ingen bruker?"
+    "notRegistered": "Ingen bruker?",
+    "loginSuccess": "Suksess",
+    "loggingIn": "Logger inn...",
+    "loginFailed": "Logg inn feilet"
   },
   "registerForm": {
-    "name": "Navn",
-    "nameRequired": "Navn er påkrevd",
+    "firstname": "Fornavn",
+    "lastname": "Etternavn",
+    "firstnameRequired": "Fornavn er påkrevd",
+    "lastnameRequired": "Etternavn er påkrevd",
     "email": "E-post",
     "invalidEmail": "Skriv inn en gyldig e-post",
     "phoneNumber": "Telefon nummer",
@@ -28,5 +34,130 @@
     "register": "Registrer deg",
     "login": "Logg inn her",
     "alreadyRegistered": "Allerede registrert?"
+  },
+  "newListing": {
+    "createNewListing": "Opprett ny annonse",
+    "title": "Tittel",
+    "brief-description": "Kort beskrivelse (valgfritt)",
+    "description": "Beskrivelse",
+    "price": "Pris",
+    "category": "Kategori",
+    "condition": "Tilstand",
+    "images": "Bilder",
+    "maxImages": "Maks 5 bilder",
+    "dragOrClick": "Dra filer hit eller klikk for å laste opp",
+    "createListing": "Opprett annonse",
+    "titleRequired": "Tittel er påkrevd",
+    "descriptionRequired": "Beskrivelsen må være minst 10 tegn",
+    "invalidPrice": "Vennligst angi en gyldig pris",
+    "categoryRequired": "Vennligst velg en kategori",
+    "imageRequired": "Minst ett bilde er påkrevd",
+    "maxImagesError": "Maksimalt 5 bilder tillatt",
+    "selectCategory": "Velg en kategori",
+    "postalCode": "Postnummer",
+    "invalidPostalCode": "Vennligst skriv inn et gyldig postnummer (4 siffer)"
+  },
+  "categories": {
+    "electronics": "Elektronikk",
+    "clothing": "Klær",
+    "furniture": "Møbler",
+    "books": "Bøker",
+    "sports": "Sport",
+    "other": "Annet"
+  },
+  "conditions": {
+    "new": "Ny",
+    "likeNew": "Som ny",
+    "good": "God",
+    "fair": "Brukbar",
+    "poor": "Slitt"
+  },
+  "common": {
+    "cancel": "Avbryt",
+    "submitting": "Sender inn...",
+    "requiredField": "Obligatorisk felt"
+  },
+  "profilePage": {
+    "posts": "Innlegg",
+    "favorites": "Favoritter",
+    "purchased": "Kjøpt"
+  },
+  "profileSettingsSideBar": {
+    "name": "For- og etternavn",
+    "biography": "Biografi",
+    "profilePicture": "Profilbilde"
+  },
+  "profileSettingsEditName": {
+    "h2": "Oppdater navnet ditt",
+    "name": "For- og etternavn",
+    "save": "Lagre"
+  },
+    "profileSettingsEditBiography": {
+        "h2": "Oppdater biografi",
+        "biography": "Biografi",
+        "save": "Lagre",
+        "helpText": "Skriv en kort beskrivelse av deg selv. Dette vil bli synlig for andre brukere."
+    },
+    "profileSettingsEditPicture": {
+        "h2": "Oppdater profilbilde",
+        "profilePicture": "Bytt profilbilde",
+        "save": "Lagre",
+        "helpText": "Gyldig format: JPG, PNG (maks 2MB)"
+    },
+    "productPage": {
+      "search": "Hva leter du etter?",
+      "filters": "Filtre",
+      "sortBy": "Sorter etter",
+      "categories": "Kategorier",
+      "vehicle": "Kjøretøy",
+      "clothing": "Klær",
+      "interior": "Interiør og møbler",
+      "property": "Eiendom",
+      "electronics": "Elektronikk",
+      "activity": "Aktivitet og fritid",
+      "beauty": "Skjønnhet og helse",
+      "noResults": "No results"
+    },
+      "sort": {
+        "newest": "Nyeste",
+        "oldest": "Eldste",
+        "priceLowToHigh": "Laveste pris først",
+        "priceHighToLow": "Høyeste pris først"
+      },
+    "productPageHidden":{
+      "clear": "Fjern alle",
+      "price": "Prisklasse",
+      "condition": "Tilstand",
+      "apply": "Bruk filtre",
+      "city": "By"
+    },
+    "itemDetailPage": {
+      "description": "Beskrivelse",
+      "condition": "Tilstand",
+      "location": "Sted",
+      "contactSeller": "Kontakt selger",
+      "itemDetails": "Vare detaljer",
+      "dateAdded": "Dato lagt til",
+      "seller": "Selger",
+      "category": "Kategori",
+      "id": "Produkt-ID",
+      "delete": "Slett",
+      "edit": "Rediger",
+      "save": "Lagre",
+      "cancel": "Avbryt",
+      "maxPictures": "Maks 10 bilder"
+    },
+    "admin": {
+      "dashboard": "Admin Kontrollpanel",
+      "showCategoriesButton": "Administrer Kategorier",
+      "hideCategoriesButton": "Skjul Kategoriadministrasjon",
+      "addNewCategoryButton": "Legg til ny Kategori",
+      "englishName": "Engelsk Navn",
+      "norwegianName": "Norsk Navn",
+      "addCategoryButton": "Legg til Kategori",
+      "currentCategories": "Nåværende Kategorier",
+      "actions": "Handlinger",
+      "nameInEnglish": "Kategori navn på engelsk",
+      "nameInNorwegian": "Kategori navn på norsk"
+    }
   }
-}

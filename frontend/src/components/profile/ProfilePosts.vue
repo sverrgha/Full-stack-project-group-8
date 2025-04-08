@@ -3,7 +3,7 @@ including categorise, and items-->
 
 <script setup>
 import { ref, computed } from 'vue'
-import ItemCard from './ItemCard.vue'
+import ItemCard from '../ItemCard.vue'
 
 // Active tab. Default is 'posts'
 const activeTab = ref('posts')
@@ -107,13 +107,13 @@ const itemsToShow = computed(() => {
     <!-- Tab navigation - keep this exactly as it was -->
     <div class="tab-nav">
       <button :class="{ active: activeTab === 'posts' }" @click="activeTab = 'posts'">
-        <img src="../assets/grid.svg" class="icon" /> Posts
+        <img src="../../assets/grid.svg" class="icon" /> Posts
       </button>
       <button :class="{ active: activeTab === 'favorites' }" @click="activeTab = 'favorites'">
-        <img src="../assets/heart1.svg" class="icon" /> Favorites
+        <img src="../../assets/heart1.svg" class="icon" /> Favorites
       </button>
       <button :class="{ active: activeTab === 'purchased' }" @click="activeTab = 'purchased'">
-        <img src="../assets/purchased.svg" class="icon" /> Purchased
+        <img src="../../assets/purchased.svg" class="icon" /> Purchased
       </button>
     </div>
 

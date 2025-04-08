@@ -5,6 +5,7 @@
     "newListing": "New Listing",
     "messages": "Messages",
     "profile": "Profile",
+    "admin": "Admin",
     "language": "En"
   },
   "loginForm": {
@@ -12,10 +13,16 @@
     "password": "Password",
     "login": "Login",
     "register": "Register here",
-    "notRegistered": "Don't have an account?"
+    "notRegistered": "Don't have an account?",
+    "loginSuccess": "Success",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed"
   },
   "registerForm": {
-    "name": "Name",
+    "firstname": "First name",
+    "lastname": "Last name",
+    "firstnameRequired": "First name is required",
+    "lastnameRequired": "Last name is required",
     "nameRequired": "Name is required",
     "email": "Email",
     "invalidEmail": "Enter a valid email",
@@ -28,5 +35,131 @@
     "register": "Register",
     "login": "Login here",
     "alreadyRegistered": "Already registered?"
+  },
+  "newListing": {
+    "createNewListing": "Create New Listing",
+    "title": "Title",
+    "brief-description": "Brief description (optional)",
+    "description": "Description",
+    "price": "Price",
+    "category": "Category",
+    "condition": "Condition",
+    "images": "Images",
+    "maxImages": "Max 5 images",
+    "dragOrClick": "Drag files here or click to upload",
+    "createListing": "Create Listing",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description must be at least 10 characters",
+    "invalidPrice": "Please enter a valid price",
+    "categoryRequired": "Please select a category",
+    "imageRequired": "At least one image is required",
+    "maxImagesError": "Maximum 5 images allowed",
+    "selectCategory": "Select a category",
+    "postalCode": "Postal Code",
+    "invalidPostalCode": "Please enter a valid postal code (4 digits)"
+  },
+  "categories": {
+    "electronics": "Electronics",
+    "clothing": "Clothing",
+    "furniture": "Furniture",
+    "books": "Books",
+    "sports": "Sports",
+    "other": "Other"
+  },
+  "conditions": {
+    "new": "New",
+    "likeNew": "Like New",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "submitting": "Submitting...",
+    "requiredField": "Required field"
+  },
+  "profilePage": {
+    "posts": "Posts",
+    "favorites": "Favorites",
+    "purchased": "Purchased"
+  },
+  "profileSettingsSideBar": {
+    "name": "First- and lastname",
+    "biography": "Biography",
+    "profilePicture": "Profile picture"
+  },
+  "profileSettingsEditName": {
+    "h2": "Update your name",
+    "name": "First- and lastname",
+    "save": "Save"
+  },
+    "profileSettingsEditBiography": {
+        "h2": "Update your biography",
+        "biography": "Biography",
+        "save": "Save",
+        "helpText": "Tell us a bit about yourself. This will be visible to other users."
+    },
+    "profileSettingsEditPicture": {
+        "h2": "Update profile picture",
+        "profilePicture": "Change profile picture",
+        "save": "Save",
+        "helpText": "Allowed formats: JPG, PNG (max 2MB)"
+    },
+  "productPage": {
+    "search": "What are you looking for?",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "categories": "Categories",
+    "vehicle": "Vehicle",
+    "clothing": "Clothing",
+    "interior": "Interior and furniture",
+    "property": "Property",
+    "activity": "Activity and leisure",
+    "electronics": "Electronics",
+    "beauty": "Beauty and health",
+    "noResults": "No results"
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "priceLowToHigh": "Lowest price first",
+    "priceHighToLow": "Highest price first"
+  },
+  "productPageHidden": {
+    "clear": "Clear All",
+    "price": "Price Range",
+    "location": "Location",
+    "condition": "Condition",
+    "apply": "Apply Filters",
+    "city": "City"
+  },
+  "itemDetailPage": {
+    "description": "Description",
+    "condition": "Condition",
+    "location": "Location",
+    "contactSeller": "Contact Seller",
+    "itemDetails": "Item Details",
+    "dateAdded": "Date Added",
+    "seller": "Seller",
+    "category": "Category",
+    "id": "Product-ID",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "maxPictures": "Max 10 pictures"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "showCategoriesButton": "Manage Categories",
+    "hideCategoriesButton": "Hide Categories Management",
+    "addNewCategoryButton": "Add New Category",
+    "englishName": "English Name",
+    "norwegianName": "Norwegian Name",
+    "addCategoryButton": "Add Category",
+    "currentCategories": "Current Categories",
+    "actions": "Actions",
+    "nameInEnglish": "Category name in English",
+    "nameInNorwegian": "Category name in Norwegian"
   }
 }

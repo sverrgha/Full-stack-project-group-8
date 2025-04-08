@@ -4,6 +4,12 @@ import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import ProfilePage from '../views/ProfilePage.vue'
 import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
+import ProductsPage from '../views/ProductsPage.vue'
+import NewListingPage from '../views/NewListingPage.vue'
+import MessagePage from "../views/MessagePage.vue"
+import ItemDetailPage from "../views/ItemDetailPage.vue"
+import AdminPage from "../views/AdminPage.vue"
+import { useAuthStore } from "../stores/auth.js"
 
 const routes = [
     {
@@ -23,19 +29,57 @@ const routes = [
     {
         path: '/profile',
         name: 'Profile',
-        component: ProfilePage
+        component: ProfilePage,
+        meta: { requiresAuth: true }
     },
     {
         path: '/profile/settings',
         name: 'ProfileSettings',
         component: ProfileSettingsPage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/products',
+        name: 'Products',
+        component: ProductsPage,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: '/new-listing',
+        name: 'NewListing',
+        component: NewListingPage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/messages',
+        name: 'messages',
+        component: MessagePage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/product/:id',
+        name: 'product',
+        component: ItemDetailPage
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: AdminPage
     }
-
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+})
+
+router.beforeEach((to, from, next) => {
+    const auth = useAuthStore()
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        next('/login')
+    } else {
+        next()
+    }
 })
 
 export default router

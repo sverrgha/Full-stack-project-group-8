@@ -1,34 +1,43 @@
 <script setup>
-import { reactive } from 'vue'
+import {reactive, ref} from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from "vue-i18n";
+import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
 const { t } = useI18n()
+const authStore = useAuthStore()
+const isSubmitting = ref(false)
 
 const form = reactive({
-  name: '',
+  firstname: '',
+  lastname: '',
   email: '',
   phone: '',
   password: '',
   confirmPassword: ''
 })
 
-// Track errors when register is clicked
 const errors = reactive({
-  name: '',
+  firstname: '',
+  lastname: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  api: ''
 })
 
-const register = () => {
+const register = async () => {
   clearErrors()
 
   // Validation error messages showing when register is clicked
-  if (!form.name.trim()) {
-    errors.name = 'registerForm.nameRequired'
+  if (!form.firstname.trim()) {
+    errors.firstname = 'registerForm.firstnameRequired'
+  }
+
+  if (!form.lastname.trim()) {
+    errors.lastname = 'registerForm.lastnameRequired'
   }
 
   if (!/\S+@\S+\.\S+/.test(form.email)) {
@@ -39,7 +48,7 @@ const register = () => {
     errors.phone = 'registerForm.invalidPhoneNumber'
   }
 
-  if (form.password.length < 6) {
+  if (form.password.length < 8) {
     errors.password = 'registerForm.passwordLength'
   }
 
@@ -47,12 +56,29 @@ const register = () => {
     errors.confirmPassword = 'registerForm.passwordsMustMatch'
   }
 
-  // If no errors, proceed
   const hasErrors = Object.values(errors).some(msg => msg !== '')
   if (hasErrors) return
 
-  console.log('Registering:', form)
-  router.push('/login')
+  try {
+    isSubmitting.value = true;
+
+    const userData = {
+      email: form.email,
+      password: form.password,
+      firstname: form.firstname,
+      lastname: form.lastname,
+      phoneNumber: form.phone
+    }
+
+    await authStore.register(userData);
+
+    console.log('Registering:', form)
+    router.push('/login')
+  } catch (error) {
+    errors.api = error.response?.data?.message || 'registerForm.registrationFailed'
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 const clearErrors = () => {
@@ -69,21 +95,36 @@ const goToLogin = () => {
 <template>
   <div class="register-form">
     <h1>{{ t('registerForm.register') }}</h1>
+
+    <!-- Display API errors if any -->
+    <div v-if="errors.api" class="api-error">
+      {{ t(errors.api) }}
+    </div>
+
     <form @submit.prevent="register">
-      <!-- Name -->
+      <!-- First Name -->
       <div class="form-group">
-        <label for="name">{{ t('registerForm.name') }}</label>
-        <input type="text" id="name" v-model="form.name"
-            :class="{ invalid: errors.name }"
+        <label for="firstname">{{ t('registerForm.firstname') }}</label>
+        <input type="text" id="firstname" v-model="form.firstname"
+               :class="{ invalid: errors.firstname }"
         />
-        <p v-if="errors.name" class="error-message">{{ t(errors.name) }}</p>
+        <p v-if="errors.firstname" class="error-message">{{ t(errors.firstname) }}</p>
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-group">
+        <label for="lastname">{{ t('registerForm.lastname') }}</label>
+        <input type="text" id="lastname" v-model="form.lastname"
+               :class="{ invalid: errors.lastname }"
+        />
+        <p v-if="errors.lastname" class="error-message">{{ t(errors.lastname) }}</p>
       </div>
 
       <!-- Email -->
       <div class="form-group">
         <label for="email">{{ t('registerForm.email') }}</label>
         <input type="email" id="email" v-model="form.email"
-            :class="{ invalid: errors.email }"
+               :class="{ invalid: errors.email }"
         />
         <p v-if="errors.email" class="error-message">{{ t(errors.email) }}</p>
       </div>
@@ -92,7 +133,7 @@ const goToLogin = () => {
       <div class="form-group">
         <label for="phone">{{ t('registerForm.phoneNumber') }}</label>
         <input type="text" id="phone" v-model="form.phone"
-            :class="{ invalid: errors.phone }"
+               :class="{ invalid: errors.phone }"
         />
         <p v-if="errors.phone" class="error-message">{{ t(errors.phone) }}</p>
       </div>
@@ -101,7 +142,7 @@ const goToLogin = () => {
       <div class="form-group">
         <label for="password">{{ t('registerForm.password') }}</label>
         <input type="password" id="password" v-model="form.password"
-            :class="{ invalid: errors.password }"
+               :class="{ invalid: errors.password }"
         />
         <p v-if="errors.password" class="error-message">{{ t(errors.password) }}</p>
       </div>
@@ -110,14 +151,14 @@ const goToLogin = () => {
       <div class="form-group">
         <label for="confirmPassword">{{  t('registerForm.confirmPassword') }}</label>
         <input type="password" id="confirmPassword" v-model="form.confirmPassword"
-            :class="{ invalid: errors.confirmPassword }"
+               :class="{ invalid: errors.confirmPassword }"
         />
         <p v-if="errors.confirmPassword" class="error-message">{{ t(errors.confirmPassword) }}</p>
       </div>
 
-      <!-- Register Button -->
-      <button type="submit" class="btn primary">
-        {{ t('registerForm.register') }}
+      <!-- Register Button with loading state -->
+      <button type="submit" class="btn primary" :disabled="isSubmitting">
+        {{ isSubmitting ? t('registerForm.registering') : t('registerForm.register') }}
       </button>
 
       <!-- Link to Login -->
@@ -144,6 +185,14 @@ h1 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #333;
+}
+
+.api-error {
+  color: #e74c3c;
+  background-color: #fde2e2;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 20px;
 }
 
 .form-group {

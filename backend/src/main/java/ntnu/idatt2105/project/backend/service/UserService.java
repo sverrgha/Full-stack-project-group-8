@@ -1,12 +1,14 @@
 package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
@@ -51,19 +53,20 @@ public class UserService implements UserDetailsService {
     Optional<User> existingUser = userRepo.findByEmail(email);
     if (existingUser.isPresent()) {
       return new AuthResponse(email, AuthResponseMessage
-              .USER_ALREADY_EXISTS.getMessage(), null);
+              .USER_ALREADY_EXISTS.getMessage(), null, null);
     }
 
     try {
       userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
     } catch (Exception e) {
       return new AuthResponse(email, AuthResponseMessage
-              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null);
+              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null);
     }
     String token = jwtUtil.generateToken(email);
 
     return new AuthResponse(email, AuthResponseMessage
-            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token);
+            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
+            jwtUtil.getExpirationDate(token));
   }
 
   /**
@@ -79,16 +82,17 @@ public class UserService implements UserDetailsService {
     String email = request.getEmail();
     Optional<User> user = userRepo.findByEmail(email);
     if (user.isEmpty()) {
-      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null);
+      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null);
     }
     if (!PasswordUtil.verifyPassword(request.getPassword(), user.get().getPassword())) {
-      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null);
+      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
     }
 
     String token = jwtUtil.generateToken(email);
 
     return new AuthResponse(email,
-            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token);
+            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
+            jwtUtil.getExpirationDate(token));
   }
 
   /**
@@ -110,5 +114,34 @@ public class UserService implements UserDetailsService {
     }
     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
             new ArrayList<>());
+  }
+
+  /**
+   * This method checks if a user exists in the database by their ID.
+   *
+   * @param id The ID of the user to be checked.
+   * @return true if the user exists, false otherwise.
+   */
+  public boolean userExists(long id) {
+    return userRepo.findById(id).isPresent();
+  }
+
+  /**
+   * This method checks if the user ID matches the email in the JWT token.
+   * It retrieves the user from the database using the UserRepo interface
+   * and compares the email in the token with the user's email.
+   * @param id The ID of the user to be checked.
+   * @param token The JWT token containing the user's email.
+   * @return true if the user ID matches the email in the token, false otherwise.
+   */
+  public boolean validateUserIdMatchesToken(long id, String token) {
+    Optional<User> user = userRepo.findById(id);
+    if (user.isPresent()) {
+      String email = user.get().getEmail();
+      String tokenEmail = jwtUtil.extractUsername(token);
+      return email.equals(tokenEmail);
+    } else {
+      return false;
+    }
   }
 }

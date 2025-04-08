@@ -9,6 +9,7 @@ import addIcon from '../assets/addIcon.svg';
 import bellIcon from '../assets/bellIcon.svg';
 import productIcon from '../assets/Products.svg';
 import userIcon from '../assets/user.svg';
+import adminIcon from '../assets/admin.svg';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -29,6 +30,7 @@ const props = defineProps({
 
 // Create a map of text keys to icons
 const iconMap = {
+  'admin': adminIcon,
   'products': productIcon,
   'notifications': bellIcon,
   'newListing': addIcon,
