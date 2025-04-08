@@ -22,7 +22,7 @@ const editingCategory = ref({ name: '', nameNo: '' });
 // Emits
 const emit = defineEmits(['update:categories']);
 
-// CRUD operations
+// Add Category
 const addCategory = () => {
   if (newCategory.value.name && newCategory.value.nameNo) {
     categories.value.push({...newCategory.value});
@@ -31,11 +31,13 @@ const addCategory = () => {
   }
 };
 
+// Edit Category
 const startEdit = (index) => {
   editingIndex.value = index;
   editingCategory.value = {...categories.value[index]};
 };
 
+// Save Edit
 const saveEdit = () => {
   if (editingIndex.value >= 0 && editingCategory.value.name && editingCategory.value.nameNo) {
     categories.value[editingIndex.value] = {...editingCategory.value};
@@ -44,11 +46,13 @@ const saveEdit = () => {
   }
 };
 
+// Cancel Edit
 const cancelEdit = () => {
   editingIndex.value = -1;
   editingCategory.value = { name: '', nameNo: '' };
 };
 
+// Delete Category
 const deleteCategory = (index) => {
   if (confirm('Are you sure you want to delete this category?')) {
     categories.value.splice(index, 1);
