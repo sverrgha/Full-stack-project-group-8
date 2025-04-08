@@ -122,7 +122,7 @@ public class ListingController {
     }
   }
 
-  @GetMapping("/user/recomended")
+  @GetMapping("/user/recommended")
   public ResponseEntity<MultipleListingsResponse> getRecomendedListings(
           @RequestParam Long userId,
           @PageableDefault(size = 20, page = 1, sort = "created_at",

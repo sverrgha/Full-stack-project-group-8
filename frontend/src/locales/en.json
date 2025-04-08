@@ -116,7 +116,8 @@
     "property": "Property",
     "activity": "Activity and leisure",
     "electronics": "Electronics",
-    "beauty": "Beauty and health"
+    "beauty": "Beauty and health",
+    "noResults": "No results"
   },
   "sort": {
     "newest": "Newest",
@@ -129,7 +130,8 @@
     "price": "Price Range",
     "location": "Location",
     "condition": "Condition",
-    "apply": "Apply Filters"
+    "apply": "Apply Filters",
+    "city": "City"
   },
   "itemDetailPage": {
     "description": "Description",

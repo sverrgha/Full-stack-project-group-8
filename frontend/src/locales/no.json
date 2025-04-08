@@ -115,7 +115,8 @@
       "property": "Eiendom",
       "electronics": "Elektronikk",
       "activity": "Aktivitet og fritid",
-      "beauty": "Skjønnhet og helse"
+      "beauty": "Skjønnhet og helse",
+      "noResults": "No results"
     },
       "sort": {
         "newest": "Nyeste",
@@ -126,9 +127,9 @@
     "productPageHidden":{
       "clear": "Fjern alle",
       "price": "Prisklasse",
-      "location": "Sted",
       "condition": "Tilstand",
-      "apply": "Bruk filtre"
+      "apply": "Bruk filtre",
+      "city": "By"
     },
     "itemDetailPage": {
       "description": "Beskrivelse",

@@ -43,7 +43,7 @@ public class ListingService {
    */
   private static final List<String> ALLOWED_SORT_FIELDS = Arrays.asList(
           "price",
-          "createdAt"
+          "created_at"
   );
 
   /**
@@ -70,8 +70,19 @@ public class ListingService {
     if (page < 0) {
       page = 0;
     }
-    pageable = PageRequest.of(page, pageable.getPageSize(),
-            Sort.by("created_at").descending());
+
+    String sortBy = filterRequest.getSortBy();
+    String sortOrder = filterRequest.getSortOrder();
+
+    if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+      sortBy = "created_at";
+    }
+    Sort.Direction direction = "asc".equalsIgnoreCase(sortOrder)
+            ? Sort.Direction.ASC
+            : Sort.Direction.DESC;
+
+    pageable = PageRequest.of(page, pageable.getPageSize(), Sort.by(direction, sortBy));
+
 
     Page<Listing> listings = listingRepo.getAllListingsByCriteria(
             filterRequest.getCategoryId(),
