@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -376,5 +378,56 @@ class ListingServiceTest {
     verify(listingRepo).getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class));
     verify(locationRepo, times(2)).getLocationByPostalCode(anyInt());
     verify(listingImageRepo, times(2)).getOneImageByListingId(anyLong());
+  }
+
+  @Test
+  void getMultipleListingsById_singleId_returnsResponse() {
+    List<Long> ids = Collections.singletonList(listing1.getId());
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Listing> listings = Collections.singletonList(listing1);
+    Page<Listing> mockPage = new PageImpl<>(listings, pageable, 1);
+    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+
+    MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
+
+    assertNotNull(actualResponse);
+    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+  }
+
+  @Test
+  void getMultipleListingsById_multipleIds_returnsResponse() {
+    List<Long> ids = Arrays.asList(listing1.getId(), listing2.getId());
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Listing> listings = Arrays.asList(listing1, listing2);
+    Page<Listing> mockPage = new PageImpl<>(listings, pageable, 2);
+    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+
+
+    MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
+
+    assertNotNull(actualResponse);
+    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+  }
+
+  @Test
+  void listingExists_idFound_returnsTrue() {
+    Long id = 1L;
+    when(listingRepo.getListingById(id)).thenReturn(Optional.of(new Listing()));
+
+    boolean exists = listingService.listingExists(id);
+
+    assertTrue(exists);
+    verify(listingRepo, times(1)).getListingById(id);
+  }
+
+  @Test
+  void listingExists_idNotFound_returnsFalse() {
+    Long id = 99L;
+    when(listingRepo.getListingById(id)).thenReturn(Optional.empty());
+
+    boolean exists = listingService.listingExists(id);
+
+    assertFalse(exists);
+    verify(listingRepo, times(1)).getListingById(id);
   }
 }
