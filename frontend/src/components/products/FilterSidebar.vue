@@ -81,13 +81,14 @@ const updateMaxPrice = (event) => {
   priceMax.value = value;
 };
 
-// Location options as an array of objects with checked property for multi-select
-const locations = ref([
-  { id: 1, name: 'Oslo', checked: false },
-  { id: 2, name: 'Bergen', checked: false },
-  { id: 3, name: 'Trondheim', checked: false },
-  { id: 4, name: 'Stavanger', checked: false },
-  { id: 5, name: 'Tromsø', checked: false },
+// Store a single selected city value
+const selectedCity = ref('');
+const cities = ref([
+  { id: 1, name: 'Oslo' },
+  { id: 2, name: 'Bergen' },
+  { id: 3, name: 'Trondheim' },
+  { id: 4, name: 'Stavanger' },
+  { id: 5, name: 'Tromsø' },
 ]);
 
 // Condition options as an array of objects with checked property for multi-select
@@ -99,45 +100,33 @@ const conditions = ref([
   { id: 5, name: 'poor', checked: false },
 ]);
 
-// Computed property for selected locations
-const selectedLocations = computed(() => {
-  return locations.value.filter(loc => loc.checked).map(loc => loc.name);
-});
-
 // Computed property for selected conditions
 const selectedConditions = computed(() => {
   return conditions.value.filter(cond => cond.checked).map(cond => cond.name);
 });
 
 const applyFilters = () => {
-  // Check if price range is valid before applying
-  if (!isPriceRangeValid.value) {
-    return;
-  }
+  if (!isPriceRangeValid.value) return;
 
-  // Collect all active filters
   const activeFilters = {
     priceRange: { min: priceMin.value, max: priceMax.value },
-    locations: selectedLocations.value,
+    city: selectedCity.value, // Single city value instead of array
     conditions: selectedConditions.value
   };
 
   console.log('Applied filters:', activeFilters);
-  emit('apply', activeFilters)
+  emit('apply', activeFilters);
 
-  // Close sidebar after applying on mobile
-  if (window.innerWidth < 768) {
-    closeSidebar();
-  }
+  if (window.innerWidth < 768) closeSidebar();
 };
 
+// Update resetFilters to clear the selected city
 const resetFilters = () => {
   priceMin.value = 0;
   priceMax.value = 100000;
   priceError.value = '';
 
-  // Reset all checkboxes
-  locations.value.forEach(loc => loc.checked = false);
+  selectedCity.value = ''; // Reset selected city
   conditions.value.forEach(cond => cond.checked = false);
 };
 </script>
@@ -205,21 +194,22 @@ const resetFilters = () => {
         </div>
       </div>
 
-      <!-- Location with checkboxes for multi-select -->
       <div class="filter-section">
-        <h3>{{ t('productPageHidden.location') }}</h3>
+        <h3>{{ t('productPageHidden.city') }}</h3>
         <div class="checkbox-group">
           <div
-              v-for="location in locations"
-              :key="`loc-${location.id}`"
+              v-for="city in cities"
+              :key="`city-${city.id}`"
               class="checkbox-item"
           >
             <input
-                type="checkbox"
-                :id="`loc-${location.id}`"
-                v-model="location.checked"
+                type="radio"
+                :id="`city-${city.id}`"
+                v-model="selectedCity"
+                :value="city.name"
+                name="city"
             />
-            <label :for="`loc-${location.id}`">{{ location.name }}</label>
+            <label :for="`city-${city.id}`">{{ city.name }}</label>
           </div>
         </div>
       </div>
