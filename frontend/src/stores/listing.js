@@ -28,13 +28,17 @@ export const useListingStore = defineStore('listing', {
             try {
                 const pageable = {
                     page,
-                    size,
-                    sort: 'created_at',
-                    direction: 'DESC'
+                    size
                 };
 
                 const response = await listingService.getListings(filters, pageable);
-                this.listings = response.data.elements;
+
+                if (page === 1) {
+                    this.listings = response.data.elements;
+                } else {
+                    this.listings = [...this.listings, ...response.data.elements];
+                }
+
                 this.totalElements = response.data.totalElements;
                 this.totalPages = response.data.totalPages;
                 this.currentPage = response.data.currentPage;
