@@ -46,9 +46,9 @@ jobs:
         working-directory: backend
 
       - name: Build backend
-        run: mvn clean package
+        run:  mvn -B clean package --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false -DskipTests 
         working-directory: backend
 
       - name: Run backend tests
-        run: mvn test
+        run:  mvn -B test --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false        
         working-directory: backend
