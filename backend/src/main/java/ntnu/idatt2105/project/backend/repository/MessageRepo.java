@@ -40,7 +40,9 @@ public class MessageRepo {
      * @return A list of messages between the two users.
      */
     public List<Message> findBySenderAndReceiver(long user1, long user2) {
-        String sql = "SELECT * FROM sverrgha_datab.messages WHERE (from_user_id= ? AND to_user_id= ?) OR (from_user_id = ? AND to_user_id = ?)";
+        String sql = "SELECT * FROM sverrgha_datab.messages WHERE " + 
+                     "(from_user_id= ? AND to_user_id= ?) OR " +
+                     "(from_user_id = ? AND to_user_id = ?)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Message message = new Message();
             message.setId(rs.getLong("id"));
@@ -48,6 +50,7 @@ public class MessageRepo {
             message.setReceiver(rs.getLong("to_user_id"));
             message.setContent(rs.getString("message"));
             message.setTimestamp(rs.getString("sent_at"));
+            message.setRead(rs.getBoolean("is_read"));
             return message;
         }, user1, user2, user2, user1);
     }
@@ -92,13 +95,14 @@ public class MessageRepo {
             message.setReceiver(rs.getLong("to_user_id"));
             message.setContent(rs.getString("message"));
             message.setTimestamp(rs.getString("sent_at"));
-            message.setRead(rs.getBoolean("read")); // Assuming you have a 'read' column
+            message.setRead(rs.getBoolean("read"));
             return message;
         }, userId, userId);
     }
 
     /**
-     * Retrieves a summary of conversations for a specific user.
+     * Retrieves the inbox view for a specific user.
+     * This includes the latest message, the other user's email, timestamp, and read status.
      *
      * @param userId The ID of the user.
      * @return A list of conversation summaries for the user.
@@ -111,23 +115,32 @@ public class MessageRepo {
                      "  END AS other_user_id, " +
                      "  u.email AS other_user_email, " +
                      "  m.message AS last_message, " +
-                     "  m.sent_at AS latest_message_time " +
+                     "  m.sent_at AS latest_message_time, " +
+                     "  m.is_read AS is_read " +
                      "FROM sverrgha_datab.messages m " +
                      "JOIN sverrgha_datab.users u ON u.id = " +
-                     "  CASE " +
+                     "CASE " +
                      "    WHEN m.from_user_id = ? THEN m.to_user_id " +
                      "    ELSE m.from_user_id " +
                      "  END " +
-                     "WHERE m.from_user_id = ? OR m.to_user_id = ? " +
+                     "WHERE m.id IN ( " +
+                     "  SELECT MAX(id) " +
+                     "  FROM sverrgha_datab.messages " +
+                     "  WHERE from_user_id = ? OR to_user_id = ? " +
+                     "  GROUP BY CASE " +
+                     "    WHEN from_user_id = ? THEN to_user_id " +
+                     "    ELSE from_user_id " +
+                     "  END " +
+                     ") " +
                      "ORDER BY m.sent_at DESC";
-    
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             ConversationSummaryResponse summary = new ConversationSummaryResponse();
             summary.setOtherUserEmail(rs.getString("other_user_email")); 
             summary.setLastMessage(rs.getString("last_message"));
-            summary.setTimestamp(rs.getTimestamp("latest_message_time").toString());
+            summary.setTimestamp(rs.getString("latest_message_time"));
+            summary.setRead(rs.getBoolean("is_read"));
             return summary;
-        }, userId, userId, userId, userId);
+        }, userId, userId, userId, userId, userId);
     }
 
     /**
@@ -137,7 +150,10 @@ public class MessageRepo {
      * @param id2 The ID of the second user.
      */
     public void markAsReadForConveration(long id, long id2) {
-        String sql = "UPDATE sverrgha_datab.messages SET isRead = true WHERE (from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?)";
+        String sql = "UPDATE sverrgha_datab.messages " +
+                     "SET is_read = true " +
+                     "WHERE (from_user_id = ? AND to_user_id = ?) " +
+                     "   OR (from_user_id = ? AND to_user_id = ?)";
         jdbcTemplate.update(sql, id, id2, id2, id);
     }
 }
