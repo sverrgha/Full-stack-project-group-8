@@ -192,7 +192,7 @@ public class ListingService {
   private MultipleListingsResponse mapToMultipleListingResponse(Page<Listing> listings) {
     return new MultipleListingsResponse(
             mapListingsToShortResponse(listings.getContent().toArray(new Listing[0])),
-            listings.getContent().size(),
+            listings.getTotalElements(),
             listings.getTotalPages(),
             listings.getNumber() + 1,
             listings.getSize(),
