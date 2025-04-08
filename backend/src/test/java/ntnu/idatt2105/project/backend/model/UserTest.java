@@ -9,7 +9,17 @@ import java.sql.Date;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * This class contains unit tests for the User class.
+ * It tests the constructors, getters, setters, equals, hashCode, and toString methods of the User class.
+ */
 public class UserTest {
+
+    /**
+     * Test the constructor of the User class with all fields.
+     * This test checks if the constructor correctly initializes the fields of the User object.
+     * It also verifies that the getters return the expected values.
+     */
     @Test
     void testUserConstructorAndGetters() {
 
@@ -33,6 +43,12 @@ public class UserTest {
         assertTrue(user.isAdmin());
         assertEquals(createdAt, user.getCreatedAt());
     }
+
+    /**
+     * Test the setters of the User class.
+     * This test checks if the setters correctly update the fields of the User object.
+     * It also verifies that the getters return the expected values after using the setters.
+     */
     @Test
     void testSetters() {
 
@@ -64,6 +80,14 @@ public class UserTest {
         assertFalse(user.isAdmin());
         assertEquals(createdAt, user.getCreatedAt());
     }
+
+    /**
+     * Test the equals and hashCode methods of the User class.
+     * This test checks if two User objects with the same values are considered equal
+     * and if their hash codes are the same.
+     * It also verifies that two User objects with different values are not equal
+     * and have different hash codes.
+     */
     @Test
     void testEqualsAndHashCode() {
 
@@ -76,6 +100,12 @@ public class UserTest {
         assertEquals(user1.hashCode(), user2.hashCode()); 
         assertNotEquals(user1.hashCode(), user3.hashCode());
     }
+
+    /**
+     * Test the toString method of the User class.
+     * This test checks if the toString method returns a string representation of the User object
+     * that contains the expected values.
+     */
     @Test
     void testToString() {
 
