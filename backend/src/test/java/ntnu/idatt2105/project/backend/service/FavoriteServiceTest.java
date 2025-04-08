@@ -87,7 +87,7 @@ class FavoriteServiceTest {
 
   /**
    * Test for removing a listing as a favorite with invalid input.
-   * Verifies that no exception is not raised.
+   * Verifies that no exception is raised.
    */
   @Test
   void removeListingAsFavorite_validInput_deletes() {
