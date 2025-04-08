@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class UserFavoritesRepo {
+public class  UserFavoritesRepo {
   private final JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -22,12 +22,9 @@ public class UserFavoritesRepo {
     jdbcTemplate.update(sql, userId, listingId);
   }
 
-  public List<UserFavorite> getByUserId(long userId) {
+  public List<Long> getFavoriteIdsByUserId(long userId) {
     String sql = "SELECT * FROM sverrgha_datab.user_favorites WHERE user_id = ?";
-    return jdbcTemplate.query(sql, (rs, rowNum) -> new UserFavorite(
-            rs.getLong("user_id"),
-            rs.getLong("listing_id")
-    ), userId);
+    return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("listing_id"), userId);
   }
 
   public void deleteByUserIdAndListingId(long userId, long listingId) {

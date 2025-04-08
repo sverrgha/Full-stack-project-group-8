@@ -1,8 +1,11 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.service.FavoriteService;
 import ntnu.idatt2105.project.backend.util.TokenExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,12 +14,36 @@ import org.springframework.web.bind.annotation.*;
 public class UserFavoriteController {
   private final FavoriteService favoriteService;
 
-    private static final java.util.logging.Logger logger =
-            java.util.logging.Logger.getLogger(UserFavoriteController.class.getName());
+  private static final java.util.logging.Logger logger =
+          java.util.logging.Logger.getLogger(UserFavoriteController.class.getName());
 
   @Autowired
   public UserFavoriteController(FavoriteService favoriteService) {
     this.favoriteService = favoriteService;
+  }
+
+  @GetMapping
+  public ResponseEntity<MultipleListingsResponse> getFavorites(
+          @RequestParam Long userId,
+          @RequestHeader("Authorization") String authHeader,
+          @PageableDefault(size = 20, page = 1, sort = "created_at",
+                  direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+  ) {
+    logger.info("Received request to get favorite listings for user ID: " + userId);
+
+    try {
+      MultipleListingsResponse response = favoriteService.getAllFavorites(userId, pageable,
+              TokenExtractor.extractToken(authHeader));
+      logger.info("Favorite listings fetched successfully for user ID: " + userId);
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid favorite request: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse());
+    } catch (Exception e) {
+      logger.severe("Error while fetching favorite listings: " + e.getMessage());
+      return ResponseEntity.internalServerError()
+              .body(new MultipleListingsResponse());
+    }
   }
 
   @PostMapping

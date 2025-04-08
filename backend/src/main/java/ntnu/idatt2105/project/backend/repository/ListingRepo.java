@@ -3,6 +3,8 @@ package ntnu.idatt2105.project.backend.repository;
 import ntnu.idatt2105.project.backend.model.Listing;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,50 +102,66 @@ public class ListingRepo {
    * @param categoryId the ID of the category whose listings are to be retrieved
    * @return an array of the paths to the image as a String.
    */
-  public Listing[] getAllListingsByCriteria(Long categoryId, String city, Double minPrice,
+  public Page<Listing> getAllListingsByCriteria(Long categoryId, String city, Double minPrice,
                                             Double maxPrice, List<String> conditions,
                                             Pageable pageable) {
     StringBuilder sql = new StringBuilder("SELECT l.* FROM sverrgha_datab.listings l");
-    sql.append(" JOIN sverrgha_datab.locations loc ON l.postal_code = loc.postal_code WHERE l.status = 'active'"); // Assuming 'active' was a typo and should be 'AVAILABLE'
+    sql.append(" JOIN sverrgha_datab.locations loc ON l.postal_code = loc.postal_code WHERE l.status = 'active'");
+
+    StringBuilder countSql = new StringBuilder("SELECT COUNT(*) FROM sverrgha_datab.listings l");
+    countSql.append(" JOIN sverrgha_datab.locations loc ON l.postal_code = loc.postal_code WHERE l.status = 'active'");
+
     List<Object> params = new ArrayList<>();
 
     if (categoryId != null) {
-      sql.append(" AND l.category_id = ?");
+      String clause = " AND l.category_id = ?";
+      sql.append(clause);
+      countSql.append(clause);
       params.add(categoryId);
     }
 
     if (city != null && !city.isEmpty()) {
-      sql.append(" AND loc.city = ?");
+      String clause = " AND loc.city = ?";
+      sql.append(clause);
+      countSql.append(clause);
       params.add(city);
     }
 
     if (minPrice != null) {
-      sql.append(" AND l.price >= ?");
+      String clause = " AND l.price >= ?";
+      sql.append(clause);
+      countSql.append(clause);
       params.add(minPrice);
     }
 
     if (maxPrice != null) {
-      sql.append(" AND l.price <= ?");
+      String clause = " AND l.price <= ?";
+      sql.append(clause);
+      countSql.append(clause);
       params.add(maxPrice);
     }
 
     if (conditions != null && !conditions.isEmpty()) {
-      sql.append(" AND ("); // Start of the OR group
+      StringBuilder conditionClause = new StringBuilder(" AND (");
       boolean firstCondition = true;
       for (String condition : conditions) {
         if (!EnumUtils.isValidEnumIgnoreCase(Listing.Condition.class, condition)) {
           throw new IllegalArgumentException("Invalid condition: " + condition);
         }
         if (!firstCondition) {
-          sql.append(" OR ");
+          conditionClause.append(" OR ");
         }
-        sql.append("l.condition = ?");
+        conditionClause.append("l.condition = ?");
         params.add(condition.toLowerCase());
         firstCondition = false;
       }
-      sql.append(")");
+      conditionClause.append(")");
+
+      sql.append(conditionClause);
+      countSql.append(conditionClause);
     }
 
+    // Apply sorting
     if (pageable.getSort().isSorted()) {
       sql.append(" ORDER BY ");
       List<Sort.Order> orderList = new ArrayList<>();
@@ -154,15 +173,45 @@ public class ListingRepo {
           sql.append(", ");
         }
       }
+    } else {
+      // Default sorting if none provided
+      sql.append(" ORDER BY l.id ASC");
     }
 
     sql.append(" LIMIT ? OFFSET ?");
-    params.add(pageable.getPageSize());
-    params.add(pageable.getOffset());
 
-    return jdbcTemplate.query(sql.toString(), (rs, rowNum) ->
-                    mapResultSetToListing(rs), params.toArray())
-            .toArray(Listing[]::new);
+    List<Object> queryParams = new ArrayList<>(params);
+    queryParams.add(pageable.getPageSize());
+    queryParams.add(pageable.getOffset());
+
+    Integer totalResults = jdbcTemplate.query(
+            countSql.toString(),
+            ps -> {
+              int i = 1;
+              for (Object param : params) {
+                ps.setObject(i++, param);
+              }
+            },
+            rs -> {
+              if (rs.next()) {
+                return rs.getInt(1);
+              }
+              return 0;
+            }
+    );
+
+    List<Listing> listings = jdbcTemplate.query(
+            sql.toString(),
+            ps -> {
+              int i = 1;
+              for (Object param : queryParams) {
+                ps.setObject(i++, param);
+              }
+            },
+            (rs, rowNum) -> mapResultSetToListing(rs)
+    );
+    System.out.println("Listings: " + listings.size() + " total results: " + totalResults);
+    return new PageImpl<>(listings, pageable, totalResults != 0 ? totalResults : 0);
   }
 
   /**
@@ -190,5 +239,36 @@ public class ListingRepo {
             rs.getInt("postal_code"),
             rs.getInt("views_count")
     );
+  }
+
+  public Page<Listing> getAllListingsByIds(List<Long> ids, Pageable pageable) {
+    if (ids == null || ids.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+
+    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE id IN (" + placeholders + ")";
+    Integer total = jdbcTemplate.queryForObject(countSql, Integer.class, ids.toArray());
+
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE id IN (" + placeholders + ")";
+    sql += " ORDER BY id";
+    sql += " LIMIT ? OFFSET ?";
+
+    Object[] params = new Object[ids.size() + 2];
+    System.arraycopy(ids.toArray(), 0, params, 0, ids.size());
+    params[ids.size()] = pageable.getPageSize();
+    params[ids.size() + 1] = pageable.getOffset();
+
+    List<Listing> listings = jdbcTemplate.query(sql,
+            ps -> {
+              int i = 1;
+              for (Object param : params) {
+                ps.setObject(i++, param);
+              }
+            }, (rs, rowNum) -> mapResultSetToListing(rs)
+    );
+
+    return new PageImpl<>(listings, pageable, total != null ? total : 0);
   }
 }

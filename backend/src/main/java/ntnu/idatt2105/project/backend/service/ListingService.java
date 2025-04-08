@@ -1,5 +1,6 @@
 package ntnu.idatt2105.project.backend.service;
 
+import com.sun.tools.jconsole.JConsoleContext;
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
@@ -12,9 +13,11 @@ import ntnu.idatt2105.project.backend.repository.ListingImageRepo;
 import ntnu.idatt2105.project.backend.repository.ListingRepo;
 import ntnu.idatt2105.project.backend.repository.LocationRepo;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -49,7 +52,7 @@ public class ListingService {
    * smaller chunks on demand.
    *
    * @param filterRequest the filter criteria for fetching listings
-   * @param pageable pagination parameters
+   * @param pageable      pagination parameters
    * @return MultipleListingsResponse containing the listings and pagination info
    */
   public MultipleListingsResponse getListingByFilter(ListingFilterRequest filterRequest,
@@ -70,7 +73,7 @@ public class ListingService {
     pageable = PageRequest.of(page, pageable.getPageSize(),
             Sort.by("created_at").descending());
 
-    Listing[] listings = listingRepo.getAllListingsByCriteria(
+    Page<Listing> listings = listingRepo.getAllListingsByCriteria(
             filterRequest.getCategoryId(),
             filterRequest.getCity(),
             filterRequest.getMinPrice(),
@@ -78,23 +81,7 @@ public class ListingService {
             filterRequest.getConditions(),
             pageable
     );
-
-    long totalElements = listings.length;
-    int pageSize = pageable.getPageSize();
-    int totalPages = (int) Math.ceil((double) totalElements / pageSize);
-    int currentPage = pageable.getPageNumber();
-    boolean isFirstPage = currentPage == 0;
-    boolean isLastPage = currentPage == totalPages - 1 || totalElements == 0;
-
-    return new MultipleListingsResponse(
-            mapListingsToShortResponse(listings),
-            totalElements,
-            totalPages,
-            currentPage + 1,
-            pageSize,
-            isFirstPage,
-            isLastPage
-    );
+    return mapToMultipleListingResponse(listings);
   }
 
   /**
@@ -200,6 +187,23 @@ public class ListingService {
               );
             })
             .collect(Collectors.toList());
+  }
+
+  private MultipleListingsResponse mapToMultipleListingResponse(Page<Listing> listings) {
+    return new MultipleListingsResponse(
+            mapListingsToShortResponse(listings.getContent().toArray(new Listing[0])),
+            listings.getContent().size(),
+            listings.getTotalPages(),
+            listings.getNumber() + 1,
+            listings.getSize(),
+            listings.isFirst(),
+            listings.isLast()
+    );
+  }
+
+  public MultipleListingsResponse getMultipleListingsById(List<Long> ids, Pageable pageable) {
+    Page<Listing> listings = listingRepo.getAllListingsByIds(ids, pageable);
+    return mapToMultipleListingResponse(listings);
   }
 
   public boolean listingExists(Long id) {

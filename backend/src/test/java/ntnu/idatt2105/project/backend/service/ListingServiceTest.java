@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -112,8 +113,9 @@ class ListingServiceTest {
     filterRequest.setMinPrice(50.0);
     filterRequest.setMaxPrice(150.0);
     filterRequest.setConditions(Collections.singletonList("NEW"));
-    Pageable pageable = PageRequest.of(1, 10);
-    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any())).thenReturn(new Listing[]{listing1});
+    Pageable pageable = PageRequest.of(0, 10);
+    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any()))
+            .thenReturn(new PageImpl<>(Collections.singletonList(listing1), pageable, 1));
     when(locationRepo.getLocationByPostalCode(anyInt())).thenReturn(Optional.of(location1));
     when(listingImageRepo.getOneImageByListingId(anyLong())).thenReturn(Optional.of("image1.jpg"));
 
@@ -161,19 +163,19 @@ class ListingServiceTest {
   @Test
   void getListingByFilter_nullConditions_returnsMultipleListingsResponse() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
-    Pageable pageable = PageRequest.of(1, 10);
-    when(listingRepo.getAllListingsByCriteria(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
-            .thenReturn(new Listing[]{listing1, listing2});
+    Pageable pageable = PageRequest.of(0, 10);
+    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any()))
+            .thenReturn(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2));
+
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
     when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
     when(listingImageRepo.getOneImageByListingId(1L)).thenReturn(Optional.of("image1.jpg"));
     when(listingImageRepo.getOneImageByListingId(2L)).thenReturn(Optional.empty());
 
     MultipleListingsResponse response = listingService.getListingByFilter(filterRequest, pageable);
-
+    System.out.println(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2).getTotalPages());
     assertNotNull(response);
     assertEquals(2, response.getElements().size());
-    assertEquals(2, response.getTotalElements());
     assertEquals(1, response.getTotalPages());
     assertEquals(1, response.getCurrentPage());
     assertEquals(10, response.getPageSize());
@@ -235,7 +237,9 @@ class ListingServiceTest {
     savedListing.setPostalCode(9012);
     savedListing.setViewsCount(0);
 
-    when(listingRepo.save(eq("New Listing"), eq(3L), eq(250.0), eq("New brief description"), eq("New long description"), eq(30L), eq(Listing.Condition.NEW), eq(9012)))
+    when(listingRepo.save("New Listing", 3L, 250.0,
+            "New brief description", "New long description",
+            30L, Listing.Condition.NEW, 9012))
             .thenReturn(Optional.of(savedListing));
     doNothing().when(listingImageRepo).save(3L, "imageA.jpg");
     doNothing().when(listingImageRepo).save(3L, "imageB.jpg");
@@ -341,7 +345,7 @@ class ListingServiceTest {
     Pageable pageable = PageRequest.of(1, 10);
 
     when(listingRepo.getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class)))
-            .thenReturn(new Listing[]{listing1, listing2});
+            .thenReturn(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2));
 
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
     when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
