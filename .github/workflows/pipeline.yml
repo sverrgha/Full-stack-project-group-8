@@ -50,5 +50,5 @@ jobs:
         working-directory: backend
 
       - name: Run backend tests
-        run:  mvn -B test --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false        
+        run:  mvn -B test --no-transfer-progress -Dsurefire.forkCount=1 -Dsurefire.reuseForks=false -Dspring.test.context.cache.maxSize=1        
         working-directory: backend
