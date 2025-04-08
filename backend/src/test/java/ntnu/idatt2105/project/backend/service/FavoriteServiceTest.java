@@ -110,6 +110,10 @@ class FavoriteServiceTest {
     verify(userFavoritesRepo, never()).deleteByUserIdAndListingId(anyLong(), anyLong());
   }
 
+  /**
+   * Test for removing a listing as a favorite with invalid input.
+   * Verifies that an IllegalArgumentException is raised.
+   */
   @Test
   void getAllFavorites_validInput_returnsMultipleListingsResponse_verifyingResponseStructure() {
     Pageable pageable = PageRequest.of(0, 10);
@@ -148,6 +152,10 @@ class FavoriteServiceTest {
     verify(listingService, times(1)).getMultipleListingsById(favoriteIds, pageable);
   }
 
+  /**
+   * Test for getting all favorites with invalid user ID.
+   * Verifies that an IllegalArgumentException is raised.
+   */
   @Test
   void getAllFavorites_invalidUserId_throwsIllegalArgumentException() {
     Pageable pageable = PageRequest.of(0, 10);
@@ -162,6 +170,10 @@ class FavoriteServiceTest {
     verifyNoInteractions(listingService);
   }
 
+  /**
+   * Test for getting all favorites with user ID that does not match the token.
+   * Verifies that an IllegalArgumentException is raised.
+   */
   @Test
   void getAllFavorites_userIdDoesNotMatchToken_throwsIllegalArgumentException() {
     Pageable pageable = PageRequest.of(0, 10);
@@ -176,6 +188,10 @@ class FavoriteServiceTest {
     verifyNoInteractions(listingService);
   }
 
+  /**
+   * Test for getting all favorites with user ID that does not exist.
+   * Verifies that an IllegalArgumentException is raised.
+   */
   @Test
   void getAllFavorites_noFavorites_returnsEmptyMultipleListingsResponse() {
     System.out.println("Test: getAllFavorites_noFavorites_returnsEmptyMultipleListingsResponse");
@@ -203,6 +219,10 @@ class FavoriteServiceTest {
     verify(listingService, times(1)).getMultipleListingsById(anyList(), any());
   }
 
+  /**
+   * Test for getting all favorites with empty favorite IDs.
+   * Verifies that an empty MultipleListingsResponse is returned.
+   */
   @Test
   void getAllFavorites_emptyFavoriteIds_returnsEmptyMultipleListingsResponse() {
     System.out.println("Test: getAllFavorites_emptyFavoriteIds_returnsEmptyMultipleListingsResponse");
@@ -223,6 +243,10 @@ class FavoriteServiceTest {
     verify(listingService, times(1)).getMultipleListingsById(anyList(), any());
   }
 
+  /**
+   * Test for getting all favorites when the listing service returns null.
+   * Verifies that null is returned.
+   */
   @Test
   void getAllFavorites_listingServiceReturnsNull_returnsNull() {
     Pageable pageable = PageRequest.of(0, 10);

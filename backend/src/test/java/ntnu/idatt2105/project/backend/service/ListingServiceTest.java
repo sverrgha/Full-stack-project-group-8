@@ -380,6 +380,11 @@ class ListingServiceTest {
     verify(listingImageRepo, times(2)).getOneImageByListingId(anyLong());
   }
 
+  /**
+   * Tests the getMultipleListingsById method with a single ID.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and images.
+   */
   @Test
   void getMultipleListingsById_singleId_returnsResponse() {
     List<Long> ids = Collections.singletonList(listing1.getId());
@@ -394,6 +399,11 @@ class ListingServiceTest {
     verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
   }
 
+  /**
+   * Tests the getMultipleListingsById method with multiple IDs.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and images.
+   */
   @Test
   void getMultipleListingsById_multipleIds_returnsResponse() {
     List<Long> ids = Arrays.asList(listing1.getId(), listing2.getId());
@@ -409,6 +419,11 @@ class ListingServiceTest {
     verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
   }
 
+  /**
+   * Tests the listingExists method with an ID that exists.
+   * This test checks if the method returns true when the listing
+   * is found in the repository.
+   */
   @Test
   void listingExists_idFound_returnsTrue() {
     Long id = 1L;
@@ -420,6 +435,11 @@ class ListingServiceTest {
     verify(listingRepo, times(1)).getListingById(id);
   }
 
+  /**
+   * Tests the listingExists method with an ID that does not exist.
+   * This test checks if the method returns false when the listing
+   * is not found in the repository.
+   */
   @Test
   void listingExists_idNotFound_returnsFalse() {
     Long id = 99L;
