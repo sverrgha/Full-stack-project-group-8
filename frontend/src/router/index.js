@@ -8,6 +8,7 @@ import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
 import MessagePage from "../views/MessagePage.vue";
 import ItemDetailPage from "../views/ItemDetailPage.vue";
+import AdminPage from "../views/AdminPage.vue";
 
 const routes = [
     {
@@ -53,6 +54,11 @@ const routes = [
         path: '/product/:id',
         name: 'product',
         component: ItemDetailPage
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: AdminPage
     }
 ]
 
