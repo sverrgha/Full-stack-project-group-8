@@ -24,12 +24,16 @@ import ntnu.idatt2105.project.backend.repository.UserRepo;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.service.MessageService;
 
-
-
+/**
+ * This class handles incoming HTTP requests related to messaging functionality.
+ * It provides endpoints for sending messages, retrieving inbox messages, and fetching conversations.
+ * It uses the MessageService to perform the actual operations and the JwtUtil for token validation.
+ */
 @RestController
 @RequestMapping("/api/messages")
 public class MessageController {
 
+    
     @Autowired
     private final MessageService messageService;
     private final JwtUtil jwtUtil;
@@ -42,6 +46,18 @@ public class MessageController {
         this.messageService = messageService;
     }
 
+    /**
+     * Handles the HTTP POST request to send a message.
+     * It validates the request, checks the sender's identity, and sends the message using the MessageService.
+     * If successful, it returns a MessageResponse with the message details.
+     * If the sender is not authorized or an error occurs, it returns an appropriate HTTP status.
+     * 
+     * @param httpRequest The HTTP request containing the authorization token
+     * @param request The MessageRequest containing the sender, receiver, and message content
+     * @return ResponseEntity with the MessageResponse or an error status
+     * @throws Exception if an error occurs during message sending
+     * @Valid Ensures that the request body is valid according to the MessageRequest class
+     */
     @PostMapping("/send")
     public ResponseEntity<MessageResponse> sendMessage(HttpServletRequest httpRequest, @Valid @RequestBody MessageRequest request) {
         logger.info("Received message request from user: " + request.getSender() + " to user: " + request.getReceiver());
@@ -80,6 +96,16 @@ public class MessageController {
         }
     }
 
+    /**
+     * Handles the HTTP GET request to retrieve the inbox messages for the authenticated user.
+     * It extracts the token from the request, validates it, and retrieves the inbox messages using the MessageService.
+     * If successful, it returns a list of ConversationSummaryResponse objects.
+     * If the user is not found or an error occurs, it returns an appropriate HTTP status.
+     * 
+     * @param request The HTTP request containing the authorization token
+     * @return ResponseEntity with the list of ConversationSummaryResponse or an error status
+     * @throws Exception if an error occurs during inbox retrieval
+     */
     @GetMapping("/inbox")
     public ResponseEntity<?> getInbox(HttpServletRequest request) {
         logger.info("Received inbox request");
@@ -87,10 +113,6 @@ public class MessageController {
             String token = extractToken(request);
             String email = jwtUtil.extractUsername(token); 
             Optional<User> user = userRepo.findByEmail(email);
-    
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-            }
     
             List<ConversationSummaryResponse> messages = messageService.getInboxList(user.get().getId());
             if (messages.isEmpty()) {
@@ -104,6 +126,18 @@ public class MessageController {
         }
     }
 
+    /**
+     * Handles the HTTP GET request to retrieve the conversation between two users.
+     * It extracts the token from the request, validates it, and retrieves the conversation messages using the MessageService.
+     * If successful, it returns a list of MessageResponse objects.
+     * If the user is not found, the conversation does not exist, or an error occurs, it returns an appropriate HTTP status.
+     * 
+     * 
+     * @param request The HTTP request containing the authorization token
+     * @param endUser The User object representing the other user in the conversation
+     * @return ResponseEntity with the list of MessageResponse or an error status
+     * @throws Exception if an error occurs during conversation retrieval
+     */
     @GetMapping("/conversation")
     public ResponseEntity<?> getConversation(HttpServletRequest request, 
                                          @RequestBody User endUser) {
@@ -153,6 +187,15 @@ public class MessageController {
         }
     }
 
+
+    /**
+     * Extracts the token from the HTTP request.
+     * It looks for the "Authorization" header and retrieves the token if it starts with "Bearer ".
+     * If the token is not found, it returns null.
+     * 
+     * @param request The HTTP request containing the authorization header
+     * @return The extracted token or null if not found
+     */
     private String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
