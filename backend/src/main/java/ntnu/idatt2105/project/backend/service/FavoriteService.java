@@ -54,10 +54,6 @@ public class FavoriteService {
 
     List<Long> listingIds = userFavoritesRepo.getFavoriteIdsByUserId(userId);
 
-    if (listingIds.isEmpty()) {
-      return new MultipleListingsResponse();
-    }
-
     return listingService.getMultipleListingsById(listingIds, pageable);
   }
 }
