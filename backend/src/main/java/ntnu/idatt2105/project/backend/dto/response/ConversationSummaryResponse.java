@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class ConversationSummaryResponse {
     private String otherUserEmail;
     private String lastMessage;
-    private String Timestamp;
-    private boolean isOpened;
+    private String timestamp;
+    private boolean isRead;
 }
