@@ -189,6 +189,13 @@ public class ListingService {
             .collect(Collectors.toList());
   }
 
+  /**
+   * Maps a Page of Listing objects to a MultipleListingsResponse object.
+   * This is used to convert the listings fetched from the database
+   * to a format suitable for the API response.
+   * @param listings the Page of Listing objects to map
+   * @return a MultipleListingsResponse object containing the listings and pagination info
+   */
   private MultipleListingsResponse mapToMultipleListingResponse(Page<Listing> listings) {
     return new MultipleListingsResponse(
             mapListingsToShortResponse(listings.getContent().toArray(new Listing[0])),
@@ -201,11 +208,24 @@ public class ListingService {
     );
   }
 
+  /**
+   * Fetches multiple listings by their IDs. It uses pagination to limit the number of
+   * listings returned in a single request.
+   * @param ids the list of IDs of the listings to fetch
+   * @param pageable the pagination parameters
+   * @return MultipleListingsResponse containing the listings and pagination info
+   */
   public MultipleListingsResponse getMultipleListingsById(List<Long> ids, Pageable pageable) {
     Page<Listing> listings = listingRepo.getAllListingsByIds(ids, pageable);
     return mapToMultipleListingResponse(listings);
   }
 
+  /**
+   * Checks if a listing exists by its ID. It returns true if the listing exists,
+   * false otherwise.
+   * @param id the ID of the listing to check
+   * @return true if the listing exists, false otherwise
+   */
   public boolean listingExists(Long id) {
     return listingRepo.getListingById(id).isPresent();
   }
