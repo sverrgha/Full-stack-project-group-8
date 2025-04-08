@@ -114,9 +114,24 @@ public class UserService implements UserDetailsService {
             new ArrayList<>());
   }
 
+  /**
+   * This method checks if a user exists in the database by their ID.
+   *
+   * @param id The ID of the user to be checked.
+   * @return true if the user exists, false otherwise.
+   */
   public boolean userExists(long id) {
     return userRepo.findById(id).isPresent();
   }
+
+  /**
+   * This method checks if the user ID matches the email in the JWT token.
+   * It retrieves the user from the database using the UserRepo interface
+   * and compares the email in the token with the user's email.
+   * @param id The ID of the user to be checked.
+   * @param token The JWT token containing the user's email.
+   * @return true if the user ID matches the email in the token, false otherwise.
+   */
   public boolean validateUserIdMatchesToken(long id, String token) {
     Optional<User> user = userRepo.findById(id);
     if (user.isPresent()) {

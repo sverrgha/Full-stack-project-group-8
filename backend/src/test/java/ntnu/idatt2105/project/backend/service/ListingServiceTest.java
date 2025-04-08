@@ -229,7 +229,7 @@ class ListingServiceTest {
     savedListing.setBriefDescription("New brief description");
     savedListing.setDescription("New long description");
     savedListing.setUserId(30L);
-    savedListing.setStatus(Listing.Status.ACTIVE); // Default status?
+    savedListing.setStatus(Listing.Status.ACTIVE);
     savedListing.setCondition(Listing.Condition.NEW);
     savedListing.setCreatedAt(Date.valueOf(LocalDate.now()));
     savedListing.setReservedByUserId(null);
