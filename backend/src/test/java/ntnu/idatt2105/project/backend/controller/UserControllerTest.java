@@ -18,6 +18,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import static org.mockito.Mockito.*;
 
@@ -39,6 +41,20 @@ class UserControllerTest {
   private static String extractedToken;
   private static ModifyUserRequest modifyRequest;
   private static UserResponse mockUserResponse;
+
+  @Container
+  private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4")
+          .withDatabaseName("testdb")
+          .withUsername("test")
+          .withPassword("test");
+
+  @BeforeAll
+  static void beforeAll() {
+    mysql.start();
+    System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
+    System.setProperty("spring.datasource.username", mysql.getUsername());
+    System.setProperty("spring.datasource.password", mysql.getPassword());
+  }
 
   @BeforeAll
   static void setUp() {
