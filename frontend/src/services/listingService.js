@@ -11,7 +11,7 @@ export const listingService = {
         });
     },
 
-    //Get a sinle listing by ID
+    //Get a single listing by ID
     getListingById(id) {
         return apiClient.get(`/listing/${id}`);
     },
@@ -23,7 +23,7 @@ export const listingService = {
 
     //Get recommended listing for a user
     getRecommendedListings(userId, pageable = {}) {
-        return apiClient.get('/listing/user/recomended', {
+        return apiClient.get('/listing/user/recommended', {
             params: {
                 userId,
                 ...pageable
