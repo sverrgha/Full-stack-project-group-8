@@ -5,6 +5,7 @@
     "newListing": "Ny annonse",
     "messages": "Meldinger",
     "profile": "Profil",
+    "admin": "Admin",
     "language": "No"
   },
   "loginForm": {
@@ -144,5 +145,18 @@
       "save": "Lagre",
       "cancel": "Avbryt",
       "maxPictures": "Maks 10 bilder"
+    },
+    "admin": {
+      "dashboard": "Admin Kontrollpanel",
+      "showCategoriesButton": "Administrer Kategorier",
+      "hideCategoriesButton": "Skjul Kategoriadministrasjon",
+      "addNewCategoryButton": "Legg til ny Kategori",
+      "englishName": "Engelsk Navn",
+      "norwegianName": "Norsk Navn",
+      "addCategoryButton": "Legg til Kategori",
+      "currentCategories": "Nåværende Kategorier",
+      "actions": "Handlinger",
+      "nameInEnglish": "Kategori navn på engelsk",
+      "nameInNorwegian": "Kategori navn på norsk"
     }
-}
+  }
