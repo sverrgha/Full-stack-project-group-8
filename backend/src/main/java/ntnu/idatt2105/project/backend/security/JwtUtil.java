@@ -18,7 +18,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-/*
+/**
  * This class is responsible for generating and validating JWT tokens.
  * It uses the HmacSHA256 algorithm to sign the tokens.
  * The secret key is generated using the KeyGenerator class.
@@ -29,11 +29,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtil {
-    /*
+    /**
      * The secret key is used to sign the JWT tokens.
      */
     public String secretKey = "";
-    /*
+    /**
      * The constructor generates a secret key using the HmacSHA256 algorithm.
      * The key is then encoded to a Base64 string for storage.
      */
@@ -47,7 +47,7 @@ public class JwtUtil {
         }
     }
     
-    /*
+    /**
      * This method generates a JWT token with the given username.
      * The token is signed with the secret key and has an expiration time of 60 minutes.
      * 
@@ -68,7 +68,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    /*
+    /**
      * This method extracts the username from the given JWT token.
      * 
      * @param token The JWT token from which to extract the username.
@@ -83,7 +83,7 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    /*
+    /**
      * This method validates the given JWT token against the provided user details.
      * It checks if the username in the token matches the username in the user details
      * and if the token is not expired.
@@ -97,7 +97,7 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    /*
+    /**
      * This method checks if the given JWT token is expired.
      * 
      * @param token The JWT token to be checked.
@@ -119,7 +119,25 @@ public class JwtUtil {
         }
     }
 
-    /*
+    /**
+     * This method retrieves the expiration date from the given JWT token.
+     * It returns null if the token is invalid or expired.
+     * @param token The JWT token from which to extract the expiration date.
+     * @return The expiration date of the token, or null if the token is invalid or expired.
+     */
+    public Date getExpirationDate(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(getKey().getEncoded()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+    /**
      * This method retrieves the secret key used to sign the JWT tokens.
      * 
      * @return The secret key as a Key object.
