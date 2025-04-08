@@ -96,7 +96,7 @@ const selectCategory = (category) => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.category-button.active {
+.category-button {
   background-color: #f0f7ff;
   border-color: #3b82f6;
   box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
