@@ -21,6 +21,10 @@ class BackendApplicationTests {
 					.withUsername("test")
 					.withPassword("test");
 
+	static {
+		mysql.start();
+	}
+
 	@DynamicPropertySource
 	static void properties(DynamicPropertyRegistry registry) {
 		mysql.start();
@@ -28,9 +32,4 @@ class BackendApplicationTests {
 		System.setProperty("spring.datasource.username", mysql.getUsername());
 		System.setProperty("spring.datasource.password", mysql.getPassword());
 	}
-
-	@Test
-	void contextLoads() {
-	}
-
 }
