@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ItemGrid from '../components/ItemGrid.vue'
 import CategoryButtons from "../components/products/CategoryButtons.vue";
@@ -445,12 +445,12 @@ const handleSortChange = () => {
   outline: none;
 }
 
-.sort-select :deep(.form-group) {
+.sort-select :deep {
   margin-bottom: 0;
   height: 100%;
 }
 
-.sort-select :deep(.select-wrapper) {
+.sort-select :deep {
   height: 100%;
 }
 
@@ -505,7 +505,7 @@ const handleSortChange = () => {
   border-radius: 25px;
 }
 
-.search-field :deep(.form-group) {
+.search-field :deep {
   margin-bottom: 0;
 }
 
