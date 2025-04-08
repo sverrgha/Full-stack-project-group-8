@@ -131,7 +131,6 @@ class ListingServiceTest {
     assertEquals(10, response.getPageSize());
     assertTrue(response.isFirstPage());
     assertTrue(response.isLastPage());
-    System.out.println("LISTING: " + response.getElements().get(0));
     ShortListingResponse shortListing = response.getElements().get(0);
     assertEquals(listing1.getId(), shortListing.getId());
     assertEquals(listing1.getTitle(), shortListing.getTitle());
@@ -175,7 +174,6 @@ class ListingServiceTest {
     when(listingImageRepo.getOneImageByListingId(2L)).thenReturn(Optional.empty());
 
     MultipleListingsResponse response = listingService.getListingByFilter(filterRequest, pageable);
-    System.out.println(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2).getTotalPages());
     assertNotNull(response);
     assertEquals(2, response.getElements().size());
     assertEquals(1, response.getTotalPages());

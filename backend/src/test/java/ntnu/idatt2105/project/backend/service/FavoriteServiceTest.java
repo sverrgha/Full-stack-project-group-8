@@ -194,7 +194,6 @@ class FavoriteServiceTest {
    */
   @Test
   void getAllFavorites_noFavorites_returnsEmptyMultipleListingsResponse() {
-    System.out.println("Test: getAllFavorites_noFavorites_returnsEmptyMultipleListingsResponse");
     Pageable pageable = PageRequest.of(0, 10);
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
     when(userFavoritesRepo.getFavoriteIdsByUserId(userId)).thenReturn(Collections.emptyList());
@@ -225,7 +224,6 @@ class FavoriteServiceTest {
    */
   @Test
   void getAllFavorites_emptyFavoriteIds_returnsEmptyMultipleListingsResponse() {
-    System.out.println("Test: getAllFavorites_emptyFavoriteIds_returnsEmptyMultipleListingsResponse");
     Pageable pageable = PageRequest.of(0, 10);
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
     when(userFavoritesRepo.getFavoriteIdsByUserId(userId)).thenReturn(Collections.emptyList());

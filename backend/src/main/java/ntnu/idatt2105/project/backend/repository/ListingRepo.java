@@ -210,7 +210,6 @@ public class ListingRepo {
             },
             (rs, rowNum) -> mapResultSetToListing(rs)
     );
-    System.out.println("Listings: " + listings.size() + " total results: " + totalResults);
     return new PageImpl<>(listings, pageable, totalResults != 0 ? totalResults : 0);
   }
 
