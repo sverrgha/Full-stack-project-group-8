@@ -3,11 +3,14 @@ package ntnu.idatt2105.project.backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.sql.Date;
 import java.util.Optional;
 
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
+import ntnu.idatt2105.project.backend.dto.request.ModifyUserRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.dto.response.UserResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
@@ -297,6 +300,10 @@ class UserServiceTest {
     verify(jwtUtil, times(1)).extractUsername(token);
   }
 
+  /**
+   * Tests the validateUserIdMatchesToken method with a non-existing user.
+   * It verifies that the user is not found and false is returned.
+   */
   @Test
   void validateUserIdMatchesToken_userNotFound_returnsFalse() {
     long userId = 202L;
@@ -308,5 +315,119 @@ class UserServiceTest {
     assertFalse(matches);
     verify(userRepo, times(1)).findById(userId);
     verify(jwtUtil, never()).extractUsername(anyString());
+  }
+
+  /**
+   * Tests the getUserById method with an existing user ID.
+   * It verifies that the user is found and the correct user response is returned.
+   * It also checks that the user ID, first name, last name, email, phone number,
+   * and admin status are correct.
+   */
+  @Test
+  void getUserById_existingUser_returnsUserResponse() {
+    Long userId = 1L;
+    User user = new User(userId, "John", "Doe", "john.doe@example.com",
+            "1234567890", "password", true, Date.valueOf("2023-10-01"));
+    when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+
+    UserResponse response = userService.getUserById(userId);
+
+    assertNotNull(response);
+    assertEquals(userId, response.getId());
+    assertEquals("John", response.getFirstname());
+    assertEquals("Doe", response.getLastname());
+    assertEquals("john.doe@example.com", response.getEmail());
+    assertEquals("1234567890", response.getPhoneNumber());
+    assertTrue(response.isAdmin());
+  }
+
+  /**
+   * Tests the getUserById method with a non-existing user ID.
+   * It verifies that an IllegalArgumentException is thrown.
+   */
+  @Test
+  void getUserById_nonExistingUser_throwsIllegalArgumentException() {
+    Long userId = 2L;
+    when(userRepo.findById(userId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class, () -> userService.getUserById(userId));
+  }
+
+  /**
+   * Tests the updateUser method with a valid request and matching token.
+   * It verifies that the user is updated successfully,
+   * since no exceptions are thrown.
+   */
+  @Test
+  void updateUser_validRequestAndMatchingToken_userUpdated() {
+    Long userId = 3L;
+    String token = "mockedToken";
+    ModifyUserRequest request = new ModifyUserRequest();
+    request.setFirstname("Jane");
+    request.setLastname("Smith");
+    request.setEmail("jane.smith@example.com");
+    request.setPhoneNumber("0987654321");
+
+    User oldUser = new User(userId, "Old", "User", "old@example.com", "111222333",
+            "oldPass", false, Date.valueOf("2023-10-01"));
+    when(userRepo.findById(userId)).thenReturn(Optional.of(oldUser));
+    when(jwtUtil.extractUsername(token)).thenReturn(oldUser.getEmail());
+
+    userService.updateUser(userId, request, token);
+
+    verify(userRepo, times(1)).update(any(User.class));
+  }
+
+  /**
+   * Tests the updateUser method with a non-matching token.
+   * It verifies that an IllegalArgumentException is thrown,
+   * indicating that the user ID does not match the token.
+   */
+  @Test
+  void updateUser_nonMatchingToken_throwsIllegalArgumentException() {
+    Long userId = 4L;
+    String token = "mockedToken";
+    ModifyUserRequest request = new ModifyUserRequest();
+    request.setFirstname("Jane");
+    request.setLastname("Smith");
+    request.setEmail("jane.smith@SecondGo.com");
+
+    User oldUser = new User(userId, "Old", "User", "old@example.com", "111222333",
+            "oldPass", false, Date.valueOf("2023-10-01"));
+    when(userRepo.findById(userId)).thenReturn(Optional.of(oldUser));
+    when(jwtUtil.extractUsername(token)).thenReturn("wrong@email.com");
+
+    assertThrows(IllegalArgumentException.class, () -> userService.updateUser(userId, request, token));
+    verify(userRepo, never()).update(any(User.class));
+  }
+
+  /**
+   * Tests the updateUser method with empty fields in the request.
+   * It verifies that the empty/null fields are not updated
+   * and the old values are retained.
+   */
+  @Test
+  void updateUser_emptyFieldsInRequest_fieldsNotUpdated() {
+    Long userId = 5L;
+    String token = "mockedToken";
+    ModifyUserRequest request = new ModifyUserRequest();
+    request.setFirstname(null);
+    request.setLastname("");
+    request.setEmail("invalid-email");
+    request.setPhoneNumber("");
+
+    User oldUser = new User(userId, "Old", "User", "old@example.com",
+            "111222333", "oldPass", false, Date.valueOf("2023-10-01"));
+    when(userRepo.findById(userId)).thenReturn(Optional.of(oldUser));
+    when(jwtUtil.extractUsername(token)).thenReturn(oldUser.getEmail());
+
+    userService.updateUser(userId, request, token);
+
+    verify(userRepo, times(1)).update(argThat(updatedUser ->
+            updatedUser.getFirstname().equals("Old") &&
+                    updatedUser.getLastname().equals("User") &&
+                    updatedUser.getEmail().equals("old@example.com") &&
+                    updatedUser.getPhoneNumber().equals("111222333")
+    ));
   }
 }
