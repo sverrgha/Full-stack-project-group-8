@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+/**
+ * AuthController handles authentication-related requests such as user registration and login.
+ * It uses the UserService to perform the actual operations and returns appropriate responses.
+ * All requests are returning a AuthResponse object containing the email, a message and token.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -45,7 +50,8 @@ public class AuthController {
       logger.warning("Error registering user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
               new AuthResponse(request.getEmail(),
-                      AuthResponseMessage.SAVING_USER_ERROR.getMessage() + e.getMessage(), null));
+                      AuthResponseMessage.SAVING_USER_ERROR.getMessage()
+                              + e.getMessage(), null, null));
     }
   }
 
@@ -77,7 +83,7 @@ public class AuthController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
               new AuthResponse(request.getEmail(),
                       AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
-                              + e.getMessage(), null));
+                              + e.getMessage(), null, null));
     }
   }
 }

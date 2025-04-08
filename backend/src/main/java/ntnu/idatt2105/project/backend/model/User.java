@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
-/*
+/**
  * This class represents a user in the system.
  * It contains the user's information such as username, password, and roles.
  * The class is used for authentication and authorization purposes.
@@ -19,20 +19,50 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class User {
 
-  private long id;
+  /**
+   * The ID of the user.
+   * This is a unique identifier for the user in the database.
+   */
+  private Long id;
 
+  /**
+   * The first name of the user.
+   */
   private String firstname;
 
+  /**
+   * The last name of the user.
+   */
   private String lastname;
 
+  /**
+   * The email of the user.
+   * This is used for authentication and communication purposes.
+   */
   private String email;
 
+  /**
+   * The phone number of the user.
+   * This is used for communication purposes.
+   */
   private String phoneNumber;
 
+  /**
+   * The password of the user.
+   * This is used for authentication purposes.
+   */
   private String password;
 
+  /**
+   * The admin status of the user.
+   * This indicates whether the user has administrative privileges or not.
+   */
   private boolean isAdmin;
 
+  /**
+   * The date when the user was created.
+   * This is used for tracking purposes.
+   */
   private Date createdAt;
 
   /**
@@ -46,7 +76,6 @@ public class User {
    * @param password    the password of the user
    */
   public User(String firstname, String lastname, String email, String phoneNumber, String password) {
-
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email;
@@ -67,7 +96,6 @@ public class User {
    * @param isAdmin     the admin status of the user
    */
   public User(String firstname, String lastname, String email, String phoneNumber, String password, boolean isAdmin) {
-
     this.firstname = firstname;
     this.lastname = lastname;
     this.email = email.toLowerCase();
