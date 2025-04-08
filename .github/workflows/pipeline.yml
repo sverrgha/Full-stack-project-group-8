@@ -45,16 +45,6 @@ jobs:
         run: mvn install -DskipTests
         working-directory: backend
 
-      - name: Configure Docker
-        run: |
-          echo '{"memory":"8g","cpus":2}' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker
-          docker info | grep Memory
-
-      - name: Install backend dependencies
-        run: mvn install -DskipTests
-        working-directory: backend
-
       - name: Build backend
         run: |
           export MAVEN_OPTS="-Xmx3072m"
