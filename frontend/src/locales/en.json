@@ -5,6 +5,7 @@
     "newListing": "New Listing",
     "messages": "Messages",
     "profile": "Profile",
+    "admin": "Admin",
     "language": "En"
   },
   "loginForm": {
@@ -139,5 +140,18 @@
     "save": "Save",
     "cancel": "Cancel",
     "maxPictures": "Max 10 pictures"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "showCategoriesButton": "Manage Categories",
+    "hideCategoriesButton": "Hide Categories Management",
+    "addNewCategoryButton": "Add New Category",
+    "englishName": "English Name",
+    "norwegianName": "Norwegian Name",
+    "addCategoryButton": "Add Category",
+    "currentCategories": "Current Categories",
+    "actions": "Actions",
+    "nameInEnglish": "Category name in English",
+    "nameInNorwegian": "Category name in Norwegian"
   }
 }
