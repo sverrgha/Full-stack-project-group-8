@@ -13,7 +13,7 @@ const props = defineProps({
 });
 
 // Emit event to parent component
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'apply']);
 
 // Function to close the sidebar
 const closeSidebar = () => {
@@ -123,6 +123,7 @@ const applyFilters = () => {
   };
 
   console.log('Applied filters:', activeFilters);
+  emit('apply', activeFilters)
 
   // Close sidebar after applying on mobile
   if (window.innerWidth < 768) {
