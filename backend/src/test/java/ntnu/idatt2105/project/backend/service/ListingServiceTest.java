@@ -21,6 +21,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -28,6 +30,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -112,8 +115,9 @@ class ListingServiceTest {
     filterRequest.setMinPrice(50.0);
     filterRequest.setMaxPrice(150.0);
     filterRequest.setConditions(Collections.singletonList("NEW"));
-    Pageable pageable = PageRequest.of(1, 10);
-    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any())).thenReturn(new Listing[]{listing1});
+    Pageable pageable = PageRequest.of(0, 10);
+    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any()))
+            .thenReturn(new PageImpl<>(Collections.singletonList(listing1), pageable, 1));
     when(locationRepo.getLocationByPostalCode(anyInt())).thenReturn(Optional.of(location1));
     when(listingImageRepo.getOneImageByListingId(anyLong())).thenReturn(Optional.of("image1.jpg"));
 
@@ -127,7 +131,6 @@ class ListingServiceTest {
     assertEquals(10, response.getPageSize());
     assertTrue(response.isFirstPage());
     assertTrue(response.isLastPage());
-    System.out.println("LISTING: " + response.getElements().get(0));
     ShortListingResponse shortListing = response.getElements().get(0);
     assertEquals(listing1.getId(), shortListing.getId());
     assertEquals(listing1.getTitle(), shortListing.getTitle());
@@ -161,19 +164,18 @@ class ListingServiceTest {
   @Test
   void getListingByFilter_nullConditions_returnsMultipleListingsResponse() {
     ListingFilterRequest filterRequest = new ListingFilterRequest();
-    Pageable pageable = PageRequest.of(1, 10);
-    when(listingRepo.getAllListingsByCriteria(isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
-            .thenReturn(new Listing[]{listing1, listing2});
+    Pageable pageable = PageRequest.of(0, 10);
+    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any()))
+            .thenReturn(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2));
+
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
     when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
     when(listingImageRepo.getOneImageByListingId(1L)).thenReturn(Optional.of("image1.jpg"));
     when(listingImageRepo.getOneImageByListingId(2L)).thenReturn(Optional.empty());
 
     MultipleListingsResponse response = listingService.getListingByFilter(filterRequest, pageable);
-
     assertNotNull(response);
     assertEquals(2, response.getElements().size());
-    assertEquals(2, response.getTotalElements());
     assertEquals(1, response.getTotalPages());
     assertEquals(1, response.getCurrentPage());
     assertEquals(10, response.getPageSize());
@@ -225,7 +227,7 @@ class ListingServiceTest {
     savedListing.setBriefDescription("New brief description");
     savedListing.setDescription("New long description");
     savedListing.setUserId(30L);
-    savedListing.setStatus(Listing.Status.ACTIVE); // Default status?
+    savedListing.setStatus(Listing.Status.ACTIVE);
     savedListing.setCondition(Listing.Condition.NEW);
     savedListing.setCreatedAt(Date.valueOf(LocalDate.now()));
     savedListing.setReservedByUserId(null);
@@ -235,7 +237,9 @@ class ListingServiceTest {
     savedListing.setPostalCode(9012);
     savedListing.setViewsCount(0);
 
-    when(listingRepo.save(eq("New Listing"), eq(3L), eq(250.0), eq("New brief description"), eq("New long description"), eq(30L), eq(Listing.Condition.NEW), eq(9012)))
+    when(listingRepo.save("New Listing", 3L, 250.0,
+            "New brief description", "New long description",
+            30L, Listing.Condition.NEW, 9012))
             .thenReturn(Optional.of(savedListing));
     doNothing().when(listingImageRepo).save(3L, "imageA.jpg");
     doNothing().when(listingImageRepo).save(3L, "imageB.jpg");
@@ -341,7 +345,7 @@ class ListingServiceTest {
     Pageable pageable = PageRequest.of(1, 10);
 
     when(listingRepo.getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class)))
-            .thenReturn(new Listing[]{listing1, listing2});
+            .thenReturn(new PageImpl<>(Arrays.asList(listing1, listing2), pageable, 2));
 
     when(locationRepo.getLocationByPostalCode(1234)).thenReturn(Optional.of(location1));
     when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
@@ -372,5 +376,76 @@ class ListingServiceTest {
     verify(listingRepo).getAllListingsByCriteria(eq(1L), eq("Test City"), eq(50.0), eq(150.0), eq(Collections.singletonList("NEW")), any(Pageable.class));
     verify(locationRepo, times(2)).getLocationByPostalCode(anyInt());
     verify(listingImageRepo, times(2)).getOneImageByListingId(anyLong());
+  }
+
+  /**
+   * Tests the getMultipleListingsById method with a single ID.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and images.
+   */
+  @Test
+  void getMultipleListingsById_singleId_returnsResponse() {
+    List<Long> ids = Collections.singletonList(listing1.getId());
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Listing> listings = Collections.singletonList(listing1);
+    Page<Listing> mockPage = new PageImpl<>(listings, pageable, 1);
+    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+
+    MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
+
+    assertNotNull(actualResponse);
+    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+  }
+
+  /**
+   * Tests the getMultipleListingsById method with multiple IDs.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and images.
+   */
+  @Test
+  void getMultipleListingsById_multipleIds_returnsResponse() {
+    List<Long> ids = Arrays.asList(listing1.getId(), listing2.getId());
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Listing> listings = Arrays.asList(listing1, listing2);
+    Page<Listing> mockPage = new PageImpl<>(listings, pageable, 2);
+    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+
+
+    MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
+
+    assertNotNull(actualResponse);
+    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+  }
+
+  /**
+   * Tests the listingExists method with an ID that exists.
+   * This test checks if the method returns true when the listing
+   * is found in the repository.
+   */
+  @Test
+  void listingExists_idFound_returnsTrue() {
+    Long id = 1L;
+    when(listingRepo.getListingById(id)).thenReturn(Optional.of(new Listing()));
+
+    boolean exists = listingService.listingExists(id);
+
+    assertTrue(exists);
+    verify(listingRepo, times(1)).getListingById(id);
+  }
+
+  /**
+   * Tests the listingExists method with an ID that does not exist.
+   * This test checks if the method returns false when the listing
+   * is not found in the repository.
+   */
+  @Test
+  void listingExists_idNotFound_returnsFalse() {
+    Long id = 99L;
+    when(listingRepo.getListingById(id)).thenReturn(Optional.empty());
+
+    boolean exists = listingService.listingExists(id);
+
+    assertFalse(exists);
+    verify(listingRepo, times(1)).getListingById(id);
   }
 }

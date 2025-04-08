@@ -1,12 +1,14 @@
 package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
+import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
@@ -112,5 +114,34 @@ public class UserService implements UserDetailsService {
     }
     return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
             new ArrayList<>());
+  }
+
+  /**
+   * This method checks if a user exists in the database by their ID.
+   *
+   * @param id The ID of the user to be checked.
+   * @return true if the user exists, false otherwise.
+   */
+  public boolean userExists(long id) {
+    return userRepo.findById(id).isPresent();
+  }
+
+  /**
+   * This method checks if the user ID matches the email in the JWT token.
+   * It retrieves the user from the database using the UserRepo interface
+   * and compares the email in the token with the user's email.
+   * @param id The ID of the user to be checked.
+   * @param token The JWT token containing the user's email.
+   * @return true if the user ID matches the email in the token, false otherwise.
+   */
+  public boolean validateUserIdMatchesToken(long id, String token) {
+    Optional<User> user = userRepo.findById(id);
+    if (user.isPresent()) {
+      String email = user.get().getEmail();
+      String tokenEmail = jwtUtil.extractUsername(token);
+      return email.equals(tokenEmail);
+    } else {
+      return false;
+    }
   }
 }

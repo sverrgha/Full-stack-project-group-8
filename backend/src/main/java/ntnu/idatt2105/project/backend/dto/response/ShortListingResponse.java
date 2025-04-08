@@ -2,6 +2,7 @@ package ntnu.idatt2105.project.backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO class for the short response of a listing.
@@ -10,6 +11,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ShortListingResponse {
   private Long id;
   private String title;

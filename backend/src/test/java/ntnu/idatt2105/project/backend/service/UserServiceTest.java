@@ -226,4 +226,87 @@ class UserServiceTest {
 
     assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(email));
   }
+
+  /**
+   * Tests the findByEmail method with an email to a registered user.
+   * It verifies that the user is found and true is returned.
+   */
+  @Test
+  void userExists_existingUser_returnsTrue() {
+    long userId = 123L;
+    when(userRepo.findById(userId)).thenReturn(Optional.of(new User()));
+
+    boolean exists = userService.userExists(userId);
+
+    assertTrue(exists);
+    verify(userRepo, times(1)).findById(userId);
+  }
+
+  /**
+   * Tests the findByEmail method with an email to a non-registered user.
+   * It verifies that the user is not found and the false is returned.
+   */
+  @Test
+  void userExists_nonExistingUser_returnsFalse() {
+    long userId = 456L;
+    when(userRepo.findById(userId)).thenReturn(Optional.empty());
+
+    boolean exists = userService.userExists(userId);
+
+    assertFalse(exists);
+    verify(userRepo, times(1)).findById(userId);
+  }
+
+  /**
+   * Tests the validateUserIdMatchesToken method with a matching user ID and token.
+   * It verifies that the user ID matches the email in the token and true is returned.
+   */
+  @Test
+  void validateUserIdMatchesToken_matchingUserAndToken_returnsTrue() {
+    long userId = 789L;
+    String token = "mockedToken";
+    User user = new User();
+    user.setEmail("test@example.com");
+    when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+    when(jwtUtil.extractUsername(token)).thenReturn("test@example.com");
+
+    boolean matches = userService.validateUserIdMatchesToken(userId, token);
+
+    assertTrue(matches);
+    verify(userRepo, times(1)).findById(userId);
+    verify(jwtUtil, times(1)).extractUsername(token);
+  }
+
+  /**
+   * Tests the validateUserIdMatchesToken method with a non-matching user ID and token.
+   * It verifies that the user ID does not match the email in the token and false is returned.
+   */
+  @Test
+  void validateUserIdMatchesToken_nonMatchingUserAndToken_returnsFalse() {
+    long userId = 101L;
+    String token = "mockedToken";
+    User user = new User();
+    user.setEmail("test@example.com");
+    when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+    when(jwtUtil.extractUsername(token)).thenReturn("different@example.com");
+
+    boolean matches = userService.validateUserIdMatchesToken(userId, token);
+
+    assertFalse(matches);
+    verify(userRepo, times(1)).findById(userId);
+    verify(jwtUtil, times(1)).extractUsername(token);
+  }
+
+  @Test
+  void validateUserIdMatchesToken_userNotFound_returnsFalse() {
+    long userId = 202L;
+    String token = "mockedToken";
+    when(userRepo.findById(userId)).thenReturn(Optional.empty());
+
+    boolean matches = userService.validateUserIdMatchesToken(userId, token);
+
+    assertFalse(matches);
+    verify(userRepo, times(1)).findById(userId);
+    verify(jwtUtil, never()).extractUsername(anyString());
+  }
 }
