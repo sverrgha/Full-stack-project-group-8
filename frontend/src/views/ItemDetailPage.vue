@@ -6,6 +6,8 @@ import sofaImage from '../assets/sofa.jpg';
 import chairImage from '../assets/chair.jpg';
 import apartmentImage from '../assets/apartment.png';
 import ImageGallery from '../components/Gallery.vue';
+import BaseInputField from '../components/form/BaseInputField.vue';
+import TextAreaField from "../components/form/TextAreaField.vue";
 
 const route = useRoute();
 const { t } = useI18n();
@@ -150,18 +152,30 @@ const updateImages = (newImages) => {
 
           <!-- Item info when editing -->
           <template v-else>
-            <input v-model="product.name" class="edit-field title-input">
+            <BaseInputField
+                v-model="product.name"
+                type="text"
+                class="title-input"
+            />
 
             <!-- Price input -->
             <div class="price-edit">
-              <input v-model="product.price" type="number" class="edit-field price-input">
+              <BaseInputField
+                  v-model="product.price"
+                  type="number"
+                  class="price-input"
+              />
               <span> kr</span>
             </div>
 
             <!-- Location input -->
             <div class="edit-row">
               <span class="label">{{ t('itemDetailPage.location') }}:</span>
-              <input v-model="product.location" class="edit-field">
+              <BaseInputField
+                  v-model="product.location"
+                  type="text"
+                  class="edit-field"
+              />
             </div>
 
             <!-- Category input -->
@@ -187,15 +201,21 @@ const updateImages = (newImages) => {
         </div>
       </div>
 
-      <!-- Description description -->
-      <div class="product-description">
+      <!-- Description  -->
+      <div class="product-description card">
         <h2>{{ t('itemDetailPage.description') }}</h2>
-        <textarea v-if="isEditing" v-model="product.description" class="description-edit"></textarea>
+        <TextAreaField
+            v-if="isEditing"
+            id="product-description"
+            label=""
+            v-model="product.description"
+            rows="6"
+        />
         <p v-else>{{ product.description }}</p>
       </div>
 
       <!-- Product details -->
-      <div class="product-details-table">
+      <div class="product-details-table card">
         <h2>{{ t('itemDetailPage.itemDetails') }}</h2>
         <div class="detail-row">
           <span class="detail-label">{{ t('itemDetailPage.category') }}</span>
@@ -277,13 +297,18 @@ const updateImages = (newImages) => {
   cursor: pointer;
 }
 
+.card {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
 .product-description {
   margin: 30px 0;
 }
 
 .product-details-table {
   margin: 30px 0;
-}
+  }
 
 .detail-row {
   display: flex;
@@ -309,7 +334,7 @@ const updateImages = (newImages) => {
   color: red;
 }
 
-  .owner-actions {
+.owner-actions {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 15px;
@@ -382,6 +407,10 @@ const updateImages = (newImages) => {
   margin-right: 5px;
 }
 
+.edit-row :deep(.form-group) {
+  border: none;
+}
+
 .edit-row {
   margin: 10px 0;
   display: flex;
@@ -406,15 +435,6 @@ const updateImages = (newImages) => {
 .edit-row .edit-field {
   flex: 1;
   margin-bottom: 0;
-}
-
-.description-edit {
-  width: 100%;
-  min-height: 150px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-family: inherit;
 }
 
 @media (max-width: 768px) {
