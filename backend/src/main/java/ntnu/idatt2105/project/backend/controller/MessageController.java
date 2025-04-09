@@ -7,11 +7,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -136,12 +132,11 @@ public class MessageController {
      * @param request The HTTP request containing the authorization token
      * @param endUser The User object representing the other user in the conversation
      * @return ResponseEntity with the list of MessageResponse or an error status
-     * @throws Exception if an error occurs during conversation retrieval
      */
     @GetMapping("/conversation")
     public ResponseEntity<?> getConversation(HttpServletRequest request, 
-                                         @RequestBody User endUser) {
-        logger.info("Received conversation request from user: " + endUser.getId());
+                                         @RequestParam(required = false) Long endUserId) {
+        logger.info("Received conversation request from user: " + endUserId);
         try {
             String token = extractToken(request);
             String email = jwtUtil.extractUsername(token);
@@ -153,22 +148,22 @@ public class MessageController {
 
             User user1 = optionalUser.get();
 
-            if (user1.getId() == endUser.getId()) {
+            if (user1.getId().equals(endUserId)) {
                 return ResponseEntity.badRequest().body("Cannot fetch conversation with yourself");
             }
 
-            if (!messageService.conversationExists(user1.getId(), endUser.getId())) {
+            if (!messageService.conversationExists(user1.getId(), endUserId)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: No conversation found between users");
             }
 
-            messageService.markConverasationAsRead(user1.getId(), endUser.getId());
+            messageService.markConversationAsRead(user1.getId(), endUserId);
 
             List<MessageResponse> messages = messageService
-                    .getConversation(user1.getId(), endUser.getId())
+                    .getConversation(user1.getId(), endUserId)
                     .stream()
-                    .filter(message -> 
-                        (message.getSender() == user1.getId() && message.getReceiver() == endUser.getId()) ||
-                        (message.getSender() == endUser.getId() && message.getReceiver() == user1.getId())
+                    .filter(message ->
+                        (message.getSender().equals(user1.getId()) && message.getReceiver().equals(endUserId)) ||
+                            (message.getSender().equals(endUserId) && message.getReceiver().equals(user1.getId()))
                     )
                     .map(message -> new MessageResponse(
                             message.getSender(),
@@ -178,7 +173,7 @@ public class MessageController {
                             message.isRead()
                     ))
                     .toList();
-            logger.info("Conversation retrieved successfully between user: " + user1.getId() + " and user: " + endUser.getId());
+            logger.info("Conversation retrieved successfully between user: " + user1.getId() + " and user: " + endUserId);
             return ResponseEntity.ok(messages);
 
         } catch (Exception e) {
