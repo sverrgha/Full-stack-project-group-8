@@ -1,6 +1,5 @@
 package ntnu.idatt2105.project.backend.service;
 
-import com.sun.tools.jconsole.JConsoleContext;
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
@@ -8,18 +7,17 @@ import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
+import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
+import ntnu.idatt2105.project.backend.repository.BrowsingHistoryRepo;
 import ntnu.idatt2105.project.backend.repository.ListingImageRepo;
 import ntnu.idatt2105.project.backend.repository.ListingRepo;
 import ntnu.idatt2105.project.backend.repository.LocationRepo;
 import org.apache.commons.lang3.EnumUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +34,7 @@ public class ListingService {
   private final ListingImageRepo listingImageRepo;
   private final ListingRepo listingRepo;
   private final LocationRepo locationRepo;
+  private final BrowsingHistoryRepo browsingHistoryRepo;
 
   /**
    * List of allowed sort fields for filtering listings.
@@ -133,7 +132,7 @@ public class ListingService {
    *
    * @param id the ID of the listing to fetch
    * @return FullListingResponse containing all the listing details
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if no listing is found
    */
   public FullListingResponse getListingById(Long id) throws IllegalArgumentException {
     Optional<Listing> listingOptional = listingRepo.getListingById(id);
@@ -227,8 +226,52 @@ public class ListingService {
    * @return MultipleListingsResponse containing the listings and pagination info
    */
   public MultipleListingsResponse getMultipleListingsById(List<Long> ids, Pageable pageable) {
-    Page<Listing> listings = listingRepo.getAllListingsByIds(ids, pageable);
+    Page<Listing> listings = listingRepo.getMultipleListingsByIds(ids, pageable);
     return mapToMultipleListingResponse(listings);
+  }
+
+  /**
+   * Retrieves recommended listings based on previous browsing history, if no history
+   * exists for the user, recommended is just random from all listings
+   * @param userId the ID of the user to be recommended
+   * @param pageable the pagination information for the request
+   * @return MultipleListingResponse with metadata for the pagination and the listings
+   */
+  public MultipleListingsResponse getRecommendedListings(Long userId, Pageable pageable) {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    int pageNumber = Math.max(pageable.getPageNumber() - 1, 0);
+    pageable = PageRequest.of(
+            pageNumber,
+            pageable.getPageSize(),
+            pageable.getSort()
+    );
+    List<CategoryShare> categoryShares = browsingHistoryRepo.getUsersCategoryShares(userId);
+    if (categoryShares.isEmpty()) {
+      return getListingByFilter(new ListingFilterRequest(), pageable);
+    }
+    List<Listing> allListings = new ArrayList<>();
+
+    for (CategoryShare categoryShare : categoryShares) {
+      Long categoryId = categoryShare.getCategoryId();
+      Double viewPercentage = categoryShare.getViewPercentage();
+      int pageSize = (int) Math.ceil(pageable.getPageSize() * viewPercentage);
+
+      Pageable categoryPageable = PageRequest.of(
+              pageNumber,
+              pageSize,
+              pageable.getSort()
+      );
+
+      List<Listing> listings = listingRepo.getByCategoryId(categoryId, categoryPageable);
+      allListings.addAll(listings);
+    }
+    return mapToMultipleListingResponse(new PageImpl<>(
+            allListings,
+            pageable,
+            allListings.size()
+    ));
   }
 
   /**

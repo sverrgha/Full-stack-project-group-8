@@ -10,6 +10,10 @@ const props = defineProps({
     required: 'true'
   }
 })
+
+if (props.items.length > 0) {
+  // First item details can be accessed here if needed
+}
 </script>
 
 <template>
@@ -19,9 +23,9 @@ const props = defineProps({
         :key="item.id"
         :id="item.id"
         :title="item.title"
-        :location="item.location"
+        :location="item.city"
         :price="item.price"
-        :imageUrl="item.imageUrl"
+        :imageUrl="item.pathToImage"
     />
 
     <!-- Show a message if there are no items -->
@@ -32,6 +36,12 @@ const props = defineProps({
 </template>
 
 <style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;

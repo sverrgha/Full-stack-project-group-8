@@ -78,7 +78,7 @@ public class SecurityConfig {
      * It disables CSRF protection, sets the session management to stateless,
      * and authorizes requests based on the URL patterns.
      * The JWT request filter is added to the filter chain to check for valid JWT tokens.
-     * 
+     *
      * @param http The HttpSecurity object used to configure the security settings.
      * @return The SecurityFilterChain object that represents the security filter chain.
      * @throws Exception If an error occurs during the configuration.
@@ -95,5 +95,5 @@ public class SecurityConfig {
             )
             .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
-    }   
+    }
 }

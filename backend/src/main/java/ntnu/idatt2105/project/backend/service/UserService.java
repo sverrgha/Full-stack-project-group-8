@@ -1,14 +1,17 @@
 package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
+import ntnu.idatt2105.project.backend.dto.request.ModifyUserRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
-import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
+import ntnu.idatt2105.project.backend.dto.response.UserResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
@@ -53,20 +56,21 @@ public class UserService implements UserDetailsService {
     Optional<User> existingUser = userRepo.findByEmail(email);
     if (existingUser.isPresent()) {
       return new AuthResponse(email, AuthResponseMessage
-              .USER_ALREADY_EXISTS.getMessage(), null, null);
+        .USER_ALREADY_EXISTS.getMessage(), null, null, null);
     }
 
+    Optional<User> newUser;
     try {
-      userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
+      newUser = userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
+      String token = jwtUtil.generateToken(email);
+
+      return new AuthResponse(email, AuthResponseMessage
+        .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
+        jwtUtil.getExpirationDate(token), newUser.get().getId());
     } catch (Exception e) {
       return new AuthResponse(email, AuthResponseMessage
-              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null);
+        .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null, null);
     }
-    String token = jwtUtil.generateToken(email);
-
-    return new AuthResponse(email, AuthResponseMessage
-            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
-            jwtUtil.getExpirationDate(token));
   }
 
   /**
@@ -80,19 +84,27 @@ public class UserService implements UserDetailsService {
    */
   public AuthResponse loginUser(LoginRequest request) {
     String email = request.getEmail();
-    Optional<User> user = userRepo.findByEmail(email);
-    if (user.isEmpty()) {
-      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null);
+    Optional<User> userOpt = userRepo.findByEmail(email);
+    if (userOpt.isEmpty()) {
+      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null, null);
     }
-    if (!PasswordUtil.verifyPassword(request.getPassword(), user.get().getPassword())) {
-      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
+    User user = userOpt.get();
+
+    if (!PasswordUtil.verifyPassword(request.getPassword(), user.getPassword())) {
+      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null, null);
     }
 
     String token = jwtUtil.generateToken(email);
+    Date expirationDate = jwtUtil.getExpirationDate(token);
+    Long userId = user.getId();
 
-    return new AuthResponse(email,
-            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
-            jwtUtil.getExpirationDate(token));
+    return new AuthResponse(
+      email,
+      AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(),
+      token,
+      expirationDate,
+      userId
+    );
   }
 
   /**
@@ -143,6 +155,83 @@ public class UserService implements UserDetailsService {
     } else {
       return false;
     }
+  }
+
+  /**
+   * This method checks if the user is an admin by verifying the JWT token.
+   * It retrieves the user from the database using the UserRepo interface
+   * and checks if the user is an admin.
+   * @param token The JWT token containing the user's email.
+   * @return true if the user is an admin, false otherwise.
+   */
+  public boolean validateAdmin(String token) {
+    String email = jwtUtil.extractUsername(token);
+    Optional<User> user = userRepo.findByEmail(email);
+
+    if (user.isPresent()) {
+      return user.get().isAdmin();
+    } else {
+      throw new IllegalArgumentException("User not found with email: " + email);
+    }
+  }
+
+  /**
+   * This method retrieves a user from the database using the JWT token.
+   * It extracts the email from the token and uses it to find the user.
+   * If the user is not found, it throws an IllegalArgumentException.
+   */
+  public UserResponse getUserById(Long id) {
+    User user = userRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
+    return new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(),
+            user.getPhoneNumber(), user.isAdmin(), user.getCreatedAt());
+  }
+
+  /**
+   * This method updates a user's information in the database.
+   * It takes a ModifyUserRequest object and updates the user's
+   * information if the user ID matches the email in the JWT token.
+   * It validates the user ID and the token before updating the user's information.
+   *
+   * @param id The ID of the user to be updated.
+   * @param request The ModifyUserRequest object containing the user's new information.
+   * @param token The JWT token containing the user's email.
+   */
+  public void updateUser(Long id, ModifyUserRequest request, String token) {
+    if (!validateUserIdMatchesToken(id, token)) {
+      throw new IllegalArgumentException("User ID does not match the token");
+    }
+
+    User oldUser = userRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
+
+    String firstName = request.getFirstname() != null ? request.getFirstname()
+            : oldUser.getFirstname();
+    String lastName = request.getLastname() != null && !request.getLastname().isBlank()
+            ? request.getLastname() : oldUser.getLastname();
+    String email = request.getEmail() != null && request.getEmail()
+            .matches("^[A-Za-z0-9+_.-]+@(.+)$") ? request.getEmail()
+            : oldUser.getEmail();
+    String phoneNumber = request.getPhoneNumber() != null &&
+            !request.getPhoneNumber().isBlank() ? request.getPhoneNumber()
+            : oldUser.getPhoneNumber();
+    String password = PasswordUtil.hashPassword(request.getPhoneNumber() != null &&
+            request.getPhoneNumber().length() >= 8 ? request.getPhoneNumber()
+            : oldUser.getPhoneNumber());
+
+
+    User newUser = new User(
+            oldUser.getId(),
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            password,
+            oldUser.isAdmin(),
+            oldUser.getCreatedAt()
+    );
+
+    userRepo.update(newUser);
   }
 
   public Optional<User> findByEmail(String email) {

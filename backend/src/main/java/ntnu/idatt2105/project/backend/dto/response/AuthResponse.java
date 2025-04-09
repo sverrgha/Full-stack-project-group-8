@@ -17,4 +17,5 @@ public class AuthResponse {
   private String message;
   private String token;
   private Date expirationDate;
+  private Long id;
 }

@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import static org.mockito.Mockito.*;
 
@@ -38,6 +40,20 @@ class UserFavoriteControllerTest {
   private static Long listingId;
   private static String validToken;
   private static String extractedToken;
+
+  @Container
+  private static final MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8.4")
+    .withDatabaseName("testdb")
+    .withUsername("test")
+    .withPassword("test");
+
+  @BeforeAll
+  static void beforeAll() {
+    mysql.start();
+    System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
+    System.setProperty("spring.datasource.username", mysql.getUsername());
+    System.setProperty("spring.datasource.password", mysql.getPassword());
+  }
 
   /**
    * Set up the test class with common parameters, to be used in all tests.

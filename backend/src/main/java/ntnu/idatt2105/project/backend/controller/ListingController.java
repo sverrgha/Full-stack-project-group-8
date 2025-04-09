@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ntnu.idatt2105.project.backend.service.ListingService;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -44,7 +45,7 @@ public class ListingController {
    * dividing them into pages.
    *
    * @param filterRequest the filter criteria for fetching listings
-   * @param pageable pagination parameters
+   * @param pageable      pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing simple
    */
   @GetMapping
@@ -79,7 +80,7 @@ public class ListingController {
    *
    * @param listing the listing to be added, with necessary information about the listing
    * @return ResponseEntity with AddListingResponse containing the ID of the added and
-   *         a message
+   * a message
    */
   @PostMapping
   public ResponseEntity<AddListingResponse> addListing(
@@ -106,6 +107,7 @@ public class ListingController {
   /**
    * Endpoint for fetching a listing by its ID, and retrieving all the information
    * about it.
+   *
    * @param id the ID of the listing to be fetched
    * @return ResponseEntity with FullListingResponse containing all the information
    */
@@ -123,23 +125,27 @@ public class ListingController {
   }
 
   @GetMapping("/user/recommended")
-  public ResponseEntity<MultipleListingsResponse> getRecomendedListings(
+  public ResponseEntity<MultipleListingsResponse> getRecommendedListings(
           @RequestParam Long userId,
-          @PageableDefault(size = 20, page = 1, sort = "created_at",
-                  direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+          @PageableDefault(size = 20, page = 1) Pageable pageable
   ) {
     logger.info("Received request for recommended listings for user ID: " + userId);
-    /*try {
-      MultipleListingsResponse response = listingService.getRecomendedListings(userId, pageable);
+    try {
+      MultipleListingsResponse response = listingService.getRecommendedListings(userId, pageable);
       logger.info("Recommended listings fetched successfully " + response.getElements().size() + " listings found");
       return ResponseEntity.ok(response);
     } catch (IllegalArgumentException e) {
       logger.warning("Invalid user ID: " + e.getMessage());
-      return ResponseEntity.badRequest().body(new MultipleListingsResponse());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
     } catch (Exception e) {
-      logger.severe("Error while fetching recommended listings: " + e.getMessage());
-      return ResponseEntity.internalServerError().body(new MultipleListingsResponse());
-    }*/
-    return ResponseEntity.ok(new MultipleListingsResponse());
+      logger.severe("Error while fetching recommended listings: " + e.getCause() + Arrays.toString(e.getStackTrace()));
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    }
   }
 }
