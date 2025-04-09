@@ -1,18 +1,13 @@
 package ntnu.idatt2105.project.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.sql.Date;
-import java.util.Optional;
-import java.util.Date;
-
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.ModifyUserRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
 import ntnu.idatt2105.project.backend.dto.response.UserResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
+import ntnu.idatt2105.project.backend.model.User;
+import ntnu.idatt2105.project.backend.repository.UserRepo;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +18,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import ntnu.idatt2105.project.backend.model.User;
-import ntnu.idatt2105.project.backend.repository.UserRepo;
+import java.sql.Date;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceTest {
 
@@ -60,7 +58,7 @@ class UserServiceTest {
     request.setPassword("password123");
     request.setPhoneNumber("12345678");
 
-    Date mockDate = new Date();
+    java.util.Date mockDate = new java.util.Date();
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.empty());
     when(jwtUtil.generateToken(request.getEmail())).thenReturn("mockedToken");
     when(jwtUtil.getExpirationDate("mockedToken")).thenReturn(mockDate);
@@ -153,7 +151,7 @@ class UserServiceTest {
     request.setEmail("ola.nordmann@gmail.com");
     request.setPassword("password123");
 
-    Date mockDate = new Date();
+    java.util.Date mockDate = new java.util.Date();
     User existingUser = new User("Ola", "Nordmann", request.getEmail(),
       "12345678", PasswordUtil.hashPassword(request.getPassword()));
     existingUser.setId(2L);
