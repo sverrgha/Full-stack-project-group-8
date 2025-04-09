@@ -39,7 +39,9 @@ public class ListingImageRepo {
   public Optional<String> getOneImageByListingId(long listingId) {
     String sql = "SELECT path_to_image FROM sverrgha_datab.listing_images "
     + "WHERE listing_id = ? LIMIT 1";
-    return Optional.of(jdbcTemplate.queryForObject(sql, String.class, listingId));
+    List<String> results = jdbcTemplate.query(sql, (rs, rowNum) ->
+            rs.getString("path_to_image"), listingId);
+    return results.isEmpty() ? Optional.empty() : Optional.ofNullable(results.get(0));
   }
 
   public List<String> getAllImagesByListingId(long listingId) {

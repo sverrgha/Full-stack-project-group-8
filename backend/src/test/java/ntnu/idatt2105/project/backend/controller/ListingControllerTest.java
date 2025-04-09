@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -301,6 +303,71 @@ class ListingControllerTest {
             .andExpect(status().isNotFound());
 
     verify(listingService, times(1)).getListingById(99L);
+  }
+
+  @Test
+  @WithMockUser("test")
+  void getRecommendedListings_validUserId_returnsOk() throws Exception {
+    Long userId = 123L;
+    Pageable pageable = PageRequest.of(1, 20, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+
+    when(listingService.getRecommendedListings(eq(userId), eq(pageable))).thenReturn(multipleListingsResponse);
+
+    mockMvc.perform(get("/api/listing/user/recommended")
+                    .param("userId", userId.toString())
+                    .param("page", String.valueOf(pageable.getPageNumber()))
+                    .param("size", String.valueOf(pageable.getPageSize()))
+                    .param("sort", "createdAt,desc"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.elements").isArray())
+            .andExpect(jsonPath("$.elements.length()").value(1));
+
+    verify(listingService, times(1)).getRecommendedListings(eq(userId), eq(pageable));
+  }
+
+  /**
+   * Tests the getRecommendedListings endpoint with an invalid user ID, returning BadRequest.
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void getRecommendedListings_invalidUserId_returnsBadRequest() throws Exception {
+    Long userId = 999L;
+    Pageable pageable = PageRequest.of(1, 20);
+
+    when(listingService.getRecommendedListings(eq(userId), eq(pageable)))
+            .thenThrow(new IllegalArgumentException("Invalid user ID: " + userId));
+
+    mockMvc.perform(get("/api/listing/user/recommended")
+                    .param("userId", userId.toString()))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.elements").isArray())
+            .andExpect(jsonPath("$.elements.length()").value(0));
+
+    verify(listingService, times(1)).getRecommendedListings(eq(userId), eq(pageable));
+  }
+
+  /**
+   * Tests the getRecommendedListings endpoint when the service throws a generic exception,
+   * returning InternalServerError.
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void getRecommendedListings_serviceError_returnsInternalServerError() throws Exception {
+    Long userId = 123L;
+    Pageable pageable = PageRequest.of(1, 20);
+
+    when(listingService.getRecommendedListings(userId, pageable))
+            .thenThrow(new RuntimeException("Error while fetching recommendations"));
+
+    mockMvc.perform(get("/api/listing/user/recommended")
+                    .param("userId", userId.toString()))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.elements").isArray())
+            .andExpect(jsonPath("$.elements.length()").value(0));
+
+    verify(listingService, times(1)).getRecommendedListings(userId, pageable);
   }
 
 
