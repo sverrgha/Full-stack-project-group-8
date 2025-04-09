@@ -17,4 +17,12 @@ public class AuthResponse {
   private String message;
   private String token;
   private Date expirationDate;
+  private Long id;
+
+  public AuthResponse(String email, String message, String token, Long id) {
+    this.email = email;
+    this.message = message;
+    this.token = token;
+    this.id = id;
+  }
 }
