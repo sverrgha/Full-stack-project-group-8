@@ -554,6 +554,13 @@ class ListingServiceTest {
     assertEquals(10, response.getPageSize());
   }
 
+  /**
+   * Tests that the listing is updated successfully when a valid request is made.
+   * This test checks if the method updates the listing
+   * with the new details and saves the changes.
+   *
+   * @throws IllegalAccessException if there is an error while testing
+   */
   @Test
   void updateListing_validRequest_updatesListing() throws IllegalAccessException {
     Long listingId = 1L;
@@ -581,6 +588,11 @@ class ListingServiceTest {
     assertEquals(5678, listingCaptor.getValue().getPostalCode());
   }
 
+  /**
+   * Tests that an exception is thrown when the listing is not found.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing is not found in the repository.
+   */
   @Test
   void updateListing_listingNotFound_throwsException() {
     Long listingId = 99L;
@@ -595,8 +607,15 @@ class ListingServiceTest {
     verify(listingRepo, times(0)).update(any(Listing.class));
   }
 
+  /**
+   * Tests that images are added and deleted correctly when updating a listing.
+   * This test checks if the method removes the old images
+   * and adds the new images as specified in the request.
+   *
+   * @throws IllegalAccessException if there is an error while testing
+   */
   @Test
-  void updateListing_addAndDeleteImages() throws IllegalAccessException {
+  void updateListing_addAndDeleteImages_correctlyRemovesAndAdds() throws IllegalAccessException {
     Long listingId = listing1.getId();
     Long userId = listing1.getUserId();
     String token = "testToken";
