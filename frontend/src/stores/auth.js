@@ -68,7 +68,9 @@ export const useAuthStore = defineStore('auth', {
             this.token = data.token;
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(this.user));
-            console.log("id: ", this.user.id)
+            if (process.env.NODE_ENV === 'development') {
+                console.log("id: ", this.user.id);
+            }
         },
 
         clearError() {
