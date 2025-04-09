@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
+import java.util.Date;
 
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
@@ -56,19 +57,29 @@ class UserServiceTest {
     request.setPassword("password123");
     request.setPhoneNumber("12345678");
 
+    Date mockDate = new Date();
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.empty());
     when(jwtUtil.generateToken(request.getEmail())).thenReturn("mockedToken");
-    when(userRepo.save(any(User.class))).thenReturn(Optional.of(new User(request.getFirstname(), request.getLastname(), request.getEmail(), request.getPhoneNumber(), PasswordUtil.hashPassword(request.getPassword()))));
+    when(jwtUtil.getExpirationDate("mockedToken")).thenReturn(mockDate);
+    User savedUser = new User(request.getFirstname(), request.getLastname(),
+      request.getEmail(), request.getPhoneNumber(),
+      PasswordUtil.hashPassword(request.getPassword()));
+    savedUser.setId(1L);
+    when(userRepo.save(any(User.class))).thenReturn(Optional.of(savedUser));
 
     AuthResponse response = userService.registerUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals(AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(), response.getMessage());
+    assertEquals(AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(),
+      response.getMessage());
     assertEquals("mockedToken", response.getToken());
-    verify(userRepo, times(1)).findByEmail(request.getEmail());
-    verify(userRepo, times(1)).save(any(User.class));
-    verify(jwtUtil, times(1)).generateToken(request.getEmail());
+    assertEquals(mockDate, response.getExpirationDate());
+    assertEquals(1L, response.getId());
+    verify(userRepo).findByEmail(request.getEmail());
+    verify(userRepo).save(any(User.class));
+    verify(jwtUtil).generateToken(request.getEmail());
+    verify(jwtUtil).getExpirationDate("mockedToken");
   }
 
   /**
@@ -93,6 +104,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), response.getMessage());
     assertNull(response.getToken());
+    assertNull(response.getId()); // Check that ID is null
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, never()).save(any(User.class));
     verify(jwtUtil, never()).generateToken(request.getEmail());
@@ -119,8 +131,9 @@ class UserServiceTest {
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.SAVING_USER_ERROR.getMessage()
-            + "Database error", response.getMessage());
+      + "Database error", response.getMessage());
     assertNull(response.getToken());
+    assertNull(response.getId()); // Check that ID is null
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, times(1)).save(any(User.class));
     verify(jwtUtil, never()).generateToken(anyString());
@@ -137,18 +150,26 @@ class UserServiceTest {
     request.setEmail("ola.nordmann@gmail.com");
     request.setPassword("password123");
 
-    User existingUser = new User("Ola", "Nordmann", request.getEmail(), "12345678", PasswordUtil.hashPassword(request.getPassword()));
+    Date mockDate = new Date();
+    User existingUser = new User("Ola", "Nordmann", request.getEmail(),
+      "12345678", PasswordUtil.hashPassword(request.getPassword()));
+    existingUser.setId(2L);
     when(userRepo.findByEmail(request.getEmail())).thenReturn(Optional.of(existingUser));
     when(jwtUtil.generateToken(request.getEmail())).thenReturn("mockedToken");
+    when(jwtUtil.getExpirationDate("mockedToken")).thenReturn(mockDate);
 
     AuthResponse response = userService.loginUser(request);
 
     assertNotNull(response);
     assertEquals(request.getEmail(), response.getEmail());
-    assertEquals(AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), response.getMessage());
+    assertEquals(AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(),
+      response.getMessage());
     assertEquals("mockedToken", response.getToken());
-    verify(userRepo, times(1)).findByEmail(request.getEmail());
-    verify(jwtUtil, times(1)).generateToken(request.getEmail());
+    assertEquals(mockDate, response.getExpirationDate());
+    assertEquals(2L, response.getId());
+    verify(userRepo).findByEmail(request.getEmail());
+    verify(jwtUtil).generateToken(request.getEmail());
+    verify(jwtUtil).getExpirationDate("mockedToken");
   }
 
   /**
@@ -170,6 +191,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.USER_NOT_FOUND.getMessage(), response.getMessage());
     assertNull(response.getToken());
+    assertNull(response.getId()); // Check that ID is null
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());
   }
@@ -193,6 +215,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), response.getMessage());
     assertNull(response.getToken());
+    assertNull(response.getId()); // Check that ID is null
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());
   }
