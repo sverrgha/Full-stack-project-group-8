@@ -95,7 +95,7 @@ public class MessageRepo {
             message.setReceiver(rs.getLong("to_user_id"));
             message.setContent(rs.getString("message"));
             message.setTimestamp(rs.getString("sent_at"));
-            message.setRead(rs.getBoolean("read"));
+            message.setRead(rs.getBoolean("is_read"));
             return message;
         }, userId, userId);
     }
