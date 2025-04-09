@@ -144,6 +144,22 @@ public class UserService implements UserDetailsService {
       return false;
     }
   }
+
+  /**
+   * This method retrieves a user from the database using the JWT token.
+   * It extracts the email from the token and uses it to find the user.
+   * If the user is not found, it throws an IllegalArgumentException.
+   */
+  public boolean validateAdmin(String token) {
+    String email = jwtUtil.extractUsername(token);
+    Optional<User> user = userRepo.findByEmail(email);
+
+    if (user.isPresent()) {
+      return user.get().isAdmin();
+    } else {
+      throw new IllegalArgumentException("User not found with email: " + email);
+    }
+  }
   public UserResponse getUserById(Long id) {
     User user = userRepo.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
