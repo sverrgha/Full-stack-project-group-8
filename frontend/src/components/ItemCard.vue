@@ -28,7 +28,7 @@ const props = defineProps({
 
 // Handle image loading errors
 const handleImageError = (event) => {
-  event.target.src = '/src/assets/placeholder.png'; // Fallback image
+  event.target.src = '/src/assets/placeholder.svg'; // Fallback image
 };
 
 // Format price with currency
