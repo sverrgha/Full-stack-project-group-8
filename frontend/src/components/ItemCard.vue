@@ -36,6 +36,7 @@ const formatPrice = (price) => {
   return `${price} kr`;
 };
 
+// Import the API base URL from environment variables
 const apiBaseUrl = import.meta.env.VITE_API_URL;
 
 // Add a computed property for the image source
