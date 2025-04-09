@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -221,7 +222,9 @@ class ListingServiceTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(30L);
     addListingRequest.setCondition("new");
-    addListingRequest.setPostalCode(9012);
+    addListingRequest.setLocation(new LocationDTO(
+            9012, "New City", "New Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Arrays.asList("imageA.jpg", "imageB.jpg"));
 
     Listing savedListing = new Listing();
@@ -273,7 +276,9 @@ class ListingServiceTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(30L);
     addListingRequest.setCondition("new");
-    addListingRequest.setPostalCode(9012);
+    addListingRequest.setLocation(new LocationDTO(
+            9012, "New City", "New Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Arrays.asList("imageA.jpg", "imageB.jpg"));
 
     when(listingRepo.save(any(), any(), any(), any(), any(), any(), any(), anyInt()))

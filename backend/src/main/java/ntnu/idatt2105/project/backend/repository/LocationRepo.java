@@ -25,7 +25,7 @@ public class LocationRepo {
    *
    * @param location the location to be saved
    */
-  public void saveLocation(Location location) {
+  public void save(Location location) {
     String sql = "INSERT INTO sverrgha_datab.locations (postal_code, city, country, "
             + "latitude, longitude) VALUES (?, ?, ?, ?, ?)";
     jdbcTemplate.update(sql,

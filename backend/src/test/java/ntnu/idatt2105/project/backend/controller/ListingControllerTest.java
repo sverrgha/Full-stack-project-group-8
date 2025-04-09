@@ -2,6 +2,7 @@ package ntnu.idatt2105.project.backend.controller;
 
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -136,7 +137,9 @@ class ListingControllerTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(11L);
     addListingRequest.setCondition("fair");
-    addListingRequest.setPostalCode(5678);
+    addListingRequest.setLocation(new LocationDTO(
+            5678, "Test City", "Test Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Collections.emptyList());
 
     validFilterRequest = new ListingFilterRequest();

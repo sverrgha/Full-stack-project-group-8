@@ -3,6 +3,7 @@ package ntnu.idatt2105.project.backend.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Data;
  * latitude, and longitude. It is used in requests that needs location data.
  */
 @Data
+@AllArgsConstructor
 public class LocationDTO {
   @NotNull
   @Size(min = 1, max = 9999, message = "Postal code must be a number in range 1 to 9999")
