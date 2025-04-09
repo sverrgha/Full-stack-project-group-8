@@ -136,7 +136,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -193,7 +194,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
                     .isEmpty())
             .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate")
-                    .isEmpty());
+                    .isEmpty())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -260,7 +262,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.INVALID_CREDENTIALS.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -289,6 +292,7 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
                             + "Service error"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 }
