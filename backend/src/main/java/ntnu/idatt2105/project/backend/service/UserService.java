@@ -1,14 +1,14 @@
 package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
+import ntnu.idatt2105.project.backend.dto.request.ModifyUserRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
 import ntnu.idatt2105.project.backend.dto.response.AuthResponse;
-import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
+import ntnu.idatt2105.project.backend.dto.response.UserResponse;
 import ntnu.idatt2105.project.backend.enums.AuthResponseMessage;
 import ntnu.idatt2105.project.backend.security.JwtUtil;
 import ntnu.idatt2105.project.backend.util.PasswordUtil;
@@ -143,5 +143,49 @@ public class UserService implements UserDetailsService {
     } else {
       return false;
     }
+  }
+  public UserResponse getUserById(Long id) {
+    User user = userRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
+    return new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(),
+            user.getPhoneNumber(), user.isAdmin(), user.getCreatedAt());
+  }
+
+
+  public void updateUser(Long id, ModifyUserRequest request, String token) {
+    if (!validateUserIdMatchesToken(id, token)) {
+      throw new IllegalArgumentException("User ID does not match the token");
+    }
+
+    User oldUser = userRepo.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
+
+    String firstName = request.getFirstname() != null ? request.getFirstname()
+            : oldUser.getFirstname();
+    String lastName = request.getLastname() != null && !request.getLastname().isBlank()
+            ? request.getLastname() : oldUser.getLastname();
+    String email = request.getEmail() != null && request.getEmail()
+            .matches("^[A-Za-z0-9+_.-]+@(.+)$") ? request.getEmail()
+            : oldUser.getEmail();
+    String phoneNumber = request.getPhoneNumber() != null &&
+            !request.getPhoneNumber().isBlank() ? request.getPhoneNumber()
+            : oldUser.getPhoneNumber();
+    String password = PasswordUtil.hashPassword(request.getPhoneNumber() != null &&
+            request.getPhoneNumber().length() >= 8 ? request.getPhoneNumber()
+            : oldUser.getPhoneNumber());
+
+
+    User newUser = new User(
+            oldUser.getId(),
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            password,
+            oldUser.isAdmin(),
+            oldUser.getCreatedAt()
+    );
+
+    userRepo.update(newUser);
   }
 }
