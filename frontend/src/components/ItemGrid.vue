@@ -12,7 +12,7 @@ const props = defineProps({
 })
 
 if (props.items.length > 0) {
-  console.log('First item details:', JSON.stringify(props.items[0]));
+  // First item details can be accessed here if needed
 }
 </script>
 
