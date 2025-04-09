@@ -132,8 +132,9 @@ public class ListingController {
    * Endpoint for updating a listing by its ID.
    * It takes the ID of the listing to be updated,
    * and the new data for the listing.
-   * @param id the ID of the listing to be updated, is part of the URL
-   * @param request the new data for the listing
+   *
+   * @param id         the ID of the listing to be updated, is part of the URL
+   * @param request    the new data for the listing
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating the result of the update
    */
@@ -153,9 +154,9 @@ public class ListingController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
               .body("Unauthorized: " + e.getMessage());
     } catch (IllegalArgumentException e) {
-        logger.warning("Invalid argument: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Invalid argument: " + e.getMessage());
+      logger.warning("Invalid argument: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body("Invalid argument: " + e.getMessage());
     } catch (Exception e) {
       logger.severe("Error while updating listing: " + e.getMessage());
       return ResponseEntity.internalServerError().body("An unexpected error occurred while updating listing: "
@@ -163,6 +164,15 @@ public class ListingController {
     }
   }
 
+  /**
+   * Endpoint for retrieving recommended listings for a user.
+   * It takes the user ID as a parameter, and returns a list of recommended listings
+   * for that user.
+   *
+   * @param userId   the ID of the user for whom to fetch recommended listings
+   * @param pageable pagination parameters
+   * @return ResponseEntity with MultipleListingsResponse containing the recommended listings
+   */
   @GetMapping("/user/recommended")
   public ResponseEntity<MultipleListingsResponse> getRecommendedListings(
           @RequestParam Long userId,
