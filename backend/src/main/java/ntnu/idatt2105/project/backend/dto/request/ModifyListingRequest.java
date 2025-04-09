@@ -2,7 +2,9 @@ package ntnu.idatt2105.project.backend.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ntnu.idatt2105.project.backend.model.Listing;
 
 import java.sql.Date;
@@ -16,6 +18,8 @@ import java.util.List;
  * sold user ID, images, and location.
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ModifyListingRequest {
   @NotBlank(message = "Title cannot be blank")
   private String title;

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * LocationDTO is a Data Transfer Object (DTO) that represents a location with city, country,
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class LocationDTO {
   @NotNull
   @Size(min = 1, max = 9999, message = "Postal code must be a number in range 1 to 9999")
