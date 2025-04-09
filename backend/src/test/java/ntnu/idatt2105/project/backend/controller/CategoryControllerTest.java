@@ -147,19 +147,15 @@ class CategoryControllerTest {
     AddCategoryRequest invalidRequest = new AddCategoryRequest(null, "Ny Kategori No");
     String extractedToken = "adminToken";
 
-    try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
-      mockedTokenExtractor.when(() -> TokenExtractor.extractToken(adminToken)).thenReturn(extractedToken);
-      doThrow(new IllegalArgumentException("Category nameEn cannot be null")).when(categoryService).addCategory(invalidRequest, extractedToken);
+    doThrow(new IllegalArgumentException("Category nameEn cannot be null")).when(categoryService).addCategory(invalidRequest, extractedToken);
 
-      mockMvc.perform(MockMvcRequestBuilders.post("/api/category")
-                      .header("Authorization", adminToken)
-                      .contentType(MediaType.APPLICATION_JSON)
-                      .content(objectMapper.writeValueAsString(invalidRequest)))
-              .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/category")
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(invalidRequest)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-      mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(adminToken), never());
-      verify(categoryService, never()).addCategory(invalidRequest, extractedToken);
-    }
+    verify(categoryService, never()).addCategory(invalidRequest, extractedToken);
   }
 
   @Test
