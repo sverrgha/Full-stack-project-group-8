@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 /**
  * AuthController handles authentication-related requests such as user registration and login.
  * It uses the UserService to perform the actual operations and returns appropriate responses.
- * All requests are returning a AuthResponse object containing the email, a message and token.
+ * All requests are returning a AuthResponse object containing the email, a message, token and user ID.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -32,8 +32,9 @@ public class AuthController {
    * the login response. If the registration fails, it returns a 400 Bad Request response.
    *
    * @param request the registration request containing user details
-   * @return ResponseEntity with login response containing email, message and token
+   * @return ResponseEntity with login response containing email, message, token and user ID
    */
+
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
     logger.info("Received register request for user: " + request.getEmail());
@@ -49,9 +50,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error registering user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-              new AuthResponse(request.getEmail(),
-                      AuthResponseMessage.SAVING_USER_ERROR.getMessage()
-                              + e.getMessage(), null, null));
+        new AuthResponse(request.getEmail(),
+          AuthResponseMessage.SAVING_USER_ERROR.getMessage()
+            + e.getMessage(), null, null, null));
     }
   }
 
@@ -63,8 +64,9 @@ public class AuthController {
    * If an error occurs, it returns a 500 Internal Server Error response.
    *
    * @param request the login request containing user email and password
-   * @return ResponseEntity with login response containing email, message and token
+   * @return ResponseEntity with login response containing email, message, token and user ID
    */
+
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest request) {
     logger.info("Received login request for user: " + request.getEmail());
@@ -81,9 +83,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error logging in user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-              new AuthResponse(request.getEmail(),
-                      AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
-                              + e.getMessage(), null, null));
+        new AuthResponse(request.getEmail(),
+          AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
+            + e.getMessage(), null, null, null));
     }
   }
 }

@@ -2,89 +2,82 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import sofaImage from '../assets/sofa.jpg';
-import chairImage from '../assets/chair.jpg';
-import apartmentImage from '../assets/apartment.png';
 import ImageGallery from '../components/Gallery.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
+import { useListingStore } from "../stores/listing.js";
+import { useAuthStore } from "../stores/auth.js";
 
 const route = useRoute();
 const { t } = useI18n();
+const listingStore = useListingStore();
+const authStore = useAuthStore();
 const product = ref({});
 const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
 
-// Change this to view as a different user
-const currentUser = ref("John Doe"); // Same as seller to demonstrate owner view
 
-// Determine if current user is the owner
 const isOwner = computed(() => {
-  return product.value?.seller === currentUser.value;
+  if (!authStore.currentUser || !listingStore.currentListing) return false;
+  return listingStore.currentListing.userId === authStore.currentUser.id;
 });
 
 // Fetch product details based on the route parameter
 onMounted(async () => {
   const productId = route.params.id;
   try {
-    loading.value = false;
-    product.value = {
-      id: productId,
-      name: "Product Name",
-      description: "Detailed description of the product goes here. This would include information about features, condition, etc.",
-      price: 1299,
-      location: "Oslo",
-      seller: "John Doe", // Same as currentUser for owner view
-      category: "Electronics",
-      condition: "New",
-      images: [sofaImage, chairImage, apartmentImage],
-      postedDate: "2023-11-15"
-    };
+    await listingStore.fetchListingById(productId);
+    // Map backend data to component format
+    if (listingStore.currentListing) {
+      product.value = {
+        id: listingStore.currentListing.id,
+        name: listingStore.currentListing.title,
+        description: listingStore.currentListing.description,
+        price: listingStore.currentListing.price,
+        location: listingStore.currentListing.city,
+        userId: authStore.currentUser.id,
+        seller: listingStore.currentListing.userId,
+        category: listingStore.currentListing.categoryId,
+        condition: listingStore.currentListing.condition,
+        images: listingStore.currentListing.images || [],
+        postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
+      };
+    }
   } catch (err) {
-    error.value = "Failed to load product details";
+    error.value = "Failed to load product details: " + (err.message || err);
+  } finally {
     loading.value = false;
   }
 });
 
-const availableCategories = ref([
-  'Vehicles',
-  'Clothing',
-  'Interior and Furniture',
-  'Property',
-  'Activity and Leisure',
-  'Electronics',
-  'Beauty and Health'
-]);
 
-const availableConditions = ref([
-  'New',
-  'Like New',
-  'Good',
-  'Fair',
-  'Poor'
-]);
-
-// Edit mode toggle function
-const toggleEditMode = () => {
-  isEditing.value = !isEditing.value;
-};
-
-// Save changes function
-const saveChanges = () => {
-  isEditing.value = false;
-};
-
-// Delete item function
-const deleteItem = () => {
-  if (confirm(t('itemDetailPage.confirmDelete') || 'Are you sure you want to delete this item?')) {
-    // Delete logic here
+const saveChanges = async () => {
+  try {
+    // Implement the update logic using your API
+    // Example: await listingService.updateListing(product.value.id, mappedData);
+    isEditing.value = false;
+  } catch (err) {
+    error.value = "Failed to save changes";
   }
 };
 
-// Update product images when changed in the gallery component
+// Delete item function
+const deleteItem = async () => {
+  if (confirm(t('itemDetailPage.confirmDelete') || 'Are you sure you want to delete this item?')) {
+    try {
+      // Implement the delete logic using your API
+      // Example: await listingService.deleteListing(product.value.id);
+      // Redirect to listings page or home
+      // router.push('/listings');
+    } catch (err) {
+      error.value = "Failed to delete item";
+    }
+  }
+};
 const updateImages = (newImages) => {
   product.value.images = newImages;
+  //implement api here
 };
 </script>
 

@@ -86,7 +86,7 @@ class AuthControllerTest {
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
             AuthResponseMessage.USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
-            expirationDate);
+            expirationDate, 1L);
 
     when(userService.registerUser(any(RegisterRequest.class))).thenReturn(response);
 
@@ -122,7 +122,7 @@ class AuthControllerTest {
     request.setPhoneNumber("12345678");
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), null, null);
+            AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), null, null, null);
 
     when(userService.registerUser(any(RegisterRequest.class))).thenReturn(response);
 
@@ -136,7 +136,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -193,7 +194,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.token")
                     .isEmpty())
             .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate")
-                    .isEmpty());
+                    .isEmpty())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -214,7 +216,7 @@ class AuthControllerTest {
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
             AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
-            expirationDate);
+            expirationDate, 1L);
 
     when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -247,7 +249,7 @@ class AuthControllerTest {
     request.setPassword("wrongPassword");
 
     AuthResponse response = new AuthResponse("ola.nordman@gmail.com",
-            AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
+            AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null, null);
 
     when(userService.loginUser(any(LoginRequest.class))).thenReturn(response);
 
@@ -260,7 +262,8 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.INVALID_CREDENTIALS.getMessage()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.expirationDate").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 
   /**
@@ -289,6 +292,7 @@ class AuthControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.message")
                     .value(AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
                             + "Service error"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("$.token").isEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").isEmpty());
   }
 }

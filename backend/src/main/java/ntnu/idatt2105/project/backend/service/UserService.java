@@ -1,6 +1,9 @@
 package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
@@ -53,20 +56,21 @@ public class UserService implements UserDetailsService {
     Optional<User> existingUser = userRepo.findByEmail(email);
     if (existingUser.isPresent()) {
       return new AuthResponse(email, AuthResponseMessage
-              .USER_ALREADY_EXISTS.getMessage(), null, null);
+        .USER_ALREADY_EXISTS.getMessage(), null, null, null);
     }
 
+    Optional<User> newUser;
     try {
-      userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
+      newUser = userRepo.save(new User(firstName, lastName, email, phoneNumber, hashedPassword));
+      String token = jwtUtil.generateToken(email);
+
+      return new AuthResponse(email, AuthResponseMessage
+        .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
+        jwtUtil.getExpirationDate(token), newUser.get().getId());
     } catch (Exception e) {
       return new AuthResponse(email, AuthResponseMessage
-              .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null);
+        .SAVING_USER_ERROR.getMessage() + e.getMessage(), null, null, null);
     }
-    String token = jwtUtil.generateToken(email);
-
-    return new AuthResponse(email, AuthResponseMessage
-            .USER_REGISTERED_SUCCESSFULLY.getMessage(), token,
-            jwtUtil.getExpirationDate(token));
   }
 
   /**
@@ -80,19 +84,27 @@ public class UserService implements UserDetailsService {
    */
   public AuthResponse loginUser(LoginRequest request) {
     String email = request.getEmail();
-    Optional<User> user = userRepo.findByEmail(email);
-    if (user.isEmpty()) {
-      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null);
+    Optional<User> userOpt = userRepo.findByEmail(email);
+    if (userOpt.isEmpty()) {
+      return new AuthResponse(email, AuthResponseMessage.USER_NOT_FOUND.getMessage(), null, null, null);
     }
-    if (!PasswordUtil.verifyPassword(request.getPassword(), user.get().getPassword())) {
-      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null);
+    User user = userOpt.get();
+
+    if (!PasswordUtil.verifyPassword(request.getPassword(), user.getPassword())) {
+      return new AuthResponse(email, AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), null, null, null);
     }
 
     String token = jwtUtil.generateToken(email);
+    Date expirationDate = jwtUtil.getExpirationDate(token);
+    Long userId = user.getId();
 
-    return new AuthResponse(email,
-            AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(), token,
-            jwtUtil.getExpirationDate(token));
+    return new AuthResponse(
+      email,
+      AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(),
+      token,
+      expirationDate,
+      userId
+    );
   }
 
   /**
