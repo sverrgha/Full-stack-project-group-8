@@ -238,6 +238,9 @@ public class ListingService {
    * @return MultipleListingResponse with metadata for the pagination and the listings
    */
   public MultipleListingsResponse getRecommendedListings(Long userId, Pageable pageable) {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
     int pageNumber = Math.max(pageable.getPageNumber() - 1, 0);
     pageable = PageRequest.of(
             pageNumber,

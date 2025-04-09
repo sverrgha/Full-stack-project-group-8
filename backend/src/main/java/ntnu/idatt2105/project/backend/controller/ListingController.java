@@ -127,8 +127,7 @@ public class ListingController {
   @GetMapping("/user/recommended")
   public ResponseEntity<MultipleListingsResponse> getRecommendedListings(
           @RequestParam Long userId,
-          @PageableDefault(size = 20, page = 1, sort = "created_at",
-                  direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+          @PageableDefault(size = 20, page = 1) Pageable pageable
   ) {
     logger.info("Received request for recommended listings for user ID: " + userId);
     try {
