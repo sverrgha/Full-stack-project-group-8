@@ -94,7 +94,7 @@ const cities = ref([
 // Condition options as an array of objects with checked property for multi-select
 const conditions = ref([
   { id: 1, name: 'new', checked: false },
-  { id: 2, name: 'likeNew', checked: false },
+  { id: 2, name: 'like_new', checked: false },
   { id: 3, name: 'good', checked: false },
   { id: 4, name: 'fair', checked: false },
   { id: 5, name: 'poor', checked: false },

@@ -1,21 +1,26 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'lodash'
+import { listingService } from "../services/listingService";
+import { useAuthStore } from "../stores/auth.js"
 import BaseInputField from "../components/form/BaseInputField.vue";
 import NumberInputField from "../components/form/NumberInputField.vue";
 import TextAreaField from "../components/form/TextAreaField.vue";
-import ImageUploader from "../components/form/ImageUploader.vue";
 import SelectField from "../components/form/SelectField.vue";
 import RadioButtonGroup from "../components/form/RadioButtonGroup.vue";
 import { validatePostalCode as postalCodeService } from "../services/postalCodeService";
+import ImageUpload from '../components/ImageUpload.vue';
+import { ref } from 'vue';
 
 const router = useRouter()
 const { t } = useI18n()
 const isSubmitting = ref(false)
 const formRef = ref(null)
 const postalCity = ref('')
+const listingImages = ref([]);
+const imageUploadRef = ref(null);
 
 // Form data structure
 const form = reactive({
@@ -41,18 +46,19 @@ const errors = reactive({
 
 // Available categories
 const categories = [
-  'electronics',
+  'vehicle',
   'clothing',
-  'furniture',
-  'books',
-  'sports',
-  'other'
-]
+  'interior',
+  'property',
+  'activity',
+  'electronics',
+  'beauty'
+];
 
 // Available conditions
 const conditions = [
   'new',
-  'likeNew',
+  'like_new',
   'good',
   'fair',
   'poor'
@@ -104,7 +110,7 @@ const validateField = async (field) => {
   }
 
   if (field === 'images' || field === 'all') {
-    if (form.images.length === 0) {
+    if (listingImages.value.length === 0) {
       errors.images = 'newListing.imageRequired'
       isValid = false
     } else {
@@ -142,32 +148,72 @@ const validateForm = async () => {
 const createListing = async () => {
   if (!await validateForm()) {
     // Scroll to the first error
-    const firstErrorField = formRef.value.querySelector('.invalid')
+    const firstErrorField = formRef.value.querySelector('.invalid');
     if (firstErrorField) {
-      firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      firstErrorField.focus()
+      firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstErrorField.focus();
     }
-    return
+    return;
   }
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
 
   try {
-    //api call to post listing goes here
+    const uploadedImageUrls = await imageUploadRef.value.uploadImagesToFirebase();
+    console.log("Images ready with URLs:", uploadedImageUrls);
 
-    console.log('Creating listing:', form)
+    // Map categories to IDs
+    const categoryMap = {
+      'vehicle': 1,
+      'clothing': 2,
+      'interior': 3,
+      'property': 4,
+      'activity': 5,
+      'electronics': 6,
+      'beauty': 7
+    };
 
-    // Mock API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    console.log("Sending data with categoryId:", categoryMap[form.category], "for category:", form.category);
 
-    // Redirect to product page or listing success page
-    await router.push('/products')
+    const listingData = {
+      // User-provided data
+      title: form.title,
+      briefDescription: form.briefDescription || form.title.substring(0, 50),
+      description: form.description,
+      price: parseFloat(form.price),
+      condition: form.condition,
+      images: uploadedImageUrls,
+
+      // Use the mapping from categoryMap
+      categoryId: categoryMap[form.category],
+      userId: 7,
+      postalCode: "7000",
+      status: "active"
+    };
+
+    console.log("Sending listing data:", JSON.stringify(listingData, null, 2));
+    const response = await listingService.addListing(listingData);
+    console.log('Listing created successfully:', response.data);
+
+    // Add success notification
+    showNotification(t('newListing.createSuccess'), 'success');
+
+    await router.push('/products');
   } catch (error) {
-    console.error('Error creating listing:', error)
+    console.error('Error creating listing:', error);
+    showNotification(t('newListing.createError'), 'error');
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
+
+const showNotification = (message, type = 'info') => {
+  if (window.$toast) {
+    window.$toast[type](message);
+  } else {
+    alert(message);
+  }
+};
 
 const cancel = () => {
   router.go(-1)
@@ -179,16 +225,16 @@ onMounted(() => {
   if (titleInput) titleInput.focus()
 })
 
-const handleImageUpdate = (data) => {
-  if (data.error) {
-    errors.images = data.message;
-  } else {
-    form.images = data.images;
-    validateField('images');
-  }
-};
+const handleImagesUpdate = (images) => {
+  listingImages.value = images;
+  validateField('images');
+}
 
+const handleImagesReady = (uploadedUrls) => {
+  console.log("Images ready with URLs:", uploadedUrls);
+}
 </script>
+
 <template>
   <div class="new-listing-container">
     <div class="new-listing-form card">
@@ -208,10 +254,10 @@ const handleImageUpdate = (data) => {
 
         <!--brief-description -->
         <BaseInputField id="briefDescription"
-            :label="t('newListing.brief-description')"
-            v-model="form.briefDescription"
-            :required="false"
-            :max-length="100"
+                        :label="t('newListing.brief-description')"
+                        v-model="form.briefDescription"
+                        :required="false"
+                        :max-length="100"
         />
 
         <!--description -->
@@ -248,7 +294,7 @@ const handleImageUpdate = (data) => {
             :required="true"
             :options="categories"
             :placeholder="t('newListing.selectCategory')"
-            translationPrefix="categories"
+            translationPrefix="productPage"
             @change="validateField('category')"
         />
 
@@ -261,14 +307,19 @@ const handleImageUpdate = (data) => {
             translationPrefix="conditions"
         />
 
-        <ImageUploader
-            :label="t('newListing.images')"
-            :images="form.images"
-            :error="errors.images ? t(errors.images) : ''"
-            :required="true"
-            :maxImages="5"
-            @update:images="handleImageUpdate"
-        />
+        <!-- Images - using the new ImageUpload component -->
+        <div class="form-group">
+          <label for="images" class="form-label">
+            {{ t('newListing.images') }}<span class="required">*</span>
+          </label>
+          <ImageUpload
+              v-model:images="listingImages"
+              :maxImages="5"
+              ref="imageUploadRef"
+              @imagesReady="handleImagesReady"
+          />
+          <p class="error-text" v-if="errors.images">{{ t(errors.images) }}</p>
+        </div>
 
         <!-- For postal code field -->
         <NumberInputField
@@ -343,6 +394,22 @@ label {
   margin-left: 2px;
 }
 
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.error-text {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
 select {
   width: 100%;
   padding: 0.75rem;
@@ -364,12 +431,6 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-.image-preview img {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
 }
 
 .required-fields-note {
