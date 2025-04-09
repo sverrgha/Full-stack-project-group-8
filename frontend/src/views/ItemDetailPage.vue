@@ -6,12 +6,12 @@ import ImageGallery from '../components/Gallery.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
 import { useListingStore } from "../stores/listing.js";
-import { useAuthStore } from "../stores/auth.js"; // Assuming you have an auth store
+import { useAuthStore } from "../stores/auth.js";
 
 const route = useRoute();
 const { t } = useI18n();
 const listingStore = useListingStore();
-const authStore = useAuthStore(); // Assuming you have this for current user info
+const authStore = useAuthStore();
 const product = ref({});
 const loading = ref(true);
 const error = ref(null);
@@ -36,7 +36,7 @@ onMounted(async () => {
         description: listingStore.currentListing.description,
         price: listingStore.currentListing.price,
         location: listingStore.currentListing.city,
-        userId: authStore.currentUser.id, // Make sure this is set
+        userId: authStore.currentUser.id,
         seller: listingStore.currentListing.userId,
         category: listingStore.currentListing.categoryId,
         condition: listingStore.currentListing.condition,
@@ -51,9 +51,7 @@ onMounted(async () => {
   }
 });
 
-// Rest of your component code remains the same...
 
-// Save changes function - update to use your API
 const saveChanges = async () => {
   try {
     // Implement the update logic using your API
@@ -76,6 +74,10 @@ const deleteItem = async () => {
       error.value = "Failed to delete item";
     }
   }
+};
+const updateImages = (newImages) => {
+  product.value.images = newImages;
+  //implement api here
 };
 </script>
 

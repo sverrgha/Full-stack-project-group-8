@@ -101,7 +101,7 @@ public class UserService implements UserDetailsService {
       AuthResponseMessage.USER_LOGGED_IN_SUCCESSFULLY.getMessage(),
       token,
       expirationDate,
-      userId // <--- Now including the userId with the expirationDate
+      userId
     );
   }
 

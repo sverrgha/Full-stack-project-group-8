@@ -104,7 +104,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.USER_ALREADY_EXISTS.getMessage(), response.getMessage());
     assertNull(response.getToken());
-    assertNull(response.getId()); // Check that ID is null
+    assertNull(response.getId());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, never()).save(any(User.class));
     verify(jwtUtil, never()).generateToken(request.getEmail());
@@ -133,7 +133,7 @@ class UserServiceTest {
     assertEquals(AuthResponseMessage.SAVING_USER_ERROR.getMessage()
       + "Database error", response.getMessage());
     assertNull(response.getToken());
-    assertNull(response.getId()); // Check that ID is null
+    assertNull(response.getId());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(userRepo, times(1)).save(any(User.class));
     verify(jwtUtil, never()).generateToken(anyString());
@@ -191,7 +191,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.USER_NOT_FOUND.getMessage(), response.getMessage());
     assertNull(response.getToken());
-    assertNull(response.getId()); // Check that ID is null
+    assertNull(response.getId());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());
   }
@@ -215,7 +215,7 @@ class UserServiceTest {
     assertEquals(request.getEmail(), response.getEmail());
     assertEquals(AuthResponseMessage.INVALID_CREDENTIALS.getMessage(), response.getMessage());
     assertNull(response.getToken());
-    assertNull(response.getId()); // Check that ID is null
+    assertNull(response.getId());
     verify(userRepo, times(1)).findByEmail(request.getEmail());
     verify(jwtUtil, never()).generateToken(anyString());
   }
