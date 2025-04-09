@@ -14,6 +14,8 @@ import BeautyIcon from '../../assets/beauty.svg';
 
 const { t } = useI18n();
 
+const emit = defineEmits(['select-category'])
+
 // Define shopping categories
 const categories = computed(() => [
   { id: 1, name: t('productPage.vehicle'), icon: VehicleIcon  },
@@ -29,8 +31,8 @@ const categories = computed(() => [
 const selectedCategory = ref(null);
 
 // Function to select a category, filtering items based on the selected category
-const selectCategory = (categoryId) => {
-  selectedCategory.value = categoryId;
+const selectCategory = (category) => {
+  emit('select-category', category)
 };
 </script>
 
@@ -94,7 +96,7 @@ const selectCategory = (categoryId) => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.category-button.active {
+.category-button {
   background-color: #f0f7ff;
   border-color: #3b82f6;
   box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);

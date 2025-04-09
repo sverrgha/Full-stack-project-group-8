@@ -5,6 +5,7 @@
     "newListing": "Ny annonse",
     "messages": "Meldinger",
     "profile": "Profil",
+    "admin": "Admin",
     "language": "No"
   },
   "loginForm": {
@@ -109,7 +110,8 @@
       "property": "Eiendom",
       "electronics": "Elektronikk",
       "activity": "Aktivitet og fritid",
-      "beauty": "Skjønnhet og helse"
+      "beauty": "Skjønnhet og helse",
+      "noResults": "No results"
     },
       "sort": {
         "newest": "Nyeste",
@@ -120,9 +122,9 @@
     "productPageHidden":{
       "clear": "Fjern alle",
       "price": "Prisklasse",
-      "location": "Sted",
       "condition": "Tilstand",
-      "apply": "Bruk filtre"
+      "apply": "Bruk filtre",
+      "city": "By"
     },
     "itemDetailPage": {
       "description": "Beskrivelse",
@@ -139,5 +141,18 @@
       "save": "Lagre",
       "cancel": "Avbryt",
       "maxPictures": "Maks 10 bilder"
+    },
+    "admin": {
+      "dashboard": "Admin Kontrollpanel",
+      "showCategoriesButton": "Administrer Kategorier",
+      "hideCategoriesButton": "Skjul Kategoriadministrasjon",
+      "addNewCategoryButton": "Legg til ny Kategori",
+      "englishName": "Engelsk Navn",
+      "norwegianName": "Norsk Navn",
+      "addCategoryButton": "Legg til Kategori",
+      "currentCategories": "Nåværende Kategorier",
+      "actions": "Handlinger",
+      "nameInEnglish": "Kategori navn på engelsk",
+      "nameInNorwegian": "Kategori navn på norsk"
     }
-}
+  }

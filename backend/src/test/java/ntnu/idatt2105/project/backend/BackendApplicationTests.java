@@ -19,7 +19,7 @@ class BackendApplicationTests {
 
 	@BeforeAll
 	static void beforeAll() {
-		mysql.start(); // Ensure the container starts
+		mysql.start();
 		System.setProperty("spring.datasource.url", mysql.getJdbcUrl());
 		System.setProperty("spring.datasource.username", mysql.getUsername());
 		System.setProperty("spring.datasource.password", mysql.getPassword());

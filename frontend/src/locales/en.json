@@ -5,6 +5,7 @@
     "newListing": "New Listing",
     "messages": "Messages",
     "profile": "Profile",
+    "admin": "Admin",
     "language": "En"
   },
   "loginForm": {
@@ -110,7 +111,8 @@
     "property": "Property",
     "activity": "Activity and leisure",
     "electronics": "Electronics",
-    "beauty": "Beauty and health"
+    "beauty": "Beauty and health",
+    "noResults": "No results"
   },
   "sort": {
     "newest": "Newest",
@@ -123,7 +125,8 @@
     "price": "Price Range",
     "location": "Location",
     "condition": "Condition",
-    "apply": "Apply Filters"
+    "apply": "Apply Filters",
+    "city": "City"
   },
   "itemDetailPage": {
     "description": "Description",
@@ -140,5 +143,18 @@
     "save": "Save",
     "cancel": "Cancel",
     "maxPictures": "Max 10 pictures"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "showCategoriesButton": "Manage Categories",
+    "hideCategoriesButton": "Hide Categories Management",
+    "addNewCategoryButton": "Add New Category",
+    "englishName": "English Name",
+    "norwegianName": "Norwegian Name",
+    "addCategoryButton": "Add Category",
+    "currentCategories": "Current Categories",
+    "actions": "Actions",
+    "nameInEnglish": "Category name in English",
+    "nameInNorwegian": "Category name in Norwegian"
   }
 }

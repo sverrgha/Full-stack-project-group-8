@@ -8,78 +8,64 @@ import FilterSidebar from '../components/products/FilterSidebar.vue';
 import SelectField from '../components/form/SelectField.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import searchIcon from '/src/assets/SearchIcon.svg';
+import { useListingStore } from "../stores/listing.js";
 
 const { t } = useI18n();
-
-// Mock product items
-const products = [
-  {
-    id: 101,
-    title: 'Leather Sofa',
-    location: 'Oslo',
-    price: 8500,
-    imageUrl: 'https://placehold.co/300x300?text=Leather+Sofa'
-  },
-  {
-    id: 102,
-    title: 'Coffee Table',
-    location: 'Bergen',
-    price: 1800,
-    imageUrl: 'https://placehold.co/300x300?text=Coffee+Table'
-  },
-  {
-    id: 103,
-    title: 'Dining Set',
-    location: 'Trondheim',
-    price: 5200,
-    imageUrl: 'https://placehold.co/300x300?text=Dining+Set'
-  },
-  {
-    id: 104,
-    title: 'Bookshelf',
-    location: 'Stavanger',
-    price: 2100,
-    imageUrl: 'https://placehold.co/300x300?text=Bookshelf'
-  },
-  {
-    id: 105,
-    title: 'Floor Lamp',
-    location: 'Oslo',
-    price: 950,
-    imageUrl: 'https://placehold.co/300x300?text=Floor+Lamp'
-  }
-]
+const listingStore = useListingStore();
 
 // State to track if sidebar is open
 const isSidebarOpen = ref(false);
+const currentCategory = ref(null);
+const currentPage = ref(1);
+const pageSize = ref(20);
+const loadingMore = ref(false);
 
-// Toggle sidebar visibility
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
+// Filter state
+const filters = ref({
+  searchQuery: '',
+  priceMin: null,
+  priceMax: null,
+  city: '',
+  conditions: [],
+  sortBy: 'created_at',
+  sortDirection: 'DESC'
+});
 
-  // Prevent scrolling on body when sidebar is open
-  if (isSidebarOpen.value) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = 'auto';
+
+// In the Vue component
+const fetchListings = async (resetPage = true) => {
+  if (resetPage) {
+    currentPage.value = 1;
+  }
+
+  // Filter parameters
+  const filterParams = {
+    ...(filters.value.searchQuery && { query: filters.value.searchQuery }),
+    ...(filters.value.priceMin && { minPrice: filters.value.priceMin }),
+    ...(filters.value.priceMax && { maxPrice: filters.value.priceMax }),
+    ...(filters.value.city && { city: filters.value.city }),
+    ...(filters.value.conditions?.length > 0 && { conditions: filters.value.conditions.join(',') }),
+    ...(filters.value.category && { categoryId: filters.value.category }),
+    sortBy: filters.value.sortBy || 'created_at',
+    sortOrder: filters.value.sortDirection || 'DESC'
+  };
+
+  try {
+    await listingStore.fetchListings(
+        filterParams,
+        currentPage.value,
+        pageSize.value
+    );
+  } catch (error) {
+    console.error('Error fetching listings:', error);
   }
 };
 
-// Close sidebar
-const closeSidebar = () => {
-  isSidebarOpen.value = false;
-  document.body.style.overflow = 'auto';
-};
-
-// Search functionality moved from SearchBar.vue
-const searchQuery = ref('');
-const searchHistory = ref([]);
-const showHistory = ref(false);
-const inputElement = ref(null);
-const searchContainer = ref(null);
-
-// Load search history from localStorage when component mounts
+// Initialize listings when component mounts
 onMounted(() => {
+  fetchListings();
+
+  // Load search history from localStorage
   const savedHistory = localStorage.getItem('searchHistory');
   if (savedHistory) {
     try {
@@ -100,6 +86,61 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleOutsideClick);
 });
+
+// Toggle sidebar visibility
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+
+  // Prevent scrolling on body when sidebar is open
+  if (isSidebarOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
+};
+
+// Close sidebar
+const closeSidebar = () => {
+  isSidebarOpen.value = false;
+  document.body.style.overflow = 'auto';
+};
+
+// Apply filters from sidebar
+const applyFilters = (filterData) => {
+  filters.value = {
+    ...filters.value,
+    priceMin: filterData.priceRange.min,
+    priceMax: filterData.priceRange.max,
+    city: filterData.city,
+    conditions: filterData.conditions
+  };
+
+  fetchListings();
+  closeSidebar();
+};
+
+// Handle category selection
+const handleCategorySelect = (category) => {
+  currentCategory.value = category;
+  fetchListings();
+};
+
+// Load next page for infinite scrolling
+const loadNextPage = async () => {
+  if (listingStore.hasNext && !loadingMore.value) {
+    loadingMore.value = true;
+    currentPage.value++;
+    await fetchListings(false);
+    loadingMore.value = false;
+  }
+};
+
+// Search functionality
+const searchQuery = ref('');
+const searchHistory = ref([]);
+const showHistory = ref(false);
+const inputElement = ref(null);
+const searchContainer = ref(null);
 
 // Close dropdown when clicking outside
 const handleOutsideClick = (event) => {
@@ -132,6 +173,10 @@ const saveSearch = () => {
 
   // Hide history after search
   showHistory.value = false;
+
+  // Update filters and fetch results
+  filters.value.searchQuery = query;
+  fetchListings();
 };
 
 // Set the input value to the selected history item
@@ -168,25 +213,32 @@ const handleSubmit = (e) => {
   if (inputElement.value) {
     inputElement.value.$el.querySelector('input').blur();
   }
-  // Here you would also handle the actual search functionality
 };
 
-// Sort functionality moved from Sort.vue
+// Sort functionality
 const selectedSort = ref('');
 
 // Define the options for sorting
 const sortOptions = computed(() => [
-  { value: 'date_newest', label: t('sort.newest') },
-  { value: 'date_oldest', label: t('sort.oldest') },
-  { value: 'price_low', label: t('sort.priceLowToHigh') },
-  { value: 'price_high', label: t('sort.priceHighToLow') }
+  { value: 'created_at,DESC', label: t('sort.newest') },
+  { value: 'created_at,ASC', label: t('sort.oldest') },
+  { value: 'price,ASC', label: t('sort.priceLowToHigh') },
+  { value: 'price,DESC', label: t('sort.priceHighToLow') }
 ]);
 
-// Watch for changes to the selected option
-const handleSortChange = (event) => {
-  // You can emit an event here if needed
-  console.log('Sort changed:', selectedSort.value);
+const handleSortChange = () => {
+  if (!selectedSort.value) return;
+
+  const [field, direction] = selectedSort.value.split(',');
+
+  // Update filters with sort parameters using correct property names
+  filters.value.sortBy = field;
+  filters.value.sortDirection = direction;
+
+  // Refetch listings with new sort parameters
+  fetchListings();
 };
+
 </script>
 
 <template>
@@ -195,6 +247,7 @@ const handleSortChange = (event) => {
     <FilterSidebar
         :isOpen="isSidebarOpen"
         @close="closeSidebar"
+        @apply="applyFilters"
     />
 
     <div class="top-controls">
@@ -269,11 +322,39 @@ const handleSortChange = (event) => {
     </div>
 
     <div class="category-buttons card">
-      <CategoryButtons />
+      <CategoryButtons @select-category="handleCategorySelect" />
     </div>
 
     <div class="products-posts card">
-      <ItemGrid :items="products" Class="grid-layout" />
+      <!-- Show loading state -->
+      <div v-if="listingStore.loading && !listingStore.listings.length" class="loading-state">
+        {{ t('productPage.loading') }}
+      </div>
+
+      <!-- Show error state -->
+      <div v-else-if="listingStore.error" class="error-state">
+        {{ listingStore.error }}
+      </div>
+
+      <!-- Show no results state -->
+      <div v-else-if="!listingStore.listings.length" class="no-results">
+        {{ t('productPage.noResults') }}
+      </div>
+
+      <!-- Show listings -->
+      <ItemGrid v-else :items="listingStore.listings" class="grid-layout" />
+
+      <!-- Loading more indicator -->
+      <div v-if="loadingMore" class="loading-more">
+        {{ t('productPage.loadingMore') }}
+      </div>
+
+      <!-- Load more button -->
+      <div v-if="listingStore.hasNext && !loadingMore" class="load-more-container">
+        <button @click="loadNextPage" class="load-more-button">
+          {{ t('productPage.loadMore') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -364,12 +445,12 @@ const handleSortChange = (event) => {
   outline: none;
 }
 
-.sort-select :deep(.form-group) {
+.sort-select :deep {
   margin-bottom: 0;
   height: 100%;
 }
 
-.sort-select :deep(.select-wrapper) {
+.sort-select :deep {
   height: 100%;
 }
 
@@ -424,7 +505,7 @@ const handleSortChange = (event) => {
   border-radius: 25px;
 }
 
-.search-field :deep(.form-group) {
+.search-field :deep {
   margin-bottom: 0;
 }
 

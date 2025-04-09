@@ -7,8 +7,9 @@ import ProfileSettingsPage from '../views/ProfileSettingsPage.vue'
 import ProductsPage from '../views/ProductsPage.vue'
 import NewListingPage from '../views/NewListingPage.vue'
 import MessagePage from "../views/MessagePage.vue"
-import { useAuthStore } from "../stores/auth.js"
 import ItemDetailPage from "../views/ItemDetailPage.vue"
+import AdminPage from "../views/AdminPage.vue"
+import { useAuthStore } from "../stores/auth.js"
 
 const routes = [
     {
@@ -59,6 +60,11 @@ const routes = [
         path: '/product/:id',
         name: 'product',
         component: ItemDetailPage
+    },
+    {
+        path: '/admin',
+        name: 'admin',
+        component: AdminPage
     }
 ]
 
