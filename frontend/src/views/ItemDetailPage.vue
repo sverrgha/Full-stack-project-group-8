@@ -17,9 +17,10 @@ const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
 
-// Determine if current user is the owner
+
 const isOwner = computed(() => {
-  return product.value?.userId === authStore.currentUser?.id;
+  if (!authStore.currentUser || !listingStore.currentListing) return false;
+  return listingStore.currentListing.userId === authStore.currentUser.id;
 });
 
 // Fetch product details based on the route parameter
@@ -35,8 +36,9 @@ onMounted(async () => {
         description: listingStore.currentListing.description,
         price: listingStore.currentListing.price,
         location: listingStore.currentListing.city,
-        seller: listingStore.currentListing.userId, // You might want to fetch actual user name
-        category: listingStore.currentListing.categoryId, // You might need to map category ID to name
+        userId: authStore.currentUser.id, // Make sure this is set
+        seller: listingStore.currentListing.userId,
+        category: listingStore.currentListing.categoryId,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
         postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
