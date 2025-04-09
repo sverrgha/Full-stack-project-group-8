@@ -23,6 +23,7 @@ public class CategoryController {
     this.categoryService = categoryService;
   }
 
+  @GetMapping
   public ResponseEntity<MultipleCategoryResponse> getAllCategories() {
     logger.info("Received request for all categories");
     try {
