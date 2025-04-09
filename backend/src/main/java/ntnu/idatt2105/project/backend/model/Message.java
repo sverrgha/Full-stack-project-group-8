@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 public class Message {
 
     
-    private long id;
+    private Long id;
 
-    private long sender;
-    private long receiver;
+    private Long sender;
+    private Long receiver;
     private String content;
     private String timestamp;
     private boolean isRead;
@@ -30,7 +30,7 @@ public class Message {
      * @param content  the content of the message
      * @param isRead   the read status of the message
      */
-    public Message(long sender, long receiver, String content, boolean isRead) {
+    public Message(Long sender, Long receiver, String content, boolean isRead) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;

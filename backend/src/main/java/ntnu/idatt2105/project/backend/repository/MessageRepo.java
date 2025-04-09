@@ -27,7 +27,7 @@ public class MessageRepo {
      * @param receiver The ID of the receiver.
      * @param content  The content of the message.
      */
-    public void sendMessage(long sender, long receiver, String content) {
+    public void sendMessage(Long sender, Long receiver, String content) {
         String sql = "INSERT INTO sverrgha_datab.messages (from_user_id, to_user_id, message) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, sender, receiver, content);
     }
@@ -39,7 +39,7 @@ public class MessageRepo {
      * @param user2 The ID of the second user.
      * @return A list of messages between the two users.
      */
-    public List<Message> findBySenderAndReceiver(long user1, long user2) {
+    public List<Message> findBySenderAndReceiver(Long user1, Long user2) {
         String sql = "SELECT * FROM sverrgha_datab.messages WHERE " + 
                      "(from_user_id= ? AND to_user_id= ?) OR " +
                      "(from_user_id = ? AND to_user_id = ?)";
@@ -62,7 +62,7 @@ public class MessageRepo {
      * @param userId2 The ID of the second user.
      * @return True if a conversation exists, false otherwise.
      */
-    public boolean conversationExistsBetween(long userId1, long userId2) {
+    public boolean conversationExistsBetween(Long userId1, Long userId2) {
         String sql = "SELECT COUNT(*) FROM messages WHERE " +
                      "(from_user_id = ? AND to_user_id = ?) OR " +
                      "(from_user_id = ? AND to_user_id = ?)";
@@ -75,7 +75,7 @@ public class MessageRepo {
      *
      * @param messageId The ID of the message to delete.
      */
-    public void deleteMessage(long messageId) {
+    public void deleteMessage(Long messageId) {
         String sql = "DELETE FROM sverrgha_datab.messages WHERE id = ?";
         jdbcTemplate.update(sql, messageId);
     }
@@ -86,7 +86,7 @@ public class MessageRepo {
      * @param userId The ID of the user.
      * @return A list of messages for the user.
      */
-    public List<Message> getAllMessagesForUser(long userId) {
+    public List<Message> getAllMessagesForUser(Long userId) {
         String sql = "SELECT * FROM sverrgha_datab.messages WHERE from_user_id = ? OR to_user_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Message message = new Message();
@@ -107,7 +107,7 @@ public class MessageRepo {
      * @param userId The ID of the user.
      * @return A list of conversation summaries for the user.
      */
-    public List<ConversationSummaryResponse> getInboxViewForUser(long userId) {
+    public List<ConversationSummaryResponse> getInboxViewForUser(Long userId) {
         String sql = "SELECT " +
                      "  CASE " +
                      "    WHEN m.from_user_id = ? THEN m.to_user_id " +
@@ -149,7 +149,7 @@ public class MessageRepo {
      * @param id  The ID of the first user.
      * @param id2 The ID of the second user.
      */
-    public void markAsReadForConveration(long id, long id2) {
+    public void markAsReadForConveration(Long id, Long id2) {
         String sql = "UPDATE sverrgha_datab.messages " +
                      "SET is_read = true " +
                      "WHERE (from_user_id = ? AND to_user_id = ?) " +

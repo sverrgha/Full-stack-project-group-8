@@ -29,8 +29,8 @@ public class MessageService {
      * @return The sent Message object.
      */
     public Message sendMessage(MessageRequest request) {
-        long sender = request.getSender();
-        long receiver = request.getReceiver();
+        Long sender = request.getSender();
+        Long receiver = request.getReceiver();
         String content = request.getContent();
 
         if (sender <= 0 || receiver <= 0) {
@@ -53,7 +53,7 @@ public class MessageService {
      * @param receiver The ID of the receiver.
      * @return A list of messages in the conversation.
      */
-    public List<Message> getConversation(long sender, long receiver) {
+    public List<Message> getConversation(Long sender, Long receiver) {
         return messageRepo.findBySenderAndReceiver(sender, receiver);
     }
 
@@ -63,7 +63,7 @@ public class MessageService {
      * @param userId The ID of the user.
      * @return A list of messages for the user.
      */
-    public List<Message> getMessagesForUser(long userId) {
+    public List<Message> getMessagesForUser(Long userId) {
         return messageRepo.getAllMessagesForUser(userId);
     }
 
@@ -73,7 +73,7 @@ public class MessageService {
      * @param userId The ID of the user.
      * @return A list of conversation summaries for the user's inbox.
      */
-    public List<ConversationSummaryResponse> getInboxList(long userId) {
+    public List<ConversationSummaryResponse> getInboxList(Long userId) {
         return messageRepo.getInboxViewForUser(userId);
     }
 
@@ -82,7 +82,7 @@ public class MessageService {
      *
      * @param messageId The ID of the message to delete.
      */
-    public void deleteMessage(long messageId) {
+    public void deleteMessage(Long messageId) {
         messageRepo.deleteMessage(messageId);
     }
 
@@ -93,7 +93,7 @@ public class MessageService {
      * @param userId2 The ID of the second user.
      * @return True if a conversation exists, false otherwise.
      */
-    public boolean conversationExists(long userId1, long userId2) {
+    public boolean conversationExists(Long userId1, Long userId2) {
         return messageRepo.conversationExistsBetween(userId1, userId2);
     }
 
@@ -104,7 +104,7 @@ public class MessageService {
      * @param id  The ID of the first user.
      * @param id2 The ID of the second user.
      */
-    public void markConverasationAsRead(long id, long id2) {
+    public void markConversationAsRead(Long id, Long id2) {
         messageRepo.markAsReadForConveration(id, id2);
     }
 }

@@ -141,8 +141,8 @@ class MessageServiceTest {
     }
 
     /**
-     * Test the markConverasationAsRead method.
-     * This test checks if the markConverasationAsRead method correctly marks
+     * Test the markConversationAsRead method.
+     * This test checks if the markConversationAsRead method correctly marks
      * a conversation as read for two users.
      * It verifies that the markAsReadForConveration method in the repository
      * is called once and that the correct user IDs are passed to it.
@@ -152,7 +152,7 @@ class MessageServiceTest {
 
         doNothing().when(messageRepo).markAsReadForConveration(anyLong(), anyLong());
 
-        messageService.markConverasationAsRead(1L, 2L);
+        messageService.markConversationAsRead(1L, 2L);
 
         verify(messageRepo, times(1)).markAsReadForConveration(1L, 2L);
     }
