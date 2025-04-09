@@ -146,8 +146,6 @@ const validateForm = async () => {
 
 // Submit form
 const createListing = async () => {
-  // Initialize the auth store
-
   if (!await validateForm()) {
     // Scroll to the first error
     const firstErrorField = formRef.value.querySelector('.invalid');
@@ -166,9 +164,9 @@ const createListing = async () => {
 
     // Map categories to IDs
     const categoryMap = {
-      'vehicles': 1,
+      'vehicle': 1,
       'clothing': 2,
-      'furniture': 3,
+      'interior': 3,
       'property': 4,
       'activity': 5,
       'electronics': 6,
@@ -186,15 +184,15 @@ const createListing = async () => {
       condition: form.condition,
       images: uploadedImageUrls,
 
-      // Hardcoded values that are required for backend compatibility -
-      // Replace with actual values later
-      categoryId: 2,
+      // Use the mapping from categoryMap
+      categoryId: categoryMap[form.category],
       userId: 7,
       postalCode: "7000",
+      status: "active"
     };
 
     console.log("Sending listing data:", JSON.stringify(listingData, null, 2));
-    const response = await listingService.createListing(listingData);
+    const response = await listingService.addListing(listingData);
     console.log('Listing created successfully:', response.data);
 
     // Add success notification
