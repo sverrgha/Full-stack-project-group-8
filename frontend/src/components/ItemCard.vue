@@ -40,10 +40,14 @@ const apiBaseUrl = 'http://localhost:8080/api/listing';
 
 // Add a computed property for the image source
 const imageSrc = computed(() => {
-  console.log('Image URL:', props.imageUrl);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Image URL:', props.imageUrl);
+  }
 
   if (!props.imageUrl) {
-    console.log('No image available');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('No image available');
+    }
     return '/src/assets/placeholder.svg';
   }
 
