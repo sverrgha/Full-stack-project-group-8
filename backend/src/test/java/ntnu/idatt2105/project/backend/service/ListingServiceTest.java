@@ -389,12 +389,12 @@ class ListingServiceTest {
     Pageable pageable = PageRequest.of(0, 10);
     List<Listing> listings = Collections.singletonList(listing1);
     Page<Listing> mockPage = new PageImpl<>(listings, pageable, 1);
-    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+    when(listingRepo.getMultipleListingsByIds(ids, pageable)).thenReturn(mockPage);
 
     MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
 
     assertNotNull(actualResponse);
-    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+    verify(listingRepo, times(1)).getMultipleListingsByIds(ids, pageable);
   }
 
   /**
@@ -408,13 +408,13 @@ class ListingServiceTest {
     Pageable pageable = PageRequest.of(0, 10);
     List<Listing> listings = Arrays.asList(listing1, listing2);
     Page<Listing> mockPage = new PageImpl<>(listings, pageable, 2);
-    when(listingRepo.getAllListingsByIds(ids, pageable)).thenReturn(mockPage);
+    when(listingRepo.getMultipleListingsByIds(ids, pageable)).thenReturn(mockPage);
 
 
     MultipleListingsResponse actualResponse = listingService.getMultipleListingsById(ids, pageable);
 
     assertNotNull(actualResponse);
-    verify(listingRepo, times(1)).getAllListingsByIds(ids, pageable);
+    verify(listingRepo, times(1)).getMultipleListingsByIds(ids, pageable);
   }
 
   /**

@@ -97,9 +97,14 @@ public class ListingRepo {
   }
 
   /**
-   * Retrieves all listings of given category id
+   * Retrieves all listings based on the given criteria.
    *
-   * @param categoryId the ID of the category whose listings are to be retrieved
+   * @param categoryId the ID of the category whose listings are to be retrieved.
+   * @param city the city where the listings are located.
+   * @param minPrice the minimum price of the listings.
+   * @param maxPrice the maximum price of the listings.
+   * @param conditions the conditions of the listings.
+   * @param pageable the pagination information.
    * @return an array of the paths to the image as a String.
    */
   public Page<Listing> getAllListingsByCriteria(Long categoryId, String city, Double minPrice,
@@ -161,7 +166,6 @@ public class ListingRepo {
       countSql.append(conditionClause);
     }
 
-    // Apply sorting
     if (pageable.getSort().isSorted()) {
       sql.append(" ORDER BY ");
       List<Sort.Order> orderList = new ArrayList<>();
@@ -174,7 +178,6 @@ public class ListingRepo {
         }
       }
     } else {
-      // Default sorting if none provided
       sql.append(" ORDER BY l.id ASC");
     }
 
@@ -240,7 +243,7 @@ public class ListingRepo {
     );
   }
 
-  public Page<Listing> getAllListingsByIds(List<Long> ids, Pageable pageable) {
+  public Page<Listing> getMultipleListingsByIds(List<Long> ids, Pageable pageable) {
     if (ids == null || ids.isEmpty()) {
       return Page.empty(pageable);
     }
@@ -269,5 +272,19 @@ public class ListingRepo {
     );
 
     return new PageImpl<>(listings, pageable, total != null ? total : 0);
+  }
+
+  /**
+   * Retrieves a list of listings by category ID with a limit on the number of results.
+   *
+   * @param categoryId the ID of the category whose listings are to be retrieved
+   * @param pageable the pagination information
+   * @return a list of listings belonging to the specified category
+   */
+  public List<Listing> getByCategoryId(Long categoryId, Pageable pageable) {
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE category_id = ? " +
+            "ORDER BY views_count DESC LIMIT ? OFFSET ?";
+    return jdbcTemplate.query(sql, (rs, rowNum) -> mapResultSetToListing(rs), categoryId,
+            pageable.getPageSize(), pageable.getOffset());
   }
 }
