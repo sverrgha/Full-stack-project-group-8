@@ -430,4 +430,44 @@ class UserServiceTest {
                     updatedUser.getPhoneNumber().equals("111222333")
     ));
   }
+
+  /**
+   * Tests the validateAdmin method with a token belonging to an admin user.
+   * It verifies that the admin status is correctly identified
+   * and true is returned.
+   */
+  @Test
+  void validateAdmin_tokenBelongsToAdmin_returnsTrue() {
+    String token = "adminToken";
+    String email = "admin@example.com";
+    User adminUser = new User();
+    adminUser.setAdmin(true);
+
+    when(jwtUtil.extractUsername(token)).thenReturn(email);
+    when(userRepo.findByEmail(email)).thenReturn(Optional.of(adminUser));
+
+    boolean isAdmin = userService.validateAdmin(token);
+
+    assertTrue(isAdmin);
+  }
+
+  /**
+   * Tests the validateAdmin method with a token belonging to a non-admin user.
+   * It verifies that the admin status is correctly identified
+   * and false is returned.
+   */
+  @Test
+  void validateAdmin_nonAdminUser_returnsFalse() {
+    String token = "userToken";
+    String email = "user@example.com";
+    User nonAdminUser = new User();
+    nonAdminUser.setAdmin(false);
+
+    when(jwtUtil.extractUsername(token)).thenReturn(email);
+    when(userRepo.findByEmail(email)).thenReturn(Optional.of(nonAdminUser));
+
+    boolean isAdmin = userService.validateAdmin(token);
+
+    assertFalse(isAdmin);
+  }
 }

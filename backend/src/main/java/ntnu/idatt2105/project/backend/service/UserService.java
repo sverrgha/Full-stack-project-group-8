@@ -146,9 +146,11 @@ public class UserService implements UserDetailsService {
   }
 
   /**
-   * This method retrieves a user from the database using the JWT token.
-   * It extracts the email from the token and uses it to find the user.
-   * If the user is not found, it throws an IllegalArgumentException.
+   * This method checks if the user is an admin by verifying the JWT token.
+   * It retrieves the user from the database using the UserRepo interface
+   * and checks if the user is an admin.
+   * @param token The JWT token containing the user's email.
+   * @return true if the user is an admin, false otherwise.
    */
   public boolean validateAdmin(String token) {
     String email = jwtUtil.extractUsername(token);
@@ -160,6 +162,12 @@ public class UserService implements UserDetailsService {
       throw new IllegalArgumentException("User not found with email: " + email);
     }
   }
+
+  /**
+   * This method retrieves a user from the database using the JWT token.
+   * It extracts the email from the token and uses it to find the user.
+   * If the user is not found, it throws an IllegalArgumentException.
+   */
   public UserResponse getUserById(Long id) {
     User user = userRepo.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("No user found with id: " + id));
@@ -167,7 +175,16 @@ public class UserService implements UserDetailsService {
             user.getPhoneNumber(), user.isAdmin(), user.getCreatedAt());
   }
 
-
+  /**
+   * This method updates a user's information in the database.
+   * It takes a ModifyUserRequest object and updates the user's
+   * information if the user ID matches the email in the JWT token.
+   * It validates the user ID and the token before updating the user's information.
+   *
+   * @param id The ID of the user to be updated.
+   * @param request The ModifyUserRequest object containing the user's new information.
+   * @param token The JWT token containing the user's email.
+   */
   public void updateUser(Long id, ModifyUserRequest request, String token) {
     if (!validateUserIdMatchesToken(id, token)) {
       throw new IllegalArgumentException("User ID does not match the token");
