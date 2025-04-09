@@ -144,4 +144,8 @@ public class UserService implements UserDetailsService {
       return false;
     }
   }
+
+  public Optional<User> findByEmail(String email) {
+    return userRepo.findByEmail(email);
+  }
 }

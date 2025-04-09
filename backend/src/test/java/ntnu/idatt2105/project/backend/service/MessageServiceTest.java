@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import ntnu.idatt2105.project.backend.dto.response.MessageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -52,7 +53,7 @@ class MessageServiceTest {
         request.setContent("Hello!");
         doNothing().when(messageRepo).sendMessage(anyLong(), anyLong(), anyString());
 
-        Message message = messageService.sendMessage(request);
+        MessageResponse message = messageService.sendMessage(request);
 
         assertNotNull(message);
         assertEquals(1L, message.getSender());
