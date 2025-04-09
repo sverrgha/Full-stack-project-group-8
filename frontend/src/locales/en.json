@@ -55,19 +55,14 @@
     "maxImagesError": "Maximum 5 images allowed",
     "selectCategory": "Select a category",
     "postalCode": "Postal Code",
-    "invalidPostalCode": "Please enter a valid postal code (4 digits)"
-  },
-  "categories": {
-    "electronics": "Electronics",
-    "clothing": "Clothing",
-    "furniture": "Furniture",
-    "books": "Books",
-    "sports": "Sports",
-    "other": "Other"
+    "invalidPostalCode": "Please enter a valid postal code (4 digits)",
+    "addImage": "Add Image",
+    "createSuccess": "Listing created successfully!",
+    "createError": "Error creating listing"
   },
   "conditions": {
     "new": "New",
-    "likeNew": "Like New",
+    "like_new": "Like New",
     "good": "Good",
     "fair": "Fair",
     "poor": "Poor"

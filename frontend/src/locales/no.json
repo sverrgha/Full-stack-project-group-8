@@ -54,19 +54,14 @@
     "maxImagesError": "Maksimalt 5 bilder tillatt",
     "selectCategory": "Velg en kategori",
     "postalCode": "Postnummer",
-    "invalidPostalCode": "Vennligst skriv inn et gyldig postnummer (4 siffer)"
-  },
-  "categories": {
-    "electronics": "Elektronikk",
-    "clothing": "Klær",
-    "furniture": "Møbler",
-    "books": "Bøker",
-    "sports": "Sport",
-    "other": "Annet"
+    "invalidPostalCode": "Vennligst skriv inn et gyldig postnummer (4 siffer)",
+    "addImage": "Legg til bilde",
+    "createSuccess": "Annonse opprettet!",
+    "createError": "Feil ved oppretting av annonse"
   },
   "conditions": {
     "new": "Ny",
-    "likeNew": "Som ny",
+    "like_new": "Som ny",
     "good": "God",
     "fair": "Brukbar",
     "poor": "Slitt"
