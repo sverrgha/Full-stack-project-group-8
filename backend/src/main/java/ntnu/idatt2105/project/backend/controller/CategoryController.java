@@ -11,17 +11,35 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+/**
+ * This class is a REST controller for managing categories.
+ * It provides endpoints to get all categories, add a new category,
+ * and delete an existing category.
+ */
 @RestController
 @RequestMapping("/api/category")
 public class CategoryController {
   private static final Logger logger = Logger.getLogger(CategoryController.class.getName());
   private final CategoryService categoryService;
 
+  /**
+   * Constructor for CategoryController.
+   * Initializes the categoryService.
+   *
+   * @param categoryService The service used to manage categories.
+   */
   @Autowired
   public CategoryController(CategoryService categoryService) {
     this.categoryService = categoryService;
   }
 
+  /**
+   * Endpoint to get all categories.
+   * Handles GET requests to "/api/category"
+   *
+   * @return ResponseEntity containing a MultipleCategoryResponse object
+   * with the list of categories and their count.
+   */
   @GetMapping
   public ResponseEntity<MultipleCategoryResponse> getAllCategories() {
     logger.info("Received request for all categories");
@@ -38,6 +56,14 @@ public class CategoryController {
     }
   }
 
+  /**
+   * Endpoint to add a new category.
+   * Handles POST requests to "/api/category"
+   *
+   * @param request    The request body containing the category name.
+   * @param authHeader The authorization header containing the JWT token.
+   * @return ResponseEntity with a message indicating success or failure.
+   */
   @PostMapping
   public ResponseEntity<String> addCategory(@Valid @RequestBody AddCategoryRequest request,
                                             @RequestHeader("Authorization") String authHeader) {
@@ -58,6 +84,14 @@ public class CategoryController {
     }
   }
 
+  /**
+   * Endpoint to delete a category.
+   * Handles DELETE requests to "/api/category/{id}"
+   *
+   * @param id         The ID of the category to be deleted.
+   * @param authHeader The authorization header containing the JWT token.
+   * @return ResponseEntity with a message indicating success or failure.
+   */
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteCategory(@PathVariable Long id,
                                                @RequestHeader("Authorization") String authHeader) {

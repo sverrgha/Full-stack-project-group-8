@@ -17,6 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the CategoryService class.
+ * This class tests the methods of the CategoryService class
+ * to ensure they behave as expected.
+ */
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
   @Mock
@@ -27,6 +32,11 @@ class CategoryServiceTest {
   @InjectMocks
   private CategoryService categoryService;
 
+  /**
+   * Test for getAllCategories method.
+   * This test verifies that the method returns the correct response
+   * when called.
+   */
   @Test
   void getAllCategories_returnsCorrectResponse() {
     List<Category> categories = Arrays.asList(
@@ -42,6 +52,13 @@ class CategoryServiceTest {
     verify(categoryRepo, times(1)).getAllCategories();
   }
 
+  /**
+   * Test for addCategory method.
+   * This test verifies that the method adds a category successfully
+   * when called by an admin user.
+   *
+   * @throws IllegalAccessException if the user is not an admin
+   */
   @Test
   void addCategory_adminUser_categoryAddedSuccessfully() throws IllegalAccessException {
     AddCategoryRequest request = new AddCategoryRequest("New Category",
@@ -55,6 +72,11 @@ class CategoryServiceTest {
     verify(categoryRepo, times(1)).addCategory(request.getNameEn(), request.getNameNo());
   }
 
+  /**
+   * Test for addCategory method.
+   * This test verifies that the method throws an exception
+   * when called by a non-admin user.
+   */
   @Test
   void addCategory_nonAdminUser_throwsAccessException() {
     AddCategoryRequest request = new AddCategoryRequest("New Category",
@@ -67,6 +89,13 @@ class CategoryServiceTest {
     verify(categoryRepo, never()).addCategory(anyString(), anyString());
   }
 
+  /**
+   * Test for deleteCategoryById method.
+   * This test verifies that the method deletes a category successfully
+   * when called by an admin user.
+   *
+   * @throws IllegalAccessException if the user is not an admin
+   */
   @Test
   void deleteCategoryById_adminUser_categoryDeletedSuccessfully() throws IllegalAccessException {
     Long categoryId = 10L;
@@ -79,6 +108,11 @@ class CategoryServiceTest {
     verify(categoryRepo, times(1)).deleteCategoryById(categoryId);
   }
 
+  /**
+   * Test for deleteCategoryById method.
+   * This test verifies that the method throws an exception
+   * when called by a non-admin user.
+   */
   @Test
   void deleteCategoryById_nonAdminUser_throwsAccessException() {
     Long categoryId = 10L;

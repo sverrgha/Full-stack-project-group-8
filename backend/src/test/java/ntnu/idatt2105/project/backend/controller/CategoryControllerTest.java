@@ -25,6 +25,11 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
+/**
+ * Test class for CategoryController.
+ * This class contains unit tests for the CategoryController class,
+ * which handles HTTP requests related to categories.
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -42,12 +47,23 @@ class CategoryControllerTest {
   private static String adminToken;
   private static String userToken;
 
+  /**
+   * Sets up the test class with necessary tokens.
+   * This method is executed before all tests in this class.
+   */
   @BeforeAll
   static void setUp() {
     adminToken = "Bearer adminToken";
     userToken = "Bearer userToken";
   }
 
+  /**
+   * Test method for getAllCategories.
+   * This method tests the endpoint for retrieving all categories.
+   * It verifies that the response is OK and contains the expected categories.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getAllCategories_returnsOkWithCategories() throws Exception {
@@ -67,6 +83,14 @@ class CategoryControllerTest {
     verify(categoryService, times(1)).getAllCategories();
   }
 
+  /**
+   * Test method for getAllCategories.
+   * This method tests the endpoint for retrieving categories, when there are no
+   * categories available, it confirms that an empty list and 0 categories
+   * is returned.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getAllCategories_returnsOkWithEmptyCategories() throws Exception {
@@ -81,6 +105,14 @@ class CategoryControllerTest {
     verify(categoryService, times(1)).getAllCategories();
   }
 
+  /**
+   * Test method for getAllCategories.
+   * This method tests the endpoint for retrieving categories,
+   * when an error occurs, it verifies that the response is
+   * Internal Server Error and contains an error message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void getAllCategories_returnsInternalServerErrorOnError() throws Exception {
@@ -95,6 +127,14 @@ class CategoryControllerTest {
     verify(categoryService, times(1)).getAllCategories();
   }
 
+  /**
+   * Test method for addCategory.
+   * This method tests the endpoint for adding a new category.
+   * It verifies that the request is processed successfully
+   * and returns an OK response.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addCategory_adminUser_returnsOk() throws Exception {
@@ -119,6 +159,14 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for addCategory.
+   * This method tests the endpoint for adding a new category,
+   * when a non-admin user tries to add a category,
+   * it verifies that the response is Forbidden
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addCategory_nonAdminUser_returnsForbidden() throws Exception {
@@ -141,6 +189,14 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for addCategory.
+   * This method tests the endpoint for adding a new category,
+   * when the input is invalid, it verifies that the response is Bad Request
+   * and contains an error message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addCategory_invalidInput_returnsBadRequest() throws Exception {
@@ -158,6 +214,14 @@ class CategoryControllerTest {
     verify(categoryService, never()).addCategory(invalidRequest, extractedToken);
   }
 
+  /**
+   * Test method for addCategory.
+   * This method tests the endpoint for adding a new category,
+   * when an internal server error occurs, it verifies that the response is
+   * Internal Server Error and contains an error message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void addCategory_internalServerError_returnsInternalServerError() throws Exception {
@@ -180,6 +244,13 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for deleteCategory.
+   * This method tests the endpoint for deleting a category.
+   * It verifies that the request is processed successfully and returns an OK response.
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void deleteCategory_adminUser_returnsOk() throws Exception {
@@ -201,6 +272,14 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for deleteCategory.
+   * This method tests the endpoint for deleting a category,
+   * when a non-admin user tries to delete a category,
+   * it verifies that the response is Forbidden
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void deleteCategory_nonAdminUser_returnsForbidden() throws Exception {
@@ -222,6 +301,14 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for deleteCategory.
+   * This method tests the endpoint for deleting a category,
+   * when an invalid category ID is provided,
+   * it verifies that the response is Bad Request
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void deleteCategory_invalidCategoryId_returnsBadRequest() throws Exception {
@@ -243,6 +330,14 @@ class CategoryControllerTest {
     }
   }
 
+  /**
+   * Test method for deleteCategory.
+   * This method tests the endpoint for deleting a category,
+   * when an internal server error occurs,
+   * it verifies that the response is Internal Server Error
+   *
+   * @throws Exception if an error occurs during the test
+   */
   @Test
   @WithMockUser("test")
   void deleteCategory_internalServerError_returnsInternalServerError() throws Exception {
