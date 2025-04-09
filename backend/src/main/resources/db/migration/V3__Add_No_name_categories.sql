@@ -1,0 +1,3 @@
+ALTER TABLE categories
+ADD COLUMN name_no VARCHAR(255) DEFAULT NULL,
+RENAME COLUMN name TO name_en;
