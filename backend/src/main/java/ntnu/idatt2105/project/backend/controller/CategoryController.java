@@ -5,7 +5,6 @@ import ntnu.idatt2105.project.backend.dto.request.AddCategoryRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleCategoryResponse;
 import ntnu.idatt2105.project.backend.service.CategoryService;
 import ntnu.idatt2105.project.backend.util.TokenExtractor;
-import org.apache.el.parser.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
