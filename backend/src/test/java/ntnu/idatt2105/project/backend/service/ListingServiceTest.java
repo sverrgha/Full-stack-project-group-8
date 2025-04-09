@@ -10,8 +10,10 @@ import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
+import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
 import ntnu.idatt2105.project.backend.model.Location;
+import ntnu.idatt2105.project.backend.repository.BrowsingHistoryRepo;
 import ntnu.idatt2105.project.backend.repository.ListingImageRepo;
 import ntnu.idatt2105.project.backend.repository.ListingRepo;
 import ntnu.idatt2105.project.backend.repository.LocationRepo;
@@ -48,6 +50,9 @@ class ListingServiceTest {
 
   @Mock
   private LocationRepo locationRepo;
+
+  @Mock
+  private BrowsingHistoryRepo browsingHistoryRepo;
 
   @InjectMocks
   private ListingService listingService;
@@ -447,5 +452,93 @@ class ListingServiceTest {
 
     assertFalse(exists);
     verify(listingRepo, times(1)).getListingById(id);
+  }
+
+  /**
+   * Tests that a default listings is returned when the user has no previous browsing history.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and pagination information.
+   */
+  @Test
+  void getRecommendedListings_noBrowsingHistory_returnsDefaultListings() {
+    Long userId = 100L;
+    Pageable pageable = PageRequest.of(1, 20);
+    Pageable localPageable = PageRequest.of(0, 20);
+    List<CategoryShare> emptyShares = Collections.emptyList();
+
+    doReturn(emptyShares).when(browsingHistoryRepo).getUsersCategoryShares(userId);
+    when(listingRepo.getAllListingsByCriteria(any(), any(), any(), any(), any(), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(listing1), localPageable, 0));
+
+    MultipleListingsResponse response = listingService.getRecommendedListings(userId, pageable);
+
+    assertEquals(1, response.getElements().size());
+    assertEquals(1, response.getCurrentPage());
+    assertEquals(20, response.getPageSize());
+    assertTrue(response.isFirstPage());
+    assertTrue(response.isLastPage());
+  }
+
+  /**
+   * Tests that the recommended listings are based on the user's browsing history.
+   * This test checks if the method returns the expected response
+   * with the correct listing details and pagination information.
+    */
+  @Test
+  void getRecommendedListings_withBrowsingHistory_returnsListingsBasedOnShares() {
+    Long userId = 100L;
+    Pageable pageable = PageRequest.of(1, 10);
+
+    List<CategoryShare> categoryShares = Arrays.asList(
+            new CategoryShare(1L, 1, 0.7),
+            new CategoryShare(2L, 2, 0.3)
+    );
+    when(browsingHistoryRepo.getUsersCategoryShares(userId)).thenReturn(categoryShares);
+
+    Pageable category1Pageable = PageRequest.of(0, 7, pageable.getSort());
+    Pageable category2Pageable = PageRequest.of(0, 3, pageable.getSort());
+
+    List<Listing> category1Listings = Collections.singletonList(listing1);
+    List<Listing> category2Listings = Collections.singletonList(listing2);
+
+    when(listingRepo.getByCategoryId(1L, category1Pageable)).thenReturn(category1Listings);
+    when(listingRepo.getByCategoryId(2L, category2Pageable)).thenReturn(category2Listings);
+
+    MultipleListingsResponse response = listingService.getRecommendedListings(userId, pageable);
+
+    assertEquals(2, response.getElements().size());
+    assertEquals(1, response.getCurrentPage());
+    assertEquals(10, response.getPageSize());
+    assertEquals(listing1.getId(), response.getElements().get(0).getId());
+    assertEquals(listing2.getId(), response.getElements().get(1).getId());
+  }
+
+  /**
+   * Tests that the recommended listings are empty when there are no listings the categories.
+   * This test checks if the method returns an empty response
+   * with the correct pagination information.
+   */
+  @Test
+  void getRecommendedListings_withBrowsingHistory_emptyCategoryResults() {
+    Long userId = 100L;
+    Pageable pageable = PageRequest.of(1, 10);
+
+    List<CategoryShare> categoryShares = Arrays.asList(
+            new CategoryShare(1L, 1, 0.5),
+            new CategoryShare(2L, 2, 0.5)
+    );
+    when(browsingHistoryRepo.getUsersCategoryShares(userId)).thenReturn(categoryShares);
+
+    Pageable category1Pageable = PageRequest.of(0, 5, pageable.getSort());
+    Pageable category2Pageable = PageRequest.of(0, 5, pageable.getSort());
+
+    when(listingRepo.getByCategoryId(1L, category1Pageable)).thenReturn(Collections.emptyList());
+    when(listingRepo.getByCategoryId(2L, category2Pageable)).thenReturn(Collections.emptyList());
+
+    MultipleListingsResponse response = listingService.getRecommendedListings(userId, pageable);
+
+    assertEquals(0, response.getElements().size());
+    assertEquals(1, response.getCurrentPage());
+    assertEquals(10, response.getPageSize());
   }
 }
