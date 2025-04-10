@@ -12,7 +12,6 @@ export function useMapbox() {
 
     mapboxgl.accessToken = mapboxConfig.accessToken;
 
-    console.log(mapboxConfig.accessToken)
     const initializeMap = (container) => {
         mapInstance.value = new mapboxgl.Map({
             container,
