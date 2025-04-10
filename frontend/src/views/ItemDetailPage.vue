@@ -498,34 +498,6 @@ const updateImages = (newImages) => {
   height: 49px;
 }
 
-.edit-row .edit-field {
-  flex: 1;
-  margin-bottom: 0;
-}
-.button-container {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  max-width: 800px;
-}
-
-/* Add these new styles */
-.button-container :deep(.form-group) {
-  margin-bottom: 4px;
-  width: 200px;
-}
-
-.button-container :deep(.select-wrapper) {
-  min-width: 120px;
-}
-
-.button-container .action-button {
-  min-width: 100px;
-  padding: 8px 8px;
-}
-
 @media (max-width: 768px) {
   .button-container {
     justify-content: flex-start;
