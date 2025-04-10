@@ -584,18 +584,14 @@ const handleSortChange = () => {
   box-sizing: border-box;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.map-toggle:hover {
-  background-color: #f5f5f5;
-}
-
-.map-toggle {
   font-size: 1rem;
   line-height: 1.25rem;
   color: #374151;
 }
 
+.map-toggle:hover {
+  background-color: #f5f5f5;
+}
 @media (max-width: 768px) {
   .top-controls {
     flex-direction: column;
