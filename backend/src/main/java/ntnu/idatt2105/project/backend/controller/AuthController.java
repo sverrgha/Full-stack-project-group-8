@@ -89,18 +89,29 @@ public class AuthController {
     }
   }
 
+
+  /**
+   * Endpoint for refreshing a JWT token.
+   * This method validates the provided token, extracts the username, and generates a new token.
+   * If the token is invalid or expired, it returns an appropriate error response.
+   *
+   * @param currentToken The current JWT token provided in the "Authorization" header.
+   *                     It must start with the "Bearer" prefix.
+   * @return ResponseEntity containing an AuthResponse object with the new token and user information,
+   *         or an error message if the token is invalid or expired.
+   */
   @PostMapping("/refreshToken")
-  public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+  public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String currentToken) {
     logger.info("Received refresh token request");
     try {
-      if (refreshToken == null || !refreshToken.startsWith("Bearer")) {
+      if (currentToken == null || !currentToken.startsWith("Bearer")) {
         logger.warning("Invalid refresh token format");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
           new AuthResponse(null, "Invalid refresh token format", null, null, null)
         );
       }
 
-      String token = refreshToken.substring(7);
+      String token = currentToken.substring(7);
       AuthResponse response = userService.refreshToken(token);
 
       if (response.getToken() == null) {
