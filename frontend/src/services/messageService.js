@@ -25,11 +25,9 @@ export const messageService = {
         }
     },
 
-    async getConversation(endUserId) {
+    async getConversation(endUserEmail) {
         try {
-            const response = await apiClient.get(`/messages/conversation/${endUserId}`, {
-                params: { endUserId }
-            });
+            const response = await apiClient.get(`/messages/conversation/${endUserEmail}`);
             return response.data;
         } catch (error) {
             console.error("Error in getConversation:", error);
