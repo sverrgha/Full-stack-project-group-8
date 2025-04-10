@@ -2,7 +2,6 @@ package ntnu.idatt2105.project.backend.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import java.util.Optional;
 
@@ -236,7 +235,7 @@ public class UserService implements UserDetailsService {
 
   public Optional<User> findByEmail(String email) {
     return userRepo.findByEmail(email);
-
+  }
   /**
    * This method refreshes the JWT token using the provided  current token.
    * It validates the refresh token, extracts the username, and generates a new token.
