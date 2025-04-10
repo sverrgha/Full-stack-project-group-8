@@ -111,7 +111,7 @@ const respondToOffer = async (messageId, response) => {
             :key="conv.id"
             :conversation="conv"
             :isSelected="selectedConversation === conv.id"
-            :onSelect="() => selectConversation(conv.id)"
+            :onSelect="() => selectConversation(conv.email)"
         />
       </div>
     </div>
