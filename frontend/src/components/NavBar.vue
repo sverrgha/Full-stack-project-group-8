@@ -44,7 +44,6 @@ onUnmounted(() => {
 
       <!-- Navigation Links -->
       <ul class="nav-links" :class="{ 'open': isMenuOpen }">
-        <nav-bar-item to="/admin" text="admin"/>
         <nav-bar-item to="/products" text="products"/>
         <nav-bar-item to="/new-listing" text="newListing"/>
         <nav-bar-item to="/messages" text="messages"/>

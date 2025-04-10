@@ -71,7 +71,8 @@
     "cancel": "Avbryt",
     "submitting": "Sender inn...",
     "requiredField": "Obligatorisk felt",
-    "saving": "Lagrer..."
+    "saving": "Lagrer...",
+    "loading": "Laster..."
   },
   "profilePage": {
     "posts": "Innlegg",
@@ -160,7 +161,24 @@
     "currentCategories": "Nåværende Kategorier",
     "actions": "Handlinger",
     "nameInEnglish": "Kategori navn på engelsk",
-    "nameInNorwegian": "Kategori navn på norsk"
+    "nameInNorwegian": "Kategori navn på norsk",
+    "errorFetchingCategories": "Failed to load categories. Please try again.",
+    "errorAddingCategory": "Failed to add category. Please try again.",
+    "errorUpdatingCategory": "Failed to update category. Please try again.",
+    "errorDeletingCategory": "Failed to delete category. Please try again.",
+    "confirmDeleteCategory": "Are you sure you want to delete this category?",
+    "manageCategories": "Administrer Kategorier",
+    "addCategory": "Legg til Kategori",
+    "existingCategories": "Eksisterende Kategorier",
+    "categoriesReadOnly": "Kategorier er kun lesbare etter opprettelse.",
+    "image": "Bilde",
+    "noImage": "Ingen bilde",
+    "noCategories": "Ingen kategorier funnet. Legg til din første kategori.",
+    "fillRequiredFields": "Vennligst fyll ut alle påkrevde felt.",
+    "categoryImage": "Kategori Bilde",
+    "insufficientPermissions": "Du har ikke tilstrekkelige tillatelser for denne handlingen.",
+    "authError": "Autentiseringsfeil",
+    "categoryAddedSuccess": "Kategori lagt til vellykket"
   },
   "editProfile": {
     "saveSuccess": "Endringer lagret vellykket",
