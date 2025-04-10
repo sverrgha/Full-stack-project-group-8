@@ -126,6 +126,7 @@ public class MessageController {
    * @param endUserId The User object representing the other user in the conversation
    * @return ResponseEntity with the list of MessageResponse or an error status
    */
+  /*
   @GetMapping("/conversation/{endUserId}")
   public ResponseEntity<?> getConversation(HttpServletRequest request,
                                            @RequestParam(required = false) Long endUserId) {
@@ -175,6 +176,70 @@ public class MessageController {
     } catch (Exception e) {
       logger.warning("Error retrieving conversation: " + e.getMessage());
       return ResponseEntity.status(500).body("Error retrieving conversation: " + e.getMessage());
+    }
+  }
+
+   */
+
+  @GetMapping("/conversation/{endUserEmail}")
+  public ResponseEntity<?> getConversation(HttpServletRequest request,
+                                           @PathVariable String endUserEmail) {
+    logger.info("Received conversation request for user: " + endUserEmail);
+    try {
+      String token = extractToken(request);
+      String currentUserEmail = jwtUtil.extractUsername(token);
+
+      // Get current user
+      Optional<User> currentUser = userService.findByEmail(currentUserEmail);
+      if (currentUser.isEmpty()) {
+        logger.warning("Current user not found: " + currentUserEmail);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+      }
+
+      // Get end user
+      Optional<User> endUser = userService.findByEmail(endUserEmail);
+      if (endUser.isEmpty()) {
+        logger.warning("End user not found: " + endUserEmail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+      }
+
+      User user1 = currentUser.get();
+      User user2 = endUser.get();
+
+      if (currentUserEmail.equals(endUserEmail)) {
+        logger.warning("Cannot fetch conversation with yourself");
+        return ResponseEntity.badRequest().body("Cannot fetch conversation with yourself");
+      }
+
+      if (!messageService.conversationExists(user1.getId(), user2.getId())) {
+        logger.warning("No conversation found between users: " + currentUserEmail + " and " + endUserEmail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No conversation found between users");
+      }
+
+      messageService.markConversationAsRead(user1.getId(), user2.getId());
+
+      List<MessageResponse> messages = messageService
+        .getConversation(user1.getId(), user2.getId())
+        .stream()
+        .filter(message ->
+          (message.getSender().equals(user1.getId()) && message.getReceiver().equals(user2.getId())) ||
+            (message.getSender().equals(user2.getId()) && message.getReceiver().equals(user1.getId()))
+        )
+        .map(message -> new MessageResponse(
+          message.getSender(),
+          message.getReceiver(),
+          message.getContent(),
+          message.getTimestamp(),
+          message.isRead()
+        ))
+        .toList();
+
+      logger.info("Conversation retrieved successfully between users: " + currentUserEmail + " and " + endUserEmail);
+      return ResponseEntity.ok(messages);
+
+    } catch (Exception e) {
+      logger.warning("Error retrieving conversation: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving conversation: " + e.getMessage());
     }
   }
 }
