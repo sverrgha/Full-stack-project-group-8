@@ -48,16 +48,16 @@ class MessageServiceTest {
     void testSendMessage() {
 
         MessageRequest request = new MessageRequest();
-        request.setSender(1L);
-        request.setReceiver(2L);
+        request.setSender("jane.smith@example.com");
+        request.setReceiver("peter.jones@example.com");
         request.setContent("Hello!");
         doNothing().when(messageRepo).sendMessage(anyLong(), anyLong(), anyString());
 
         MessageResponse message = messageService.sendMessage(request);
 
         assertNotNull(message);
-        assertEquals(1L, message.getSender());
-        assertEquals(2L, message.getReceiver());
+        assertEquals("jane.smith@example.com", message.getSender());
+        assertEquals("peter.jones@example.com", message.getReceiver());
         assertEquals("Hello!", message.getContent());
         assertFalse(message.isRead());
     }
@@ -70,8 +70,9 @@ class MessageServiceTest {
     @Test
     void testGetConversation() {
 
-        Message message1 = new Message(1L, 2L, "Hi!", false);
-        Message message2 = new Message(2L, 1L, "Hello!", true);
+
+        Message message1 = new Message("jane.smith@example.com", "peter.jones@example.com", "Hi!", false);
+        Message message2 = new Message("peter.jones@example.com", "jane.smith@example.com", "Hello!", true);
         when(messageRepo.findBySenderAndReceiver(anyLong(), anyLong())).thenReturn(List.of(message1, message2));
 
         List<Message> messages = messageService.getConversation(1L, 2L);
