@@ -26,17 +26,20 @@ onMounted(async () => {
 
 // Computed properties for conversations and messages
 const conversations = computed(() => messageStore.inbox);
-const currentMessages = computed(() =>
-    selectedConversation.value ? messageStore.currentConversation : []
-);
 
-const selectConversation = async (userId) => {
-  console.log("Selecting conversation with user ID:", userId);
-  selectedConversation.value = userId;
+const currentMessages = computed(() => {
+  const messages = selectedConversation.value ? messageStore.currentConversation : [];
+  console.log("Current messages:", messages);
+  return messages;
+});
+
+const selectConversation = async (userEmail) => {
+  console.log("Selecting conversation with user:", userEmail);
+  selectedConversation.value = userEmail;
   showSideMenu.value = false;
 
   try {
-    await messageStore.fetchConversation(userId);
+    await messageStore.fetchConversation(userEmail);
     console.log("Conversation fetched:", messageStore.currentConversation);
   } catch (error) {
     console.error('Failed to fetch conversation:', error);
@@ -107,13 +110,23 @@ const respondToOffer = async (messageId, response) => {
       <div v-if="messageStore.loading">Loading conversations...</div>
       <div v-else-if="conversations.length === 0">No conversations yet</div>
       <div v-else>
+        <!--- Loop through conversations and display them
         <ConversationItem
             v-for="conv in conversations"
             :key="conv.id"
             :conversation="conv"
             :isSelected="selectedConversation === conv.id"
             :onSelect="() => selectConversation(conv.email)"
+        />-->
+
+        <ConversationItem
+            v-for="conv in conversations"
+            :key="conv.id"
+            :isSelected="selectedConversation === conv.email"
+            :onSelect="() => selectConversation(conv.email)"
+            :conversation="conv"
         />
+
       </div>
     </div>
 
@@ -125,9 +138,9 @@ const respondToOffer = async (messageId, response) => {
         </button>
         <div class="user-header" v-if="selectedConversation">
           <div class="avatar-placeholder">
-            {{ conversations.find(c => c.id === selectedConversation)?.email.charAt(0) }}
+            {{ conversations.find(c => c.email === selectedConversation)?.email.charAt(0) }}
           </div>
-          <h3>{{ conversations.find(c => c.id === selectedConversation)?.email || 'Select a conversation' }}</h3>
+          <h3>{{ conversations.find(c => c.email === selectedConversation)?.email || 'Select a conversation' }}</h3>
         </div>
         <div v-else class="user-header">
           <h3>Select a conversation</h3>
