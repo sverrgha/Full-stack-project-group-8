@@ -5,10 +5,12 @@ import ntnu.idatt2105.project.backend.dto.request.MessageRequest;
 import ntnu.idatt2105.project.backend.dto.response.ConversationSummaryResponse;
 import ntnu.idatt2105.project.backend.dto.response.MessageResponse;
 import ntnu.idatt2105.project.backend.model.Message;
+import ntnu.idatt2105.project.backend.model.User;
 import ntnu.idatt2105.project.backend.repository.MessageRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -22,6 +24,7 @@ import java.util.List;
 public class MessageService {
 
   private final MessageRepo messageRepo;
+  private final UserService userService;
 
   /**
    * Sends a message from one user to another.
@@ -30,12 +33,15 @@ public class MessageService {
    * @return The sent Message object.
    */
   public MessageResponse sendMessage(MessageRequest request) {
-    if (request.getSender() <= 0 || request.getReceiver() <= 0) {
+    if (request.getSender().length() <= 0 || request.getReceiver().length() <= 0) {
       throw new IllegalArgumentException("Invalid sender or receiver ID");
     }
 
     Message message = new Message(request.getSender(), request.getReceiver(), request.getContent(), false);
-    messageRepo.sendMessage(message.getSender(), message.getReceiver(), message.getContent());
+    Optional<User> userSender = userService.findByEmail(request.getSender());
+    Optional<User> userReciver = userService.findByEmail(request.getReceiver());
+
+    messageRepo.sendMessage(userSender.get().getId(), userReciver.get().getId(), message.getContent());
 
     return new MessageResponse(
         message.getSender(),
