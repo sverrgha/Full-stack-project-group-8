@@ -233,4 +233,42 @@ public class UserService implements UserDetailsService {
 
     userRepo.update(newUser);
   }
+
+  /**
+   * This method refreshes the JWT token using the provided  current token.
+   * It validates the refresh token, extracts the username, and generates a new token.
+   *
+   * @param currentToken The current token is  used for generating a new token.
+   * @return AuthResponse containing the new token and user information
+   */
+  public AuthResponse refreshToken(String currentToken) {
+    try {
+      String email = jwtUtil.extractUsername(currentToken);
+      if (email != null) {
+        UserDetails userDetails = loadUserByUsername(email);
+        if (jwtUtil.validateToken(currentToken, userDetails)) {
+          Optional<User> userOpt = userRepo.findByEmail(email);
+          if (userOpt.isPresent()) {
+            String newToken = jwtUtil.generateToken(email);
+            return new AuthResponse(
+              email,
+              "Token refreshed successfully",
+              newToken,
+              jwtUtil.getExpirationDate(newToken),
+              userOpt.get().getId()
+            );
+          }
+        }
+      }
+      return new AuthResponse(null, "Invalid refresh token", null, null, null);
+    } catch (Exception e) {
+      return new AuthResponse(
+        null,
+        AuthResponseMessage.TOKEN_REFRESH_ERROR.getMessage() + e.getMessage(),
+        null,
+        null,
+        null
+      );
+    }
+  }
 }
