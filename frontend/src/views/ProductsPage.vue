@@ -27,6 +27,7 @@ const filters = ref({
   priceMax: null,
   city: '',
   conditions: [],
+  category: null,
   sortBy: 'created_at',
   sortDirection: 'DESC'
 });
@@ -119,9 +120,24 @@ const applyFilters = (filterData) => {
   closeSidebar();
 };
 
-// Handle category selection
-const handleCategorySelect = (category) => {
-  currentCategory.value = category;
+const handleCategorySelect = (categoryId) => {
+  if (currentCategory.value === categoryId) {
+    // Deselect category
+    currentCategory.value = null;
+    // Create a new filters object without the category property
+    const newFilters = { ...filters.value };
+    delete newFilters.category;
+    filters.value = newFilters;
+  } else {
+    // Select new category
+    currentCategory.value = categoryId;
+    filters.value = {
+      ...filters.value,
+      category: categoryId
+    };
+  }
+
+  // Fetch listings with updated filters
   fetchListings();
 };
 
