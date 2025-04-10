@@ -70,7 +70,8 @@
   "common": {
     "cancel": "Avbryt",
     "submitting": "Sender inn...",
-    "requiredField": "Obligatorisk felt"
+    "requiredField": "Obligatorisk felt",
+    "saving": "Lagrer..."
   },
   "profilePage": {
     "posts": "Innlegg",
@@ -80,79 +81,105 @@
   "profileSettingsSideBar": {
     "name": "For- og etternavn",
     "biography": "Biografi",
-    "profilePicture": "Profilbilde"
+    "profilePicture": "Profilbilde",
+    "mail": "Epost",
+    "phoneNr": "Telefonnummer",
+    "password": "Passord"
   },
   "profileSettingsEditName": {
     "h2": "Oppdater navnet ditt",
     "name": "For- og etternavn",
-    "save": "Lagre"
+    "save": "Lagre",
+    "noUserId": "Ingen bruker-ID funnet",
+    "fetchError": "Feil ved henting av brukerdata"
   },
-    "profileSettingsEditBiography": {
-        "h2": "Oppdater biografi",
-        "biography": "Biografi",
-        "save": "Lagre",
-        "helpText": "Skriv en kort beskrivelse av deg selv. Dette vil bli synlig for andre brukere."
-    },
-    "profileSettingsEditPicture": {
-        "h2": "Oppdater profilbilde",
-        "profilePicture": "Bytt profilbilde",
-        "save": "Lagre",
-        "helpText": "Gyldig format: JPG, PNG (maks 2MB)"
-    },
-    "productPage": {
-      "search": "Hva leter du etter?",
-      "filters": "Filtre",
-      "sortBy": "Sorter etter",
-      "categories": "Kategorier",
-      "vehicle": "Kjøretøy",
-      "clothing": "Klær",
-      "interior": "Interiør og møbler",
-      "property": "Eiendom",
-      "electronics": "Elektronikk",
-      "activity": "Aktivitet og fritid",
-      "beauty": "Skjønnhet og helse",
-      "noResults": "No results"
-    },
-      "sort": {
-        "newest": "Nyeste",
-        "oldest": "Eldste",
-        "priceLowToHigh": "Laveste pris først",
-        "priceHighToLow": "Høyeste pris først"
-      },
-    "productPageHidden":{
-      "clear": "Fjern alle",
-      "price": "Prisklasse",
-      "condition": "Tilstand",
-      "apply": "Bruk filtre",
-      "city": "By"
-    },
-    "itemDetailPage": {
-      "description": "Beskrivelse",
-      "condition": "Tilstand",
-      "location": "Sted",
-      "contactSeller": "Kontakt selger",
-      "itemDetails": "Vare detaljer",
-      "dateAdded": "Dato lagt til",
-      "seller": "Selger",
-      "category": "Kategori",
-      "id": "Produkt-ID",
-      "delete": "Slett",
-      "edit": "Rediger",
-      "save": "Lagre",
-      "cancel": "Avbryt",
-      "maxPictures": "Maks 10 bilder"
-    },
-    "admin": {
-      "dashboard": "Admin Kontrollpanel",
-      "showCategoriesButton": "Administrer Kategorier",
-      "hideCategoriesButton": "Skjul Kategoriadministrasjon",
-      "addNewCategoryButton": "Legg til ny Kategori",
-      "englishName": "Engelsk Navn",
-      "norwegianName": "Norsk Navn",
-      "addCategoryButton": "Legg til Kategori",
-      "currentCategories": "Nåværende Kategorier",
-      "actions": "Handlinger",
-      "nameInEnglish": "Kategori navn på engelsk",
-      "nameInNorwegian": "Kategori navn på norsk"
-    }
+  "profileSettingsEditBiography": {
+    "h2": "Oppdater biografi",
+    "biography": "Biografi",
+    "save": "Lagre",
+    "helpText": "Skriv en kort beskrivelse av deg selv. Dette vil bli synlig for andre brukere."
+  },
+  "profileSettingsEditPicture": {
+    "h2": "Oppdater profilbilde",
+    "profilePicture": "Bytt profilbilde",
+    "save": "Lagre",
+    "helpText": "Gyldig format: JPG, PNG (maks 2MB)"
+  },
+  "productPage": {
+    "search": "Hva leter du etter?",
+    "filters": "Filtre",
+    "sortBy": "Sorter etter",
+    "categories": "Kategorier",
+    "vehicle": "Kjøretøy",
+    "clothing": "Klær",
+    "interior": "Interiør og møbler",
+    "property": "Eiendom",
+    "electronics": "Elektronikk",
+    "activity": "Aktivitet og fritid",
+    "beauty": "Skjønnhet og helse",
+    "noResults": "No results",
+    "loading": "Laster..."
+  },
+  "sort": {
+    "newest": "Nyeste",
+    "oldest": "Eldste",
+    "priceLowToHigh": "Laveste pris først",
+    "priceHighToLow": "Høyeste pris først"
+  },
+  "productPageHidden": {
+    "clear": "Fjern alle",
+    "price": "Prisklasse",
+    "condition": "Tilstand",
+    "apply": "Bruk filtre",
+    "city": "By"
+  },
+  "itemDetailPage": {
+    "description": "Beskrivelse",
+    "condition": "Tilstand",
+    "location": "Sted",
+    "contactSeller": "Kontakt selger",
+    "itemDetails": "Vare detaljer",
+    "dateAdded": "Dato lagt til",
+    "seller": "Selger",
+    "category": "Kategori",
+    "id": "Produkt-ID",
+    "delete": "Slett",
+    "edit": "Rediger",
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "maxPictures": "Maks 10 bilder"
+  },
+  "admin": {
+    "dashboard": "Admin Kontrollpanel",
+    "showCategoriesButton": "Administrer Kategorier",
+    "hideCategoriesButton": "Skjul Kategoriadministrasjon",
+    "addNewCategoryButton": "Legg til ny Kategori",
+    "englishName": "Engelsk Navn",
+    "norwegianName": "Norsk Navn",
+    "addCategoryButton": "Legg til Kategori",
+    "currentCategories": "Nåværende Kategorier",
+    "actions": "Handlinger",
+    "nameInEnglish": "Kategori navn på engelsk",
+    "nameInNorwegian": "Kategori navn på norsk"
+  },
+  "editProfile": {
+    "saveSuccess": "Endringer lagret vellykket",
+    "saveNameSuccess": "Navn oppdatert vellykket"
+  },
+  "profileSettingsEditMail": {
+    "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
+    "noUserId": "Ingen bruker-ID funnet",
+    "saveError": "Feil ved lagring av e-post",
+    "loginAgainRequired": "Du må logge inn på nytt for å oppdatere e-postadressen din"
+  },
+  "profileSettingsEditPhoneNr": {
+    "saveError": "Error saving phone number"
+  },
+  "profileSettingsEditPassword": {
+    "currentPassword": "Nåværende passord",
+    "newPassword": "Nytt passord",
+    "confirmPassword": "Bekreft nytt passord",
+    "currentPasswordRequired": "Nåværende passord er påkrevd",
+    "saveError": "Feil ved lagring av passord"
   }
+}
