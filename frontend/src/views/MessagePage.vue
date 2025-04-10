@@ -47,16 +47,17 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedConversation.value) return;
 
   try {
+    const currentUserEmail = authStore.user.email; // Get current user's email
     await messageStore.sendMessage(
-        currentUserId.value,
-        selectedConversation.value,
+        currentUserEmail,
+        selectedConversation.value, // This should already be the receiver's email
         newMessage.value
     );
     newMessage.value = '';
   } catch (error) {
     console.error('Failed to send message:', error);
   }
-}
+};
 
 const sendOffer = async (price) => {
   if (!selectedConversation.value) return;
