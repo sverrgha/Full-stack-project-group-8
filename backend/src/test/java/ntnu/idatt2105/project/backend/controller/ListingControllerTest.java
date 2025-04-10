@@ -453,4 +453,54 @@ class ListingControllerTest {
     }
   }
 
+  /**
+   * Tests the updateListingStatus method with a valid request.
+   * Expects a 200 OK response with a success message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void updateListingStatus_success() throws Exception {
+    Long listingIdToUpdate = listing1.getId();
+    String newStatus = "SOLD";
+
+    doNothing().when(listingService).updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" + listingIdToUpdate
+                            + "/status", listingIdToUpdate)
+                    .param("status", newStatus)
+                    .header("Authorization", tokenHeader))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("Listing status updated successfully"));
+
+    verify(listingService, times(1)).updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
+  }
+
+  /**
+   * Tests the updateListingStatus method when the user is unauthorized.
+   * Expects a 401 Unauthorized response with an error message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void updateListingStatus_unauthorized() throws Exception {
+    Long listingIdToUpdate = listing1.getId();
+    String newStatus = "SOLD";
+    String errorMessage = "User is unauthorized to update this listing";
+
+    doThrow(new IllegalAccessException(errorMessage)).when(listingService)
+            .updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" +
+                            listingIdToUpdate + "/status", listingIdToUpdate)
+                    .param("status", newStatus)
+                    .header("Authorization", tokenHeader))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+            .andExpect(MockMvcResultMatchers.content().string("Unauthorized: " + errorMessage));
+
+    verify(listingService, times(1)).updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
+  }
+
 }
