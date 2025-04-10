@@ -72,7 +72,8 @@
     "cancel": "Cancel",
     "submitting": "Submitting...",
     "requiredField": "Required field",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "loading": "Loading..."
   },
   "profilePage": {
     "posts": "Posts",
@@ -162,7 +163,22 @@
     "currentCategories": "Current Categories",
     "actions": "Actions",
     "nameInEnglish": "Category name in English",
-    "nameInNorwegian": "Category name in Norwegian"
+    "nameInNorwegian": "Category name in Norwegian",
+    "errorFetchingCategories": "Failed to load categories. Please try again.",
+    "errorAddingCategory": "Failed to add category. Please try again.",
+    "errorUpdatingCategory": "Failed to update category. Please try again.",
+    "errorDeletingCategory": "Failed to delete category. Please try again.",
+    "confirmDeleteCategory": "Are you sure you want to delete this category?",
+    "addCategory": "Add Category",
+    "existingCategories": "Existing Categories",
+    "categoriesReadOnly": "Categories are read-only once created.",
+    "image": "Image",
+    "noImage": "No image",
+    "noCategories": "No categories found. Add your first category.",
+    "fillRequiredFields": "Please fill out all required fields.",
+    "categoryImage": "Category Image",
+    "insufficientPermissions": "You don't have sufficient permissions for this action.",
+    "authError": "Authentication error"
   },
   "editProfile": {
     "saveSuccess": "Changes saved successfully",
