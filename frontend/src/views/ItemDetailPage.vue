@@ -18,7 +18,7 @@ const error = ref(null);
 const isEditing = ref(false);
 const showStatusDropdown = ref(false);
 const statusOptions = [
-  {value: 'available', label: t('itemDetailPage.available')},
+  {value: 'active', label: t('itemDetailPage.active')},
   {value: 'sold', label: t('itemDetailPage.sold')},
   {value: 'reserved', label: t('itemDetailPage.reserved')},
   {value: 'archived', label: t('itemDetailPage.archived')}
@@ -46,6 +46,7 @@ onMounted(async () => {
         userId: listingStore.currentListing.userId,
         seller: listingStore.currentListing.userId,
         category: listingStore.currentListing.categoryId,
+        status: listingStore.currentListing.status,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
         postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
@@ -459,6 +460,47 @@ const updateImages = (newImages) => {
 .edit-row .edit-field {
   flex: 1;
   margin-bottom: 0;
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  background-color: #5c6bc0;
+  color: white;
+}
+
+.dropdown-menu, .dropdown-button {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  min-width: 160px;
+  z-index: 10;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-item:not(:last-child) {
+  border-bottom: 1px solid #eee;
 }
 
 @media (max-width: 768px) {
