@@ -148,7 +148,12 @@
     "edit": "Rediger",
     "save": "Lagre",
     "cancel": "Avbryt",
-    "maxPictures": "Maks 10 bilder"
+    "maxPictures": "Maks 10 bilder",
+    "status": "Status",
+    "active": "Aktiv",
+    "sold": "Solgt",
+    "archived": "Arkivert",
+    "reserved": "Reservert"
   },
   "admin": {
     "dashboard": "Admin Kontrollpanel",

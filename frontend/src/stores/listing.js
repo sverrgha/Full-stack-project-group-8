@@ -85,6 +85,22 @@ export const useListingStore = defineStore('listing', {
             }
         },
 
+        async updateListingStatus(id, status) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await listingService
+                    .updateListingStatus(id, status);
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to update listing status';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async fetchRecommendedListings(userId, page = 1, size = 20) {
             this.loading = true;
             this.error = null;

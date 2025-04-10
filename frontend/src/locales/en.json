@@ -150,7 +150,12 @@
     "edit": "Edit",
     "save": "Save",
     "cancel": "Cancel",
-    "maxPictures": "Max 10 pictures"
+    "maxPictures": "Max 10 pictures",
+    "status": "Status",
+    "active": "Active",
+    "sold": "Sold",
+    "archived": "Archived",
+    "reserved": "Reserved"
   },
   "admin": {
     "dashboard": "Admin Dashboard",

@@ -3,6 +3,7 @@ package ntnu.idatt2105.project.backend.controller;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.ListingStatusRequest;
 import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
@@ -194,6 +195,42 @@ public class ListingController {
               Collections.emptyList(), 0, 0,
               pageable.getPageNumber(), pageable.getPageSize(), true, true
       ));
+    }
+  }
+
+  /**
+   * Endpoint for updating the status of a listing.
+   * It takes the ID of the listing to be updated, the new status,
+   * and the authorization header containing the token.
+   *
+   * @param listingId  the ID of the listing to be updated
+   * @param status     the new status for the listing
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with a status and message indicating the result of the update
+   */
+  @PutMapping("/{listingId}/status")
+  public ResponseEntity<String> updateListingStatus(
+          @PathVariable Long listingId,
+          @RequestBody ListingStatusRequest status,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to update listing status with ID: " + listingId);
+    try {
+      listingService.updateListingStatus(listingId, status, TokenExtractor.extractToken(authHeader));
+      logger.info("Listing status updated successfully with ID: " + listingId);
+      return ResponseEntity.ok("Listing status updated successfully");
+    } catch (IllegalAccessException e) {
+      logger.warning("Unauthorized attempt to update listing status: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body("Unauthorized: " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid argument: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body("Invalid argument: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while updating listing status: " + e.getMessage());
+      return ResponseEntity.internalServerError().body("An unexpected error occurred while updating listing status: "
+              + e.getMessage());
     }
   }
 }

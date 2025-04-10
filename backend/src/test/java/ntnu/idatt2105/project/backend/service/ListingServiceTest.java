@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
-import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
-import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
-import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.*;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -638,5 +635,118 @@ class ListingServiceTest {
 
     verify(listingImageRepo).save(listingId, "image3.jpg");
     verify(listingImageRepo, times(2)).deleteImage(eq(listingId), anyString());
+  }
+
+  @Test
+  void updateListingStatus_validInput_statusUpdated() throws IllegalAccessException {
+    String newStatus = "SOLD";
+    String token = "validToken";
+
+    when(listingRepo.getListingById(listing1.getId())).thenReturn(Optional.of(listing1));
+    when(userService.validateUserIdMatchesToken(listing1.getUserId(), token))
+            .thenReturn(true);
+    doNothing().when(listingRepo).updateListingStatus(listing1.getId(), newStatus);
+
+    listingService.updateListingStatus(listing1.getId(),
+            new ListingStatusRequest(newStatus), token);
+
+    verify(listingRepo, times(1)).getListingById(listing1.getId());
+    verify(userService, times(1))
+            .validateUserIdMatchesToken(listing1.getUserId(), token);
+    verify(listingRepo, times(1))
+            .updateListingStatus(listing1.getId(), newStatus);
+  }
+
+  /**
+   * Tests that an exception is thrown when the listing ID is null.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing ID is null.
+   */
+  @Test
+  void updateListingStatus_nullListingId_throwsIllegalArgumentException() {
+    String newStatus = "SOLD";
+    String validToken = "validToken";
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            listingService.updateListingStatus(null,
+                    new ListingStatusRequest(newStatus), validToken)
+    );
+
+    assertEquals("Listing ID cannot be null", exception.getMessage());
+    verifyNoInteractions(listingRepo);
+    verifyNoInteractions(userService);
+  }
+
+  /**
+   * Tests that an exception is thrown when the listing is not found.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing is not found in the repository.
+   */
+  @Test
+  void updateListingStatus_listingNotFound_throwsIllegalArgumentException() {
+    String newStatus = "SOLD";
+    String validToken = "validToken";
+
+    when(listingRepo.getListingById(listing1.getId())).thenReturn(Optional.empty());
+
+    RuntimeException exception = assertThrows(RuntimeException.class, () ->
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(newStatus), validToken)
+    );
+
+    assertEquals("Listing not found", exception.getMessage());
+    verify(listingRepo).getListingById(listing1.getId());
+    verifyNoInteractions(userService);
+    verifyNoMoreInteractions(listingRepo);
+  }
+
+  /**
+   * Tests that an exception is thrown when the user is not authorized.
+   * This test checks if the method throws an IllegalAccessException
+   * when the user is not authorized to update the listing status.
+   */
+  @Test
+  void updateListingStatus_unauthorizedUser_throwsIllegalAccessException() {
+    String newStatus = "SOLD";
+    String validToken = "validToken";
+
+    when(listingRepo.getListingById(listing1.getId())).thenReturn(Optional.of(listing1));
+    when(userService.validateUserIdMatchesToken(listing1.getUserId(), validToken))
+            .thenReturn(false);
+
+    assertThrows(IllegalAccessException.class, () ->
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(newStatus), validToken)
+    );
+
+    verify(listingRepo).getListingById(listing1.getId());
+    verify(userService).validateUserIdMatchesToken(listing1.getUserId(), validToken);
+    verifyNoMoreInteractions(listingRepo);
+  }
+
+  /**
+   * Tests that an exception is thrown when an invalid status is provided.
+   * This test checks if the method throws an IllegalArgumentException
+   * when an invalid status is provided in the request.
+   */
+  @Test
+  void updateListingStatus_invalidStatus_throwsIllegalArgumentException() {
+    String invalidStatus = "INVALID_STATUS";
+    String validToken = "validToken";
+
+    doReturn(Optional.of(listing1)).when(listingRepo).getListingById(listing1.getId());
+    when(userService.validateUserIdMatchesToken(listing1.getUserId(), validToken))
+            .thenReturn(true);
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(invalidStatus), validToken)
+    );
+
+    assertTrue(exception.getMessage().contains("Invalid status:"));
+    assertTrue(exception.getMessage().contains(invalidStatus));
+    verify(listingRepo).getListingById(listing1.getId());
+    verify(userService).validateUserIdMatchesToken(listing1.getUserId(), validToken);
+    verifyNoMoreInteractions(listingRepo);
   }
 }
