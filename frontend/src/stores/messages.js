@@ -51,14 +51,33 @@ export const useMessageStore = defineStore('messages', {
                 const currentUserId = authStore.user?.id;
 
                 const response = await messageService.getConversation(endUserId);
-                this.currentConversation = response.map(msg => ({
-                    id: msg.id,
-                    sender: msg.sender,
-                    receiver: msg.receiver,
-                    content: msg.content,
-                    timestamp: msg.timestamp,
-                    isSent: msg.sender === currentUserId
-                }));
+                this.currentConversation = response.map(msg => {
+                    // Try to parse JSON content for special message types
+                    let parsedContent = null;
+                    let type = null;
+
+                    try {
+                        parsedContent = JSON.parse(msg.content);
+                        if (parsedContent && typeof parsedContent === 'object' && parsedContent.type) {
+                            type = parsedContent.type;
+                        }
+                    } catch (e) {
+                        // Not JSON content, treat as regular message
+                    }
+
+                    return {
+                        id: msg.id,
+                        sender: msg.sender,
+                        receiver: msg.receiver,
+                        content: type ? parsedContent.content : msg.content,
+                        timestamp: msg.timestamp,
+                        isSent: msg.sender === currentUserId,
+                        type: type,
+                        originalPrice: parsedContent?.originalPrice,
+                        offerPrice: parsedContent?.offerPrice,
+                        status: parsedContent?.status
+                    };
+                });
             } catch (error) {
                 this.error = error.message;
                 console.error("Error fetching conversation:", error);
