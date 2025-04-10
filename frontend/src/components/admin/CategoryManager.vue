@@ -79,10 +79,9 @@ const addCategory = async () => {
     const categoryData = {
       nameEn: newCategory.value.nameEn,
       nameNo: newCategory.value.nameNo,
-      url: uploadedUrls.length > 0 ? uploadedUrls[0] : '' // Change from url to image_url
+      url: uploadedUrls.length > 0 ? uploadedUrls[0] : ''
     };
 
-    console.log('Creating category with data:', categoryData);
     await categoriesService.createCategory(categoryData);
     await fetchCategories();
     newCategory.value = { nameEn: '', nameNo: '' };
@@ -113,6 +112,8 @@ onMounted(fetchCategories);
 
       <form @submit.prevent="addCategory">
         <div class="form-group">
+
+          <!-- English name field -->
           <BaseInputField
               id="category-name-en"
               v-model="newCategory.nameEn"
@@ -122,7 +123,7 @@ onMounted(fetchCategories);
               required
           />
         </div>
-
+        <!-- Norwegian name field -->
         <div class="form-group">
           <BaseInputField
               id="category-name-no"
