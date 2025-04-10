@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseInputField from '../form/BaseInputField.vue';
 import { categoriesService } from "../../services/categoriesService.js";
@@ -22,9 +22,20 @@ const isLoading = ref(false);
 const error = ref('');
 const imageUploadRef = ref(null);
 const categoryImage = ref([]);
+const successMessage = ref('');
+const successMessageTimeout = ref(null);
 
 // Emits
 const emit = defineEmits(['update:categories']);
+
+// Function to clear success message and timeout
+const clearSuccessMessage = () => {
+  successMessage.value = '';
+  if (successMessageTimeout.value) {
+    clearTimeout(successMessageTimeout.value);
+    successMessageTimeout.value = null;
+  }
+};
 
 // Fetch categories
 const fetchCategories = async () => {
@@ -62,11 +73,14 @@ const handleImagesUpdate = (images) => {
 const addCategory = async () => {
   if (!newCategory.value.nameEn || !newCategory.value.nameNo) {
     error.value = t('admin.fillRequiredFields') || 'Please fill all required fields';
+    clearSuccessMessage();
     return;
   }
 
   try {
     isLoading.value = true;
+    error.value = ''; // Clear any previous error
+    clearSuccessMessage(); // Clear any previous success message
 
     // Upload images first
     let uploadedUrls = [];
@@ -84,22 +98,39 @@ const addCategory = async () => {
 
     await categoriesService.createCategory(categoryData);
     await fetchCategories();
+
+    // Show success message and set timeout
+    successMessage.value = t('admin.categoryAddedSuccess') || 'Category added successfully!';
+    successMessageTimeout.value = setTimeout(() => {
+      successMessage.value = '';
+    }, 3000);
+
     newCategory.value = { nameEn: '', nameNo: '' };
     categoryImage.value = [];
   } catch (err) {
     console.error('Error adding category:', err);
     error.value = t('admin.errorAddingCategory') || 'Failed to add category';
+    clearSuccessMessage();
   } finally {
     isLoading.value = false;
   }
 };
 
 onMounted(fetchCategories);
+
+// Clean up timeout when component unmounts
+onBeforeUnmount(() => {
+  clearSuccessMessage();
+});
 </script>
 
 <template>
   <div class="category-management card">
     <h2>{{ t('admin.showCategoriesButton') }}</h2>
+
+    <div v-if="successMessage" class="alert alert-success fade-out mb-3">
+      {{ successMessage }}
+    </div>
 
     <!-- Loading and error messages -->
     <div v-if="error" class="alert alert-danger mb-3">
@@ -112,7 +143,6 @@ onMounted(fetchCategories);
 
       <form @submit.prevent="addCategory">
         <div class="form-group">
-
           <!-- English name field -->
           <BaseInputField
               id="category-name-en"
@@ -159,9 +189,7 @@ onMounted(fetchCategories);
     <!-- Category list -->
     <div v-if="!isLoading && categories.length > 0" class="category-list">
       <h3>{{ t('admin.existingCategories') }}</h3>
-      <div class="alert alert-info mb-3">
-        {{ t('admin.categoriesReadOnly') || 'Existing categories can only be viewed but not modified.' }}
-      </div>
+      <!-- Removed the alert indicating categories are read-only -->
       <table>
         <thead>
         <tr>
@@ -273,6 +301,24 @@ th, td {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-in-out 2.5s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .alert-info {
