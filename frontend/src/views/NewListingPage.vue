@@ -203,7 +203,7 @@ const createListing = async () => {
       // Use the mapping from categoryMap
       categoryId: categoryMap[form.category],
       userId: currentUserId,
-      status: "active"
+      status: "active",
       location: {
         postalCode: form.postalCode,
         city: postalCity.value,
