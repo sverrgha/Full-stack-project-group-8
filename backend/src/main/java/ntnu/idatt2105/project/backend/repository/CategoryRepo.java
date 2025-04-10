@@ -67,13 +67,13 @@ public class CategoryRepo {
    * @return A list of Category objects representing all categories.
    */
   public List<Category> getAllCategories() {
-    String sql = "SELECT * FROM categories";
+    String sql = "SELECT * FROM `categories`";
     return jdbcTemplate.query(sql, (rs, rowNum) ->
             new Category(
                     rs.getLong("id"),
                     rs.getString("name_en"),
                     rs.getString("name_no"),
-                    rs.getString("url")
+                    rs.getString("image_url")
             ));
   }
 
