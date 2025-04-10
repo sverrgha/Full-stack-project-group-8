@@ -178,7 +178,8 @@
     "fillRequiredFields": "Please fill out all required fields.",
     "categoryImage": "Category Image",
     "insufficientPermissions": "You don't have sufficient permissions for this action.",
-    "authError": "Authentication error"
+    "authError": "Authentication error",
+    "categoryAddedSuccess": "Category added successfully"
   },
   "editProfile": {
     "saveSuccess": "Changes saved successfully",

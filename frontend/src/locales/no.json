@@ -177,7 +177,8 @@
     "fillRequiredFields": "Vennligst fyll ut alle påkrevde felt.",
     "categoryImage": "Kategori Bilde",
     "insufficientPermissions": "Du har ikke tilstrekkelige tillatelser for denne handlingen.",
-    "authError": "Autentiseringsfeil"
+    "authError": "Autentiseringsfeil",
+    "categoryAddedSuccess": "Kategori lagt til vellykket"
   },
   "editProfile": {
     "saveSuccess": "Endringer lagret vellykket",
