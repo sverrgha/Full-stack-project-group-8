@@ -32,7 +32,8 @@ public class AddListingRequest {
   @NotBlank(message = "condition is required")
   private String condition;
 
-  @NotNull
-  private int postalCode;
   private List<String> images;
+
+  @NotNull
+  private LocationDTO location;
 }

@@ -6,20 +6,25 @@ import static org.mockito.Mockito.*;
 
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
+import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
 import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
+import ntnu.idatt2105.project.backend.model.ListingImage;
 import ntnu.idatt2105.project.backend.model.Location;
 import ntnu.idatt2105.project.backend.repository.BrowsingHistoryRepo;
 import ntnu.idatt2105.project.backend.repository.ListingImageRepo;
 import ntnu.idatt2105.project.backend.repository.ListingRepo;
 import ntnu.idatt2105.project.backend.repository.LocationRepo;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,18 +59,21 @@ class ListingServiceTest {
   @Mock
   private BrowsingHistoryRepo browsingHistoryRepo;
 
+  @Mock
+  private UserService userService;
+
   @InjectMocks
   private ListingService listingService;
 
-  private Listing listing1;
-  private Listing listing2;
-  private Location location1;
+  private static Listing listing1;
+  private static Listing listing2;
+  private static Location location1;
 
   /**
    * Sets up the test data before each test case.
    */
-  @BeforeEach
-  void setUp() {
+  @BeforeAll
+  static void setUp() {
     listing1 = new Listing();
     listing1.setId(1L);
     listing1.setTitle("Test Listing 1");
@@ -221,7 +229,9 @@ class ListingServiceTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(30L);
     addListingRequest.setCondition("new");
-    addListingRequest.setPostalCode(9012);
+    addListingRequest.setLocation(new LocationDTO(
+            9012, "New City", "New Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Arrays.asList("imageA.jpg", "imageB.jpg"));
 
     Listing savedListing = new Listing();
@@ -273,7 +283,9 @@ class ListingServiceTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(30L);
     addListingRequest.setCondition("new");
-    addListingRequest.setPostalCode(9012);
+    addListingRequest.setLocation(new LocationDTO(
+            9012, "New City", "New Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Arrays.asList("imageA.jpg", "imageB.jpg"));
 
     when(listingRepo.save(any(), any(), any(), any(), any(), any(), any(), anyInt()))
@@ -483,7 +495,7 @@ class ListingServiceTest {
    * Tests that the recommended listings are based on the user's browsing history.
    * This test checks if the method returns the expected response
    * with the correct listing details and pagination information.
-    */
+   */
   @Test
   void getRecommendedListings_withBrowsingHistory_returnsListingsBasedOnShares() {
     Long userId = 100L;
@@ -540,5 +552,91 @@ class ListingServiceTest {
     assertEquals(0, response.getElements().size());
     assertEquals(1, response.getCurrentPage());
     assertEquals(10, response.getPageSize());
+  }
+
+  /**
+   * Tests that the listing is updated successfully when a valid request is made.
+   * This test checks if the method updates the listing
+   * with the new details and saves the changes.
+   *
+   * @throws IllegalAccessException if there is an error while testing
+   */
+  @Test
+  void updateListing_validRequest_updatesListing() throws IllegalAccessException {
+    Long listingId = 1L;
+    Long userId = listing1.getUserId();
+    String token = "testToken";
+    LocationDTO newLocationDTO = new LocationDTO(5678,
+            "New City", "New Country", 1.0, 1.0);
+    ModifyListingRequest request = new ModifyListingRequest("New Title",
+            2L, 75.0, "New brief", "New desc",
+            "fair", Collections.emptyList(), newLocationDTO);
+
+    when(listingRepo.getListingById(listingId)).thenReturn(Optional.of(listing1));
+    when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
+    when(locationRepo.getLocationByPostalCode(5678)).thenReturn(Optional.empty());
+    doNothing().when(locationRepo).save(any());
+    doNothing().when(listingRepo).update(any());
+
+    ArgumentCaptor<Listing> listingCaptor = ArgumentCaptor.forClass(Listing.class);
+
+    listingService.updateListing(listingId, request, token);
+
+    verify(listingRepo).update(listingCaptor.capture());
+    assertEquals("New Title", listingCaptor.getValue().getTitle());
+    assertEquals(2L, listingCaptor.getValue().getCategoryId());
+    assertEquals(5678, listingCaptor.getValue().getPostalCode());
+  }
+
+  /**
+   * Tests that an exception is thrown when the listing is not found.
+   * This test checks if the method throws an IllegalArgumentException
+   * when the listing is not found in the repository.
+   */
+  @Test
+  void updateListing_listingNotFound_throwsException() {
+    Long listingId = 99L;
+    ModifyListingRequest request = new ModifyListingRequest();
+    String token = "testToken";
+    when(listingRepo.getListingById(listingId)).thenReturn(Optional.empty());
+
+    assertThrows(IllegalArgumentException.class, () -> listingService.updateListing(listingId, request, token));
+    verifyNoInteractions(userService);
+    verifyNoInteractions(locationRepo);
+    verifyNoInteractions(listingImageRepo);
+    verify(listingRepo, times(0)).update(any(Listing.class));
+  }
+
+  /**
+   * Tests that images are added and deleted correctly when updating a listing.
+   * This test checks if the method removes the old images
+   * and adds the new images as specified in the request.
+   *
+   * @throws IllegalAccessException if there is an error while testing
+   */
+  @Test
+  void updateListing_addAndDeleteImages_correctlyRemovesAndAdds() throws IllegalAccessException {
+    Long listingId = listing1.getId();
+    Long userId = listing1.getUserId();
+    String token = "testToken";
+    LocationDTO newLocationDTO = new LocationDTO(location1.getPostalCode(), location1.getCity(), null, null, null);
+    ModifyListingRequest request = new ModifyListingRequest("New Title",
+            2L, 75.0, "New brief", "New desc",
+            "fair", List.of("image3.jpg"), newLocationDTO);
+
+    when(listingRepo.getListingById(listingId)).thenReturn(Optional.of(listing1));
+    when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
+    when(locationRepo.getLocationByPostalCode(location1.getPostalCode())).thenReturn(Optional.of(location1));
+    when(listingImageRepo.getAllImagesByListingId(listingId)).thenReturn(
+            Arrays.asList("image1.jpg", "image2.jpg"));
+    doNothing().when(listingImageRepo).save(eq(listingId), eq("image3.jpg"));
+    doNothing().when(listingImageRepo).deleteImage(eq(listingId), eq("image1.jpg"));
+    doNothing().when(listingImageRepo).deleteImage(eq(listingId), eq("image2.jpg"));
+    doNothing().when(listingRepo).update(any());
+
+    listingService.updateListing(listingId, request, token);
+
+    verify(listingImageRepo).save(listingId, "image3.jpg");
+    verify(listingImageRepo, times(2)).deleteImage(eq(listingId), anyString());
   }
 }

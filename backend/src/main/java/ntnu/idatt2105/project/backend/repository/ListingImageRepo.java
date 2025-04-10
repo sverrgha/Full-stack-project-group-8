@@ -54,4 +54,9 @@ public class ListingImageRepo {
     String sql = "INSERT INTO sverrgha_datab.listing_images (listing_id, path_to_image) VALUES (?, ?)";
     jdbcTemplate.update(sql, listingId, imagePath);
   }
+
+  public void deleteImage(Long listingId, String url) {
+    String sql = "DELETE FROM sverrgha_datab.listing_images WHERE listing_id = ? AND path_to_image = ?";
+    jdbcTemplate.update(sql, listingId, url);
+  }
 }

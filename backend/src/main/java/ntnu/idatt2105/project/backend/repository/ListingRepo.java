@@ -70,6 +70,29 @@ public class ListingRepo {
   }
 
   /**
+   * Updates a listing in the database, with the details of the listing
+   * passed as parameter.
+   *
+   * @param listing the listing to be updated
+   */
+  public void update(Listing listing) {
+    String sql = "UPDATE sverrgha_datab.listings SET title = ?, category_id = ?, price = ?, brief_description = ?, description = ?, user_id = ?, status = ?, `condition` = ?, reserved_by_user_id = ?, reserved_at = ?, sold_to_user_id = ?, sold_at = ? WHERE id = ?";
+    jdbcTemplate.update(sql,
+            listing.getTitle(),
+            listing.getCategoryId(),
+            listing.getPrice(),
+            listing.getBriefDescription(),
+            listing.getDescription(),
+            listing.getUserId(),
+            listing.getStatus().toString().toLowerCase(),
+            listing.getCondition().toString().toLowerCase(),
+            listing.getReservedByUserId(),
+            listing.getReservedAt(),
+            listing.getSoldToUserId(),
+            listing.getSoldAt(),
+            listing.getId());
+  }
+  /**
    * Deletes a listing based on its ID.
    *
    * @param id
@@ -100,16 +123,16 @@ public class ListingRepo {
    * Retrieves all listings based on the given criteria.
    *
    * @param categoryId the ID of the category whose listings are to be retrieved.
-   * @param city the city where the listings are located.
-   * @param minPrice the minimum price of the listings.
-   * @param maxPrice the maximum price of the listings.
+   * @param city       the city where the listings are located.
+   * @param minPrice   the minimum price of the listings.
+   * @param maxPrice   the maximum price of the listings.
    * @param conditions the conditions of the listings.
-   * @param pageable the pagination information.
+   * @param pageable   the pagination information.
    * @return an array of the paths to the image as a String.
    */
   public Page<Listing> getAllListingsByCriteria(Long categoryId, String city, Double minPrice,
-                                            Double maxPrice, List<String> conditions,
-                                            Pageable pageable) {
+                                                Double maxPrice, List<String> conditions,
+                                                Pageable pageable) {
     StringBuilder sql = new StringBuilder("SELECT l.* FROM sverrgha_datab.listings l");
     sql.append(" JOIN sverrgha_datab.locations loc ON l.postal_code = loc.postal_code WHERE l.status = 'active'");
 
@@ -218,6 +241,7 @@ public class ListingRepo {
 
   /**
    * Maps a ResultSet to a Listing object, and returns the Listing object.
+   *
    * @param rs the ResultSet to be mapped
    * @return the Listing object created
    * @throws SQLException if an SQL error occurs
@@ -278,7 +302,7 @@ public class ListingRepo {
    * Retrieves a list of listings by category ID with a limit on the number of results.
    *
    * @param categoryId the ID of the category whose listings are to be retrieved
-   * @param pageable the pagination information
+   * @param pageable   the pagination information
    * @return a list of listings belonging to the specified category
    */
   public List<Listing> getByCategoryId(Long categoryId, Pageable pageable) {

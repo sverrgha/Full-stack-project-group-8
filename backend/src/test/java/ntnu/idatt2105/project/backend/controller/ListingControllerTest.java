@@ -2,6 +2,8 @@ package ntnu.idatt2105.project.backend.controller;
 
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
+import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -9,8 +11,10 @@ import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
 import ntnu.idatt2105.project.backend.model.Listing;
 import ntnu.idatt2105.project.backend.model.Location;
 import ntnu.idatt2105.project.backend.service.ListingService;
+import ntnu.idatt2105.project.backend.util.TokenExtractor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +26,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -58,6 +64,8 @@ class ListingControllerTest {
   private AddListingRequest addListingRequest;
   private ListingFilterRequest validFilterRequest;
   private ListingFilterRequest invalidFilterRequest;
+  private String tokenHeader;
+  private String extractedToken;
 
   /**
    * Sets up the test data before each test.
@@ -136,7 +144,9 @@ class ListingControllerTest {
     addListingRequest.setDescription("New long description");
     addListingRequest.setUserId(11L);
     addListingRequest.setCondition("fair");
-    addListingRequest.setPostalCode(5678);
+    addListingRequest.setLocation(new LocationDTO(
+            5678, "Test City", "Test Country", 0.0, 0.0
+    ));
     addListingRequest.setImages(Collections.emptyList());
 
     validFilterRequest = new ListingFilterRequest();
@@ -145,11 +155,15 @@ class ListingControllerTest {
 
     invalidFilterRequest = new ListingFilterRequest();
     invalidFilterRequest.setConditions(Collections.singletonList("INVALID"));
+
+    tokenHeader = "Bearer token";
+    extractedToken = "token";
   }
 
   /**
    * Tests the getListings method with a valid filter.
    * Expects a 200 OK response with the correct listing data.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -171,6 +185,7 @@ class ListingControllerTest {
   /**
    * Tests the getListings method with an invalid filter.
    * Expects a 400 Bad Request response with an error message.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -191,6 +206,7 @@ class ListingControllerTest {
   /**
    * Tests the getListings method when the service throws an exception.
    * Expects a 500 Internal Server Error response.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -211,6 +227,7 @@ class ListingControllerTest {
   /**
    * Tests the addListing method with valid input.
    * Expects a 200 OK response with the correct listing data.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -231,6 +248,7 @@ class ListingControllerTest {
   /**
    * Tests the addListing method with invalid input.
    * Expects a 400 Bad Request response with an error message.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -252,6 +270,7 @@ class ListingControllerTest {
   /**
    * Tests the addListing method when the service throws an exception.
    * Expects a 500 Internal Server Error response.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -273,6 +292,7 @@ class ListingControllerTest {
   /**
    * Tests the getListingById method with a valid ID.
    * Expects a 200 OK response with the correct listing data.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -292,6 +312,7 @@ class ListingControllerTest {
   /**
    * Tests the getListingById method with an invalid ID.
    * Expects a 404 Not Found response.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -327,6 +348,7 @@ class ListingControllerTest {
 
   /**
    * Tests the getRecommendedListings endpoint with an invalid user ID, returning BadRequest.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -350,6 +372,7 @@ class ListingControllerTest {
   /**
    * Tests the getRecommendedListings endpoint when the service throws a generic exception,
    * returning InternalServerError.
+   *
    * @throws Exception if an error occurs during the test
    */
   @Test
@@ -370,5 +393,64 @@ class ListingControllerTest {
     verify(listingService, times(1)).getRecommendedListings(userId, pageable);
   }
 
+  /**
+   * Tests the updateListing method with a valid request.
+   * Expects a 200 OK response with a success message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void updateListing_validRequest_returnsOkAndSuccessMessage() throws Exception {
+    LocationDTO locationDTO = new LocationDTO(7050, "Trondheim", "Norway", 10.0, 10.0);
+    ModifyListingRequest request = new ModifyListingRequest(
+            "Updated Title", 2L, 150.0, "Updated brief", "Updated description",
+            "fair", Collections.singletonList("image.jpg"), locationDTO
+    );
+
+    try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
+      mockedTokenExtractor.when(() -> TokenExtractor.extractToken(tokenHeader)).thenReturn(extractedToken);
+      doNothing().when(listingService).updateListing(eq(listing1.getId()),
+              any(ModifyListingRequest.class), eq(extractedToken));
+
+      mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" + listing1.getId())
+                      .header("Authorization", tokenHeader)
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(request)))
+              .andExpect(MockMvcResultMatchers.status().isOk())
+              .andExpect(MockMvcResultMatchers.content().string("Listing updated successfully"));
+    }
+  }
+
+  /**
+   * Tests the updateListing method with an invalid request.
+   * Expects an Unauthorized response with an error message.
+   *
+   * @throws Exception if an error occurs during the test
+   */
+  @Test
+  @WithMockUser("test")
+  void updateListing_unauthorized_returnsUnauthorizedStatusAndMessage() throws Exception {
+    LocationDTO locationDTO = new LocationDTO(7050, "Trondheim", "Norway", 10.0, 10.0);
+    ModifyListingRequest request = new ModifyListingRequest(
+            "Updated Title", 2L, 150.0, "Updated brief", "Updated description",
+            "fair", Collections.singletonList("image.jpg"), locationDTO
+    );
+
+    try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
+      mockedTokenExtractor.when(() -> TokenExtractor.extractToken(tokenHeader))
+              .thenReturn(extractedToken);
+      doThrow(new IllegalAccessException("User ID does not match token")).when(listingService)
+              .updateListing(eq(listing1.getId()), any(ModifyListingRequest.class),
+                      eq(extractedToken));
+
+      mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" + listing1.getId())
+                      .header("Authorization", tokenHeader)
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(request)))
+              .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+              .andExpect(MockMvcResultMatchers.content().string("Unauthorized: User ID does not match token"));
+    }
+  }
 
 }
