@@ -61,7 +61,8 @@ public class MessageService {
    * @return A list of messages in the conversation.
    */
   public List<Message> getConversation(Long sender, Long receiver) {
-    return messageRepo.findBySenderAndReceiver(sender, receiver);
+    //return messageRepo.findBySenderAndReceiver(sender, receiver);
+    return messageRepo.findByParticipants(sender, receiver);
   }
 
   /**
