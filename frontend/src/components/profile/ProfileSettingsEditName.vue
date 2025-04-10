@@ -16,7 +16,7 @@ const loading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
 
-const emit = defineEmits(['saveChanges'])
+const emit = defineEmits(['saveChanges', 'error'])
 
 onMounted(async () => {
   await fetchUserData()
