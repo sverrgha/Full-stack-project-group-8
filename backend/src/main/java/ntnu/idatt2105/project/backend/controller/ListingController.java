@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ntnu.idatt2105.project.backend.service.ListingService;
 
-import javax.naming.ldap.UnsolicitedNotification;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
