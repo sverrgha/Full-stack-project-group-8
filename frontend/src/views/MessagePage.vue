@@ -54,25 +54,51 @@ const selectConversation = (id) => {
   // In the future: Mark conversation as read when selected
 };
 
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return;
+const socket = new SockJs('http://localhost:8080/ws');
+const stompClient = Stomp.over(socket);
 
-  // In a real app, this would send to an API
+stompClient.connect({}, function (frame) {
+  console.log('Connected: ' + frame);
+  stompClient.subscribe('/topic/messages', function (message) {
+    const msg = JSON.parse(message.body);
+    if (!messagesByConversation[msg.conversationId]) {
+      messagesByConversation[msg.conversationId] = [];
+    }
+    messagesByConversation[msg.conversationId].push(msg);
+  });
+});
+
+const sendMessage = (sender, receiver, content, isRead) => {
+
   const message = {
-    id: Math.random().toString(36).substring(2, 9),
-    sender: 'Me',
-    content: newMessage.value,
+    sender: sender,
+    receiver: receiver,
+    content: content,
     timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-    isSent: true
-  };
-
-  if (!messagesByConversation[selectedConversation.value]) {
-    messagesByConversation[selectedConversation.value] = [];
+    isRead: isRead
   }
-
-  messagesByConversation[selectedConversation.value].push(message);
-  newMessage.value = '';
+  stompClient.send('/app/chat', {}, JSON.stringify(message));
 };
+
+
+//   if (!newMessage.value.trim()) return;
+
+//   // In a real app, this would send to an API
+//   const message = {
+//     id: Math.random().toString(36).substring(2, 9),
+//     sender: 'Me',
+//     content: newMessage.value,
+//     timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+//     isSent: true
+//   };
+
+//   if (!messagesByConversation[selectedConversation.value]) {
+//     messagesByConversation[selectedConversation.value] = [];
+//   }
+
+//   messagesByConversation[selectedConversation.value].push(message);
+//   newMessage.value = '';
+// };
 
 // Send offer from the current user (this would normally be triggered from listing page)
 const sendOffer = (price) => {
