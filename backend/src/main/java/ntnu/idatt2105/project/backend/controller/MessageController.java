@@ -54,26 +54,39 @@ public class MessageController {
    */
   @PostMapping("/send")
   public ResponseEntity<MessageResponse> sendMessage(HttpServletRequest httpRequest, @Valid @RequestBody MessageRequest request) {
-    logger.info("Received send message request from user: " + request.getSender());
+    logger.info("Received send message request from user: " + request.getSenderEmail());
     try {
       String token = extractToken(httpRequest);
-      String email = jwtUtil.extractUsername(token);
-      Optional<User> optionalUser = userService.findByEmail(email);
+      String authenticatedEmail = jwtUtil.extractUsername(token);
 
-      if (optionalUser.isEmpty()) {
-        logger.warning("User not found: " + email);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-      }
-
-      User authenticatedUser = optionalUser.get();
-
-      if (!authenticatedUser.getId().equals(request.getSender())) {
-        logger.warning("Unauthorized sender: " + request.getSender());
+      // Verify sender email matches authenticated user
+      if (!authenticatedEmail.equals(request.getSenderEmail())) {
+        logger.warning("Unauthorized sender: " + request.getSenderEmail());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
 
-      MessageResponse response = messageService.sendMessage(request);
-      logger.info("Message sent successfully from user: " + request.getSender() + " to user: " + request.getReceiver());
+      // Get sender user
+      Optional<User> sender = userService.findByEmail(request.getSenderEmail());
+      if (sender.isEmpty()) {
+        logger.warning("Sender not found: " + request.getSenderEmail());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // Get receiver user
+      Optional<User> receiver = userService.findByEmail(request.getReceiverEmail());
+      if (receiver.isEmpty()) {
+        logger.warning("Receiver not found: " + request.getReceiverEmail());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // Create internal message request with IDs
+      MessageRequest internalRequest = new MessageRequest();
+      internalRequest.setSender(sender.get().getEmail());
+      internalRequest.setReceiver(receiver.get().getEmail());
+      internalRequest.setContent(request.getContent());
+
+      MessageResponse response = messageService.sendMessage(internalRequest);
+      logger.info("Message sent successfully from user: " + request.getSenderEmail() + " to user: " + request.getReceiverEmail());
       return ResponseEntity.ok(response);
 
     } catch (Exception e) {
