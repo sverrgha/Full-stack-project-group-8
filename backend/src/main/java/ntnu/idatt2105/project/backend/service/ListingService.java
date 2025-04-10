@@ -390,4 +390,33 @@ public class ListingService {
     return listingRepo.getListingById(id).isPresent();
   }
 
+  /**
+   * Retrieves all listings posted by a user. It uses pagination to limit the number of
+   * listings returned in a single request. It also checks if the user ID matches the token
+   * to ensure that the user is authorized to view their own listings.
+   *
+   * @param userId   the ID of the user whose listings are to be fetched
+   * @param pageable the pagination parameters
+   * @param token    the token to validate the user ID
+   * @return MultipleListingsResponse containing the listings and pagination info
+   * @throws IllegalAccessException if the user ID does not match the token
+   */
+  public MultipleListingsResponse getPostedListings(Long userId, Pageable pageable,
+                                                    String token) throws IllegalAccessException {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    if (!userService.validateUserIdMatchesToken(userId, token)) {
+      throw new IllegalAccessException("User ID does not match token");
+    }
+
+    int pageNumber = Math.max(pageable.getPageNumber() - 1, 0);
+    pageable = PageRequest.of(
+            pageNumber,
+            pageable.getPageSize());
+
+    Page<Listing> listings = listingRepo.getPostedListings(userId, pageable);
+
+    return mapToMultipleListingResponse(listings);
+  }
 }

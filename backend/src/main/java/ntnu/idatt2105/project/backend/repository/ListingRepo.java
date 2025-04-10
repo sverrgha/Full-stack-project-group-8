@@ -311,4 +311,17 @@ public class ListingRepo {
     return jdbcTemplate.query(sql, (rs, rowNum) -> mapResultSetToListing(rs), categoryId,
             pageable.getPageSize(), pageable.getOffset());
   }
+
+  public Page<Listing> getPostedListings(Long userId, Pageable pageable) {
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE user_id = ? AND status = 'active' " +
+            "ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE user_id = ? AND status = 'active'";
+
+    Integer totalResults = jdbcTemplate.queryForObject(countSql, Integer.class, userId);
+
+    List<Listing> listings = jdbcTemplate.query(sql, (rs, rowNum) -> mapResultSetToListing(rs), userId,
+            pageable.getPageSize(), pageable.getOffset());
+
+    return new PageImpl<>(listings, pageable, totalResults != null ? totalResults : 0);
+  }
 }

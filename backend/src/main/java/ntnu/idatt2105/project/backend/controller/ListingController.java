@@ -164,6 +164,42 @@ public class ListingController {
   }
 
   /**
+   * Endpoint for retrieving all listings a user has posted.
+   * It takes the user ID as a parameter, and returns a list of listings
+   * posted by that user.
+   *
+   * @param userId         the ID of the user whose posted listings to fetch
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with MultipleListingsResponse containing the posted listings
+   */
+  @GetMapping("/{userId}/posted")
+  public ResponseEntity<MultipleListingsResponse> getPostedListings(
+          @PathVariable Long userId,
+          @PageableDefault(size = 20, page = 1) Pageable pageable,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request for posted listings for user ID: " + userId);
+    try {
+      MultipleListingsResponse response = listingService.getPostedListings(userId, pageable,
+              TokenExtractor.extractToken(authHeader));
+      logger.info("Posted listings fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid user ID: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    } catch (Exception e) {
+      logger.severe("Error while fetching posted listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    }
+  }
+
+  /**
    * Endpoint for retrieving recommended listings for a user.
    * It takes the user ID as a parameter, and returns a list of recommended listings
    * for that user.

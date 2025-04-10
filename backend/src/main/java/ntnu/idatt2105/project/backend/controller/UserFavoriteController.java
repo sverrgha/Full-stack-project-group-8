@@ -36,9 +36,9 @@ public class UserFavoriteController {
    * @param pageable pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing the favorite listings
    */
-  @GetMapping
+  @GetMapping("/{userId}")
   public ResponseEntity<MultipleListingsResponse> getFavorites(
-          @RequestParam Long userId,
+          @PathVariable Long userId,
           @RequestHeader("Authorization") String authHeader,
           @PageableDefault(size = 20, page = 1, sort = "created_at",
                   direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
