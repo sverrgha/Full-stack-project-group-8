@@ -79,8 +79,8 @@ const addCategory = async () => {
 
   try {
     isLoading.value = true;
-    error.value = ''; // Clear any previous error
-    clearSuccessMessage(); // Clear any previous success message
+    error.value = '';
+    clearSuccessMessage();
 
     // Upload images first
     let uploadedUrls = [];
