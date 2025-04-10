@@ -311,4 +311,9 @@ public class ListingRepo {
     return jdbcTemplate.query(sql, (rs, rowNum) -> mapResultSetToListing(rs), categoryId,
             pageable.getPageSize(), pageable.getOffset());
   }
+
+  public void updateListingStatus(Long listingId, String status) {
+    String sql = "UPDATE sverrgha_datab.listings SET status = ? WHERE id = ?";
+    jdbcTemplate.update(sql, status.toLowerCase(), listingId);
+  }
 }

@@ -196,4 +196,30 @@ public class ListingController {
       ));
     }
   }
+
+  @PutMapping("/{listingId}/status")
+  public ResponseEntity<String> updateListingStatus(
+          @PathVariable Long listingId,
+          @RequestParam String status,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to update listing status with ID: " + listingId);
+    try {
+      listingService.updateListingStatus(listingId, status, TokenExtractor.extractToken(authHeader));
+      logger.info("Listing status updated successfully with ID: " + listingId);
+      return ResponseEntity.ok("Listing status updated successfully");
+    } catch (IllegalAccessException e) {
+      logger.warning("Unauthorized attempt to update listing status: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body("Unauthorized: " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid argument: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body("Invalid argument: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while updating listing status: " + e.getMessage());
+      return ResponseEntity.internalServerError().body("An unexpected error occurred while updating listing status: "
+              + e.getMessage());
+    }
+  }
 }

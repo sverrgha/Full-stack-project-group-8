@@ -390,4 +390,22 @@ public class ListingService {
     return listingRepo.getListingById(id).isPresent();
   }
 
+  public void updateListingStatus(Long listingId, String status, String token) throws IllegalAccessException {
+    if (listingId == null) {
+      throw new IllegalArgumentException("Listing ID cannot be null");
+    }
+
+    Listing listing = listingRepo.getListingById(listingId)
+            .orElseThrow(() -> new IllegalArgumentException("Listing not found"));
+
+    if (!userService.validateUserIdMatchesToken(listing.getUserId(), token)) {
+      throw new IllegalAccessException("User is unauthorized to update this listing");
+    }
+
+    if (!EnumUtils.isValidEnumIgnoreCase(Listing.Status.class, status)) {
+      throw new IllegalArgumentException("Invalid status: " + status);
+    }
+
+    listingRepo.updateListingStatus(listingId, status);
+  }
 }
