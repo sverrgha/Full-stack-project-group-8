@@ -46,8 +46,8 @@ public class MessageRepo {
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Message message = new Message();
             message.setId(rs.getLong("id"));
-            message.setSender(rs.getLong("from_user_id"));
-            message.setReceiver(rs.getLong("to_user_id"));
+            message.setSender(rs.getString("from_user_id"));
+            message.setReceiver(rs.getString("to_user_id"));
             message.setContent(rs.getString("message"));
             message.setTimestamp(rs.getString("sent_at"));
             message.setRead(rs.getBoolean("is_read"));
@@ -91,8 +91,8 @@ public class MessageRepo {
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Message message = new Message();
             message.setId(rs.getLong("id"));
-            message.setSender(rs.getLong("from_user_id"));
-            message.setReceiver(rs.getLong("to_user_id"));
+            message.setSender(rs.getString("from_user_id"));
+            message.setReceiver(rs.getString("to_user_id"));
             message.setContent(rs.getString("message"));
             message.setTimestamp(rs.getString("sent_at"));
             message.setRead(rs.getBoolean("is_read"));
