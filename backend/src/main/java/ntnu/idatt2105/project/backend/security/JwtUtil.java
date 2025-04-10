@@ -62,7 +62,7 @@ public class JwtUtil {
                 .add(claims)
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 60 minutter
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5)) // 5 min
                 .and()
                 .signWith(getKey())
                 .compact();

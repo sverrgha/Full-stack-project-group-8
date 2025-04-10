@@ -15,9 +15,14 @@ export async function validatePostalCode(postalCode) {
             return { valid: false };
         }
 
+        const firstAddress = data.adresser[0];
+        console.log(firstAddress);
         return {
             valid: true,
-            city: data.adresser[0].poststed
+            city: firstAddress.poststed,
+            country: "Norway",
+            latitude: firstAddress.representasjonspunkt?.lat,
+            longitude: firstAddress.representasjonspunkt?.lon
         };
     } catch (error) {
         console.error('Error validating postal code:', error);

@@ -71,7 +71,8 @@
   "common": {
     "cancel": "Cancel",
     "submitting": "Submitting...",
-    "requiredField": "Required field"
+    "requiredField": "Required field",
+    "saving": "Saving..."
   },
   "profilePage": {
     "posts": "Posts",
@@ -81,12 +82,17 @@
   "profileSettingsSideBar": {
     "name": "First- and lastname",
     "biography": "Biography",
-    "profilePicture": "Profile picture"
+    "profilePicture": "Profile picture",
+    "mail": "Mail",
+    "phoneNr": "Phone number",
+    "password": "Password"
   },
   "profileSettingsEditName": {
     "h2": "Update your name",
     "name": "First- and lastname",
-    "save": "Save"
+    "save": "Save",
+    "noUserId": "No user ID found",
+    "fetchError": "Error fetching user data"
   },
     "profileSettingsEditBiography": {
         "h2": "Update your biography",
@@ -112,7 +118,8 @@
     "activity": "Activity and leisure",
     "electronics": "Electronics",
     "beauty": "Beauty and health",
-    "noResults": "No results"
+    "noResults": "No results",
+    "loading": "Loading..."
   },
   "sort": {
     "newest": "Newest",
@@ -156,5 +163,25 @@
     "actions": "Actions",
     "nameInEnglish": "Category name in English",
     "nameInNorwegian": "Category name in Norwegian"
+  },
+  "editProfile": {
+    "saveSuccess": "Changes saved successfully",
+    "saveNameSuccess": "Name updated successfully"
+  },
+  "profileSettingsEditMail": {
+    "invalidEmail": "Please enter a valid email address",
+    "noUserId": "No user ID found",
+    "saveError": "Error saving email",
+    "loginAgainRequired": "You need to log in again when changing your email"
+  },
+  "profileSettingsEditPhoneNr": {
+    "saveError": "Error saving phone number"
+  },
+  "profileSettingsEditPassword": {
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "currentPasswordRequired": "Current password is required",
+    "saveError": "Error saving password"
   }
 }

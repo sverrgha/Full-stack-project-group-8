@@ -25,7 +25,7 @@ public class LocationRepo {
    *
    * @param location the location to be saved
    */
-  public void saveLocation(Location location) {
+  public void save(Location location) {
     String sql = "INSERT INTO sverrgha_datab.locations (postal_code, city, country, "
             + "latitude, longitude) VALUES (?, ?, ?, ?, ?)";
     jdbcTemplate.update(sql,
@@ -45,12 +45,17 @@ public class LocationRepo {
    */
   public Optional<Location> getLocationByPostalCode(int postalCode) {
     String sql = "SELECT * FROM sverrgha_datab.locations WHERE postal_code = ?";
-    return Optional.of(jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Location(
-            rs.getInt("postal_code"),
-            rs.getString("city"),
-            rs.getString("country"),
-            rs.getDouble("latitude"),
-            rs.getDouble("longitude")
-    ), postalCode));
+    try {
+      Location location = jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new Location(
+              rs.getInt("postal_code"),
+              rs.getString("city"),
+              rs.getString("country"),
+              rs.getDouble("latitude"),
+              rs.getDouble("longitude")
+      ), postalCode);
+      return Optional.ofNullable(location);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 }

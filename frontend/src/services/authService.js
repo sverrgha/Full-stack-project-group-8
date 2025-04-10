@@ -26,6 +26,17 @@ export const authService = {
         return apiClient.post('/auth/login', credentials)
     },
 
+    refreshToken() {
+        const token = localStorage.getItem('token');
+        if (!token) return Promise.reject('No token found');
+
+        return apiClient.post('/auth/refreshToken', {}, {
+            headers : {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+    },
+
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');

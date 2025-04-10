@@ -3,12 +3,15 @@ package ntnu.idatt2105.project.backend.service;
 import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
+import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
 import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
+import ntnu.idatt2105.project.backend.model.Location;
 import ntnu.idatt2105.project.backend.repository.BrowsingHistoryRepo;
 import ntnu.idatt2105.project.backend.repository.ListingImageRepo;
 import ntnu.idatt2105.project.backend.repository.ListingRepo;
@@ -16,6 +19,7 @@ import ntnu.idatt2105.project.backend.repository.LocationRepo;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +39,7 @@ public class ListingService {
   private final ListingRepo listingRepo;
   private final LocationRepo locationRepo;
   private final BrowsingHistoryRepo browsingHistoryRepo;
+  private final UserService userService;
 
   /**
    * List of allowed sort fields for filtering listings.
@@ -100,7 +105,9 @@ public class ListingService {
    * @param listing the listing to be added
    * @return AddListingResponse containing the ID of the new listing and a success message.
    */
+  @Transactional
   public AddListingResponse addListing(AddListingRequest listing) {
+    addLocationIfNotExists(listing.getLocation());
     Optional<Listing> newListing = listingRepo.save(
             listing.getTitle(),
             listing.getCategoryId(),
@@ -109,7 +116,7 @@ public class ListingService {
             listing.getDescription(),
             listing.getUserId(),
             Listing.Condition.valueOf(listing.getCondition().toUpperCase()),
-            listing.getPostalCode());
+            listing.getLocation().getPostalCode());
 
     if (newListing.isEmpty()) {
       throw new IllegalArgumentException("Failed to add listing");
@@ -123,6 +130,101 @@ public class ListingService {
     }
     return new AddListingResponse(newListing.get().getId(),
             "Listing added successfully");
+  }
+
+  /**
+   * Updates an existing listing in the database using the listingRepo.
+   * It also updates the images associated with the listing.
+   * If the listing is not found or doesn't belong to the user, it throws an Exception.
+   */
+  @Transactional
+  public void updateListing(Long listingId, ModifyListingRequest request, String token)
+          throws IllegalAccessException {
+
+    if (listingId == null) {
+      throw new IllegalArgumentException("Listing ID cannot be null");
+    }
+
+    Listing oldListing = listingRepo.getListingById(listingId)
+            .orElseThrow(() -> new IllegalArgumentException("Listing not found"));
+
+    if (!userService.validateUserIdMatchesToken(oldListing.getUserId(), token)) {
+      throw new IllegalAccessException("User ID does not match token");
+    }
+
+    addLocationIfNotExists(request.getLocation());
+
+    listingRepo.update(new Listing(
+            listingId,
+            request.getTitle(),
+            request.getCategoryId(),
+            request.getPrice(),
+            request.getBriefDescription(),
+            request.getDescription(),
+            oldListing.getUserId(),
+            oldListing.getStatus(),
+            Listing.Condition.valueOf(request.getCondition().toUpperCase()),
+            oldListing.getCreatedAt(),
+            oldListing.getReservedByUserId(),
+            oldListing.getReservedAt(),
+            oldListing.getSoldToUserId(),
+            oldListing.getSoldAt(),
+            request.getLocation().getPostalCode(),
+            oldListing.getViewsCount()
+    ));
+
+    updateListingImages(listingId, request.getImages());
+  }
+
+  /**
+   * Helper method to update the images associated with a listing.
+   * It compares the old images with the new ones and
+   * adds or deletes images as necessary.
+   * It uses the listingImageRepo to perform the database operations.
+   *
+   * @param listingId    the ID of the listing to update
+   * @param newImageUrls the new image URLs to be associated with the listing
+   */
+  private void updateListingImages(Long listingId, List<String> newImageUrls) {
+    List<String> oldImageUrls = listingImageRepo.getAllImagesByListingId(listingId);
+
+    List<String> urlsToAdd = newImageUrls.stream()
+            .filter(newUrl -> !oldImageUrls.contains(newUrl))
+            .toList();
+
+    List<String> urlsToDelete = oldImageUrls.stream()
+            .filter(oldUrl -> !newImageUrls.contains(oldUrl))
+            .toList();
+
+    for (String url : urlsToAdd) {
+      listingImageRepo.save(listingId, url);
+    }
+
+    for (String url : urlsToDelete) {
+      listingImageRepo.deleteImage(listingId, url);
+    }
+  }
+
+  /**
+   * Helper method to add a location to the database if it does not already exist.
+   * It checks if the location with the given postal code exists in the database,
+   * and if not, it saves the new location.
+   *
+   * @param locationDTO the location data transfer object containing location details
+   */
+  private void addLocationIfNotExists(LocationDTO locationDTO) {
+    int postalCode = locationDTO.getPostalCode();
+    Optional<Location> existingLocation = locationRepo.getLocationByPostalCode(postalCode);
+    if (existingLocation.isEmpty()) {
+      locationRepo.save(new Location(
+              postalCode,
+              locationDTO.getCity(),
+              locationDTO.getCountry(),
+              locationDTO.getLatitude(),
+              locationDTO.getLongitude()
+      ));
+    }
+
   }
 
   /**
@@ -203,6 +305,7 @@ public class ListingService {
    * Maps a Page of Listing objects to a MultipleListingsResponse object.
    * This is used to convert the listings fetched from the database
    * to a format suitable for the API response.
+   *
    * @param listings the Page of Listing objects to map
    * @return a MultipleListingsResponse object containing the listings and pagination info
    */
@@ -221,7 +324,8 @@ public class ListingService {
   /**
    * Fetches multiple listings by their IDs. It uses pagination to limit the number of
    * listings returned in a single request.
-   * @param ids the list of IDs of the listings to fetch
+   *
+   * @param ids      the list of IDs of the listings to fetch
    * @param pageable the pagination parameters
    * @return MultipleListingsResponse containing the listings and pagination info
    */
@@ -233,7 +337,8 @@ public class ListingService {
   /**
    * Retrieves recommended listings based on previous browsing history, if no history
    * exists for the user, recommended is just random from all listings
-   * @param userId the ID of the user to be recommended
+   *
+   * @param userId   the ID of the user to be recommended
    * @param pageable the pagination information for the request
    * @return MultipleListingResponse with metadata for the pagination and the listings
    */
@@ -277,6 +382,7 @@ public class ListingService {
   /**
    * Checks if a listing exists by its ID. It returns true if the listing exists,
    * false otherwise.
+   *
    * @param id the ID of the listing to check
    * @return true if the listing exists, false otherwise
    */
