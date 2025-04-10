@@ -12,14 +12,13 @@ export const messageService = {
         }
     },
 
-    async send(sender, receiver, content) {
+    async send(senderEmail, receiverEmail, content) {
         try {
-            const messageData = {
-                sender: sender,
-                receiver: receiver,
+            const response = await apiClient.post('/messages/send', {
+                sender: senderEmail,
+                receiver: receiverEmail,
                 content: content
-            };
-            const response = await apiClient.post('/messages/send', messageData)
+            });
             return response.data;
         } catch (error) {
             throw error;
