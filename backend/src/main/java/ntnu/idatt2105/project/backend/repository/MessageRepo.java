@@ -156,4 +156,20 @@ public class MessageRepo {
                      "   OR (from_user_id = ? AND to_user_id = ?)";
         jdbcTemplate.update(sql, id, id2, id2, id);
     }
+
+    public List<Message> findByParticipants(Long sender, Long receiver) {
+        String sql = "SELECT * FROM sverrgha_datab.messages WHERE " +
+                     "(from_user_id= ? AND to_user_id= ?) OR " +
+                     "(from_user_id = ? AND to_user_id = ?)";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Message message = new Message();
+            message.setId(rs.getLong("id"));
+            message.setSender(rs.getString("from_user_id"));
+            message.setReceiver(rs.getString("to_user_id"));
+            message.setContent(rs.getString("message"));
+            message.setTimestamp(rs.getString("sent_at"));
+            message.setRead(rs.getBoolean("is_read"));
+            return message;
+        }, sender, receiver, receiver, sender);
+    }
 }
