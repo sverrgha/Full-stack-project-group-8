@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LocationDTO {
   @NotNull
-  @Size(min = 1, max = 9999, message = "Postal code must be a number in range 1 to 9999")
+  @Min(1)
+  @Max(9999)
   private int postalCode;
 
   @NotBlank(message = "City cannot be blank")
