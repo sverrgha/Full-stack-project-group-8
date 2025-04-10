@@ -1,5 +1,4 @@
 <!-- ItemGrid.vue - Grid display of items -->
-
 <script setup>
 import ItemCard from './ItemCard.vue'
 
@@ -12,34 +11,51 @@ const props = defineProps({
 })
 
 if (props.items.length > 0) {
-  // First item details can be accessed here if needed
 }
 </script>
 
 <template>
-  <div class="grid">
-    <ItemCard
-        v-for="item in items"
-        :key="item.id"
-        :id="item.id"
-        :title="item.title"
-        :location="item.city"
-        :price="item.price"
-        :imageUrl="item.pathToImage"
-    />
+  <div class="grid-container">
+    <div class="grid">
+      <!-- Loop through items and create ItemCard components -->
+      <ItemCard
+          v-for="item in items"
+          :key="item.id"
+          :id="item.id"
+          :title="item.title"
+          :location="item.city"
+          :price="item.price"
+          :imageUrl="item.pathToImage"
+          class="item-card-wrapper"
+      />
 
-    <!-- Show a message if there are no items -->
-    <div v-if="items.length === 0" class="empty-state">
-      No items to display
+      <!-- Show a message if there are no items -->
+      <div v-if="items.length === 0" class="empty-state">
+        No items to display
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.grid-container {
+  width: 100%;
+}
+
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.item-card-wrapper {
+  max-width: 200px;
+  width: 200px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .empty-state {
@@ -48,5 +64,17 @@ if (props.items.length > 0) {
   padding: 2rem;
   color: #666;
   font-style: italic;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
