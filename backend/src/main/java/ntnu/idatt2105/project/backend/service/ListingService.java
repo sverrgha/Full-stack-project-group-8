@@ -282,9 +282,8 @@ public class ListingService {
   private List<ShortListingResponse> mapListingsToShortResponse(Listing[] listings) {
     return Arrays.stream(listings)
             .map(listing -> {
-              String city = locationRepo.getLocationByPostalCode(listing.getPostalCode())
-                      .flatMap(location -> Optional.ofNullable(location.getCity()))
-                      .orElse(null);
+              Optional<Location> location = locationRepo.getLocationByPostalCode(listing.getPostalCode());
+
               String imageUrl = listingImageRepo.getOneImageByListingId(listing.getId())
                       .orElse(null);
 
@@ -293,9 +292,15 @@ public class ListingService {
                       listing.getTitle(),
                       listing.getPrice(),
                       listing.getBriefDescription(),
-                      city,
                       imageUrl,
-                      listing.getCondition().name().toLowerCase()
+                      listing.getCondition().name().toLowerCase(),
+                      location.isEmpty() ? null : new LocationDTO(
+                              location.map(Location::getPostalCode).orElse(null),
+                              location.map(Location::getCity).orElse(null),
+                              location.map(Location::getCountry).orElse(null),
+                              location.map(Location::getLatitude).orElse(null),
+                              location.map(Location::getLongitude).orElse(null)
+                      )
               );
             })
             .collect(Collectors.toList());

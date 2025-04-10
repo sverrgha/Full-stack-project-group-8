@@ -120,9 +120,15 @@ class ListingControllerTest {
             listing1.getTitle(),
             listing1.getPrice(),
             listing1.getBriefDescription(),
-            location1.getCity(),
             "",
-            listing1.getCondition().toString().toLowerCase()
+            listing1.getCondition().toString().toLowerCase(),
+            new LocationDTO(
+                    listing1.getPostalCode(),
+                    location1.getCity(),
+                    "Country",
+                    0.0,
+                    0.0
+            )
     );
 
     multipleListingsResponse = new MultipleListingsResponse();
