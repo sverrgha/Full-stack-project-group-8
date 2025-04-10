@@ -236,6 +236,7 @@ public class ListingService {
    * @return FullListingResponse containing all the listing details
    * @throws IllegalArgumentException if no listing is found
    */
+  @Transactional
   public FullListingResponse getListingById(Long id) throws IllegalArgumentException {
     Optional<Listing> listingOptional = listingRepo.getListingById(id);
     if (listingOptional.isEmpty()) {
@@ -248,6 +249,10 @@ public class ListingService {
             .orElse(null);
 
     List<String> images = listingImageRepo.getAllImagesByListingId(id);
+
+    browsingHistoryRepo.addBrowsingHistory(listing.getUserId(), listing.getId());
+
+    listingRepo.incrementViewsCount(id);
 
     return new FullListingResponse(
             listing.getId(),

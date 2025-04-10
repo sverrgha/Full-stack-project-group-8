@@ -35,4 +35,9 @@ public class BrowsingHistoryRepo {
             userId, userId
     );
   }
+
+  public void addBrowsingHistory(Long userId, Long listingId) {
+    String sql = "INSERT INTO browsing_history (user_id, listing_id) VALUES (?, ?)";
+    jdbcTemplate.update(sql, userId, listingId);
+  }
 }

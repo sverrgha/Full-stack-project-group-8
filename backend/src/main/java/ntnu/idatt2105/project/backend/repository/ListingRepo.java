@@ -102,7 +102,12 @@ public class ListingRepo {
     jdbcTemplate.update(sql, id);
   }
 
-  public void increaseViewsCount(Long id) {
+  /**
+   * Increments the views count of a listing by its ID.
+   *
+   * @param id the ID of the listing whose views count is to be incremented
+   */
+  public void incrementViewsCount(Long id) {
     String sql = "UPDATE sverrgha_datab.listings SET views_count = views_count + 1 WHERE id = ?";
     jdbcTemplate.update(sql, id);
   }
