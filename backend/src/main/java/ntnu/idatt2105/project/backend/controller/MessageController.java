@@ -99,6 +99,10 @@ public class MessageController {
       String email = jwtUtil.extractUsername(token);
       Optional<User> user = userService.findByEmail(email);
 
+      if (user.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+      }
+
       List<ConversationSummaryResponse> messages = messageService.getInboxList(user.get().getId());
       if (messages.isEmpty()) {
         logger.warning("No messages found for user: " + email);
@@ -108,7 +112,7 @@ public class MessageController {
       return ResponseEntity.ok(messages);
     } catch (Exception e) {
       logger.warning("Error retrieving inbox: " + e.getMessage());
-      return ResponseEntity.status(500).body("Error retrieving inbox: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving inbox: " + e.getMessage());
     }
   }
 
@@ -122,7 +126,7 @@ public class MessageController {
    * @param endUserId The User object representing the other user in the conversation
    * @return ResponseEntity with the list of MessageResponse or an error status
    */
-  @GetMapping("/conversation")
+  @GetMapping("/conversation/{endUserId}")
   public ResponseEntity<?> getConversation(HttpServletRequest request,
                                            @RequestParam(required = false) Long endUserId) {
     logger.info("Received conversation request from user: " + endUserId);
