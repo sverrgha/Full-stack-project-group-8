@@ -16,8 +16,8 @@ public class Message {
     
     private Long id;
 
-    private Long sender;
-    private Long receiver;
+    private String sender;
+    private String receiver;
     private String content;
     private String timestamp;
     private boolean isRead;
@@ -30,7 +30,7 @@ public class Message {
      * @param content  the content of the message
      * @param isRead   the read status of the message
      */
-    public Message(Long sender, Long receiver, String content, boolean isRead) {
+    public Message(String sender, String receiver, String content, boolean isRead) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
