@@ -19,6 +19,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +71,7 @@ class CategoryControllerTest {
   void getAllCategories_returnsOkWithCategories() throws Exception {
     MultipleCategoryResponse mockResponse = new MultipleCategoryResponse(
             List.of(
-                    new Category(1L, "English 1", "Norwegian 1")
+                    new Category(1L, "English 1", "Norwegian 1", "URL 1")
             ),
             1
     );
@@ -139,7 +141,7 @@ class CategoryControllerTest {
   @WithMockUser("test")
   void addCategory_adminUser_returnsOk() throws Exception {
 
-    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No");
+    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No", "New URL");
     String extractedToken = "adminToken";
 
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
@@ -170,7 +172,7 @@ class CategoryControllerTest {
   @Test
   @WithMockUser("test")
   void addCategory_nonAdminUser_returnsForbidden() throws Exception {
-    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No");
+    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No", "New URL");
     String extractedToken = "userToken";
 
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
@@ -200,7 +202,7 @@ class CategoryControllerTest {
   @Test
   @WithMockUser("test")
   void addCategory_invalidInput_returnsBadRequest() throws Exception {
-    AddCategoryRequest invalidRequest = new AddCategoryRequest(null, "Ny Kategori No");
+    AddCategoryRequest invalidRequest = new AddCategoryRequest(null, "Ny Kategori No", "New URL");
     String extractedToken = "adminToken";
 
     doThrow(new IllegalArgumentException("Category nameEn cannot be null")).when(categoryService).addCategory(invalidRequest, extractedToken);
@@ -225,7 +227,7 @@ class CategoryControllerTest {
   @Test
   @WithMockUser("test")
   void addCategory_internalServerError_returnsInternalServerError() throws Exception {
-    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No");
+    AddCategoryRequest request = new AddCategoryRequest("New Category En", "Ny Kategori No", "New URL");
     String extractedToken = "adminToken";
 
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {

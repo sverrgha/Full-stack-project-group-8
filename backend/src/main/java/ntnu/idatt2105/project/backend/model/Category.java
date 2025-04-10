@@ -11,4 +11,5 @@ public class Category {
   Long id;
   String nameEn;
   String nameNo;
+  String url;
 }
