@@ -69,7 +69,7 @@ class CategoryServiceTest {
     categoryService.addCategory(request, token);
 
     verify(userService, times(1)).validateAdmin(token);
-    verify(categoryRepo, times(1)).addCategory(request.getNameEn(), request.getNameNo());
+    verify(categoryRepo, times(1)).addCategory(request.getNameEn(), request.getNameNo(), request.getUrl());
   }
 
   /**
@@ -86,7 +86,7 @@ class CategoryServiceTest {
 
     assertThrows(IllegalAccessException.class, () -> categoryService.addCategory(request, token));
     verify(userService, times(1)).validateAdmin(token);
-    verify(categoryRepo, never()).addCategory(anyString(), anyString());
+    verify(categoryRepo, never()).addCategory(anyString(), anyString(), anyString());
   }
 
   /**

@@ -84,9 +84,9 @@ public class CategoryRepo {
    * @param nameEn The English name of the category.
    * @param nameNo The Norwegian name of the category.
    */
-  public void addCategory(String nameEn, String nameNo) {
-    String sql = "INSERT INTO categories (name_en, name_no) VALUES (?, ?)";
-    jdbcTemplate.update(sql, nameEn, nameNo);
+  public void addCategory(String nameEn, String nameNo, String url) {
+    String sql = "INSERT INTO categories (name_en, name_no, image_url) VALUES (?, ?, ?)";
+    jdbcTemplate.update(sql, nameEn, nameNo, url);
   }
 
   /**
