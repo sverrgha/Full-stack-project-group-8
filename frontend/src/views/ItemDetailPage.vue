@@ -7,6 +7,7 @@ import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
 import {useListingStore} from "../stores/listing.js";
 import {useAuthStore} from "../stores/auth.js";
+import SelectField from "../components/form/SelectField.vue";
 
 const route = useRoute();
 const {t} = useI18n();
@@ -16,7 +17,6 @@ const product = ref({});
 const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
-const showStatusDropdown = ref(false);
 const statusOptions = [
   {value: 'active', label: t('itemDetailPage.active')},
   {value: 'sold', label: t('itemDetailPage.sold')},
@@ -84,15 +84,15 @@ const deleteItem = async () => {
   }
 };
 
-const toggleStatusDropdown = () => {
-  showStatusDropdown.value = !showStatusDropdown.value;
+const updateStatus = async (status) => {
+  try {
+    await listingStore.updateListingStatus(product.value.id, status);
+    product.value.status = status;
+  } catch (error) {
+    console.error('Failed to update status:', error);
+  }
 };
 
-const updateStatus = async (status) => {
-  await listingStore.updateListingStatus(product.value.id, status);
-  product.value.status = status;
-  showStatusDropdown.value = false;
-}
 const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
@@ -131,25 +131,23 @@ const updateImages = (newImages) => {
               <button v-if="!isEditing" @click="deleteItem" class="action-button delete-button">
                 {{ t('itemDetailPage.delete') }}
               </button>
-              <div v-if="isOwner" class="dropdown-menu">
-                <button @click="toggleStatusDropdown" class="action-button">
-                  {{ product.status }}
-                </button>
-                <div v-if="showStatusDropdown" class="dropdown-menu">
-                  <button v-for="option in statusOptions"
-                          :key="option.value"
-                          @click="updateStatus(option.value)"
-                          class="status-option">
-                    {{ option.label }}
-                  </button>
-                </div>
-              </div>
               <button v-if="isEditing" @click="saveChanges" class="action-button save-button">
                 {{ t('itemDetailPage.save') }}
               </button>
               <button v-if="isEditing" @click="toggleEditMode" class="action-button cancel-button">
                 {{ t('itemDetailPage.cancel') }}
               </button>
+                <!-- Status Dropdown -->
+                <SelectField
+                    id="status"
+
+                    v-model="product.status"
+                    :options="statusOptions"
+                    option-value-key="value"
+                    option-label-key="label"
+                    @change="(event) => updateStatus(event.target.value)"
+                    :disabled="!isOwner"
+                />
             </div>
           </div>
 
@@ -252,6 +250,10 @@ const updateImages = (newImages) => {
         <div class="detail-row">
           <span class="detail-label">{{ t('itemDetailPage.id') }}</span>
           <span class="detail-value">{{ product.id }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ t('itemDetailPage.status') }}</span>
+          <span class="detail-value">{{ t(`itemDetailPage.${product.status}`) }}</span>
         </div>
       </div>
     </div>
@@ -457,50 +459,71 @@ const updateImages = (newImages) => {
   width: 100px;
 }
 
+.button-container :deep(select) {
+  height: 44px;
+  padding: 0 16px;
+}
+.button-container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: 800px;
+}
+
+.button-container .action-button {
+  min-width: 100px;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-container :deep(.form-group) {
+  margin-bottom: 0;
+  width: 200px;
+}
+
+.button-container :deep(select) {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+
+.button-container :deep(.select-wrapper) {
+  min-width: 120px;
+  height: 49px;
+}
+
 .edit-row .edit-field {
   flex: 1;
   margin-bottom: 0;
 }
-
-.dropdown-container {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-button {
-  background-color: #5c6bc0;
-  color: white;
-}
-
-.dropdown-menu, .dropdown-button {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  min-width: 160px;
-  z-index: 10;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-.dropdown-item {
-  display: block;
+.button-container {
   width: 100%;
-  text-align: left;
-  padding: 10px 15px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: 800px;
 }
 
-.dropdown-item:hover {
-  background-color: #f5f5f5;
+/* Add these new styles */
+.button-container :deep(.form-group) {
+  margin-bottom: 4px;
+  width: 200px;
 }
 
-.dropdown-item:not(:last-child) {
-  border-bottom: 1px solid #eee;
+.button-container :deep(.select-wrapper) {
+  min-width: 120px;
+}
+
+.button-container .action-button {
+  min-width: 100px;
+  padding: 8px 8px;
 }
 
 @media (max-width: 768px) {
