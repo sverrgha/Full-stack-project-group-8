@@ -88,4 +88,36 @@ public class AuthController {
             + e.getMessage(), null, null, null));
     }
   }
+
+  @PostMapping("/refreshToken")
+  public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+    logger.info("Received refresh token request");
+    try {
+      if (refreshToken == null || !refreshToken.startsWith("Bearer")) {
+        logger.warning("Invalid refresh token format");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+          new AuthResponse(null, "Invalid refresh token format", null, null, null)
+        );
+      }
+
+      String token = refreshToken.substring(7);
+      AuthResponse response = userService.refreshToken(token);
+
+      if (response.getToken() == null) {
+        logger.warning("Invalid or expired refresh token");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+      }
+
+      logger.info("Token refreshed successfully");
+      return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+      logger.warning("Error refreshing token: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+        new AuthResponse(null,
+          AuthResponseMessage.TOKEN_REFRESH_ERROR.getMessage()
+            + e.getMessage(), null, null, null)
+      );
+    }
+  }
 }
