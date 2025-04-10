@@ -11,4 +11,6 @@ public class AddCategoryRequest {
   private String nameEn;
   @NotBlank(message = "Category name in Norwegian cannot be blank")
   private String nameNo;
+  @NotBlank(message = "Category URL cannot be blank")
+  private String url;
 }
