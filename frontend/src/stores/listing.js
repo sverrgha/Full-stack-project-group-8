@@ -35,6 +35,7 @@ export const useListingStore = defineStore('listing', {
 
                 if (page === 1) {
                     this.listings = response.data.elements;
+                    console.log(response.data.elements);
                 } else {
                     this.listings = [...this.listings, ...response.data.elements];
                 }

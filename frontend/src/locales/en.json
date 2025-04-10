@@ -112,7 +112,9 @@
     "activity": "Activity and leisure",
     "electronics": "Electronics",
     "beauty": "Beauty and health",
-    "noResults": "No results"
+    "noResults": "No results",
+    "gridView": "Grid view",
+    "mapView": "Map view"
   },
   "sort": {
     "newest": "Newest",
