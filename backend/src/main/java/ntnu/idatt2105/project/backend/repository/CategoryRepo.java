@@ -38,7 +38,8 @@ public class CategoryRepo {
             new Category(
                     rs.getLong("id"),
                     rs.getString("name_en"),
-                    rs.getString("name_no")
+                    rs.getString("name_no"),
+                    rs.getString("url")
             ), id);
   }
 
@@ -55,7 +56,8 @@ public class CategoryRepo {
             new Category(
                     rs.getLong("id"),
                     rs.getString("name_en"),
-                    rs.getString("name_no")
+                    rs.getString("name_no"),
+                    rs.getString("url")
             ), name, name);
   }
 
@@ -70,7 +72,8 @@ public class CategoryRepo {
             new Category(
                     rs.getLong("id"),
                     rs.getString("name_en"),
-                    rs.getString("name_no")
+                    rs.getString("name_no"),
+                    rs.getString("url")
             ));
   }
 

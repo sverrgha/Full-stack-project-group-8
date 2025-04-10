@@ -1,4 +1,4 @@
-<!-- ProfileSettingsEditName.vue - The component for editing user name -->
+<!-- ProfileSettingsEditPhoneNr.vue - The component for editing user phone number -->
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -10,11 +10,9 @@ import { userService } from '../../services/userService'
 const { t } = useI18n()
 const auth = useAuthStore()
 
-const firstname = ref('')
-const lastname = ref('')
+const phoneNumber = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
-const successMsg = ref('')
 
 const emit = defineEmits(['saveChanges', 'error'])
 
@@ -34,36 +32,46 @@ const fetchUserData = async () => {
     }
 
     const response = await userService.getUserById(userId)
-    firstname.value = response.data.firstname || ''
-    lastname.value = response.data.lastname || ''
+    phoneNumber.value = response.data.phoneNumber || ''
   } catch (error) {
-    errorMsg.value = t('profileSettingsEditName.fetchError') || 'Failed to fetch user data'
+    errorMsg.value = t('profileSettingsEditName.fetchError')
   } finally {
     loading.value = false
   }
 }
 
-// Handle input changes
+// Validate phone number format
+const isValidPhoneNumber = (phone) => {
+  if (!phone) return false
+    const digitsOnly = phone.replace(/\D/g, '')
+    return digitsOnly.length === 8
+}
+
+// Handle save changes
 const handleSave = async () => {
   try {
+    if (!isValidPhoneNumber(phoneNumber.value)) {
+      emit('error', t('registerForm.invalidPhoneNumber'))
+      return
+    }
+
     loading.value = true
 
     const userId = auth.user?.id
     if (!userId) {
-      // Emit error event instead of handling locally
       emit('error', t('profileSettingsEditName.noUserId'))
       return
     }
 
+    // Update the phone number in database
     await userService.updateUser(userId, {
-      firstname: firstname.value,
-      lastname: lastname.value
+      phoneNumber: phoneNumber.value
     })
 
-    // Emit success event
+    // Show success message
     emit('saveChanges')
   } catch (error) {
-    emit('error', t('profileSettingsEditName.saveError'))
+    emit('error', t('profileSettingsEditPhoneN.saveError'))
   } finally {
     loading.value = false
   }
@@ -72,34 +80,19 @@ const handleSave = async () => {
 
 <template>
   <div class="settings-section">
-    <h2>{{ t('profileSettingsEditName.h2') }}</h2>
+    <h2>{{ t('profileSettingsSideBar.phoneNr') }}</h2>
 
-    <!-- Error message -->
     <div v-if="errorMsg" class="error-message">
       {{ errorMsg }}
     </div>
 
-    <!-- Success message -->
-    <div v-if="successMsg" class="success-message">
-      {{ successMsg }}
-    </div>
-
-    <!-- Input field for first name -->
     <div class="input-container">
       <BaseInputField
-          id="firstname-input"
-          :label="t('registerForm.firstname')"
-          v-model="firstname"
-          placeholder="Enter your first name"
-          class="input-field"
-      />
-
-      <!-- Input field for last name -->
-      <BaseInputField
-          id="lastname-input"
-          :label="t('registerForm.lastname')"
-          v-model="lastname"
-          placeholder="Enter your last name"
+          id="phone-input"
+          :label="t('registerForm.phoneNumber')"
+          v-model="phoneNumber"
+          type="tel"
+          placeholder="Enter your phone number"
           class="input-field"
       />
     </div>
@@ -173,14 +166,6 @@ const handleSave = async () => {
 .error-message {
   background-color: #ffebee;
   color: #c62828;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 16px;

@@ -168,6 +168,13 @@ const createListing = async () => {
   isSubmitting.value = true;
 
   try {
+    const authStore = useAuthStore();
+    const currentUserId = authStore.user?.id;
+
+    if (!currentUserId) {
+      throw new Error('User is not authenticated');
+    }
+
     const uploadedImageUrls = await imageUploadRef.value.uploadImagesToFirebase();
     console.log("Images ready with URLs:", uploadedImageUrls);
 
@@ -195,7 +202,7 @@ const createListing = async () => {
 
       // Use the mapping from categoryMap
       categoryId: categoryMap[form.category],
-      userId: 7,
+      userId: currentUserId,
       status: "active",
       location: {
         postalCode: form.postalCode,

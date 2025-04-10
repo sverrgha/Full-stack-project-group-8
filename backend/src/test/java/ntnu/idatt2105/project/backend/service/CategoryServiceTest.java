@@ -40,8 +40,8 @@ class CategoryServiceTest {
   @Test
   void getAllCategories_returnsCorrectResponse() {
     List<Category> categories = Arrays.asList(
-            new Category(1L, "Category 1", "Kategori 1"),
-            new Category(2L, "Category 2", "Kategori 2")
+            new Category(1L, "Category 1", "Kategori 1", "url 1"),
+            new Category(2L, "Category 2", "Kategori 2", "url 2")
     );
     when(categoryRepo.getAllCategories()).thenReturn(categories);
 
@@ -62,7 +62,7 @@ class CategoryServiceTest {
   @Test
   void addCategory_adminUser_categoryAddedSuccessfully() throws IllegalAccessException {
     AddCategoryRequest request = new AddCategoryRequest("New Category",
-            "Ny Kategori");
+            "Ny Kategori", "new url");
     String token = "adminToken";
     when(userService.validateAdmin(token)).thenReturn(true);
 
@@ -80,7 +80,7 @@ class CategoryServiceTest {
   @Test
   void addCategory_nonAdminUser_throwsAccessException() {
     AddCategoryRequest request = new AddCategoryRequest("New Category",
-            "Ny Kategori");
+            "Ny Kategori", "new url");
     String token = "userToken";
     when(userService.validateAdmin(token)).thenReturn(false);
 

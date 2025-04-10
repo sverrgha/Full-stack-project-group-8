@@ -41,14 +41,8 @@ const apiBaseUrl = import.meta.env.VITE_API_URL;
 
 // Add a computed property for the image source
 const imageSrc = computed(() => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Image URL:', props.imageUrl);
-  }
 
   if (!props.imageUrl) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('No image available');
-    }
     return '/src/assets/placeholder.svg';
   }
 

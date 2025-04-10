@@ -70,7 +70,8 @@
   "common": {
     "cancel": "Avbryt",
     "submitting": "Sender inn...",
-    "requiredField": "Obligatorisk felt"
+    "requiredField": "Obligatorisk felt",
+    "saving": "Lagrer..."
   },
   "profilePage": {
     "posts": "Innlegg",
@@ -80,12 +81,17 @@
   "profileSettingsSideBar": {
     "name": "For- og etternavn",
     "biography": "Biografi",
-    "profilePicture": "Profilbilde"
+    "profilePicture": "Profilbilde",
+    "mail": "Epost",
+    "phoneNr": "Telefonnummer",
+    "password": "Passord"
   },
   "profileSettingsEditName": {
     "h2": "Oppdater navnet ditt",
     "name": "For- og etternavn",
-    "save": "Lagre"
+    "save": "Lagre",
+    "noUserId": "Ingen bruker-ID funnet",
+    "fetchError": "Feil ved henting av brukerdata"
   },
   "profileSettingsEditBiography": {
     "h2": "Oppdater biografi",
@@ -114,6 +120,7 @@
     "noResults": "No results",
     "gridView": "Rutenettvisning",
     "mapView": "Kartvisning"
+    "loading": "Laster..."
   },
   "sort": {
     "newest": "Nyeste",
@@ -156,5 +163,25 @@
     "actions": "Handlinger",
     "nameInEnglish": "Kategori navn på engelsk",
     "nameInNorwegian": "Kategori navn på norsk"
+  },
+  "editProfile": {
+    "saveSuccess": "Endringer lagret vellykket",
+    "saveNameSuccess": "Navn oppdatert vellykket"
+  },
+  "profileSettingsEditMail": {
+    "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
+    "noUserId": "Ingen bruker-ID funnet",
+    "saveError": "Feil ved lagring av e-post",
+    "loginAgainRequired": "Du må logge inn på nytt for å oppdatere e-postadressen din"
+  },
+  "profileSettingsEditPhoneNr": {
+    "saveError": "Error saving phone number"
+  },
+  "profileSettingsEditPassword": {
+    "currentPassword": "Nåværende passord",
+    "newPassword": "Nytt passord",
+    "confirmPassword": "Bekreft nytt passord",
+    "currentPasswordRequired": "Nåværende passord er påkrevd",
+    "saveError": "Feil ved lagring av passord"
   }
 }

@@ -19,8 +19,8 @@ const isEditing = ref(false);
 
 
 const isOwner = computed(() => {
-  if (!authStore.user || !listingStore.currentListing) return false;
-  return listingStore.currentListing.userId === authStore.user.id;
+  if (!product.value || !authStore.getUser) return false;
+  return product.value.userId === authStore.getUser.id;
 });
 
 // Fetch product details based on the route parameter
@@ -36,7 +36,7 @@ onMounted(async () => {
         description: listingStore.currentListing.description,
         price: listingStore.currentListing.price,
         location: listingStore.currentListing.city,
-        userId: authStore.user.id,
+        userId: listingStore.currentListing.userId,
         seller: listingStore.currentListing.userId,
         category: listingStore.currentListing.categoryId,
         condition: listingStore.currentListing.condition,
