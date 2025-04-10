@@ -64,6 +64,7 @@ export const useMessageStore = defineStore('messages', {
                     } catch (e) {
                         // Not JSON content, treat as regular message
                     }
+                    console.log("sammenligner", msg.sender, "med", currentUserId, msg.sender === currentUserId)
 
                     return {
                         id: msg.id,
@@ -71,7 +72,7 @@ export const useMessageStore = defineStore('messages', {
                         receiver: msg.receiver,
                         content: type ? parsedContent.content : msg.content,
                         timestamp: msg.timestamp,
-                        isSent: msg.sender === currentUserId,
+                        isSent: msg.sender == currentUserId,
                         type: type,
                         originalPrice: parsedContent?.originalPrice,
                         offerPrice: parsedContent?.offerPrice,
