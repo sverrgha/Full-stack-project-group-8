@@ -20,8 +20,8 @@ class MessageTest {
     void testMessageConstructorWithAllFields() {
 
         Long id = 1L;
-        Long sender = 2L;
-        Long receiver = 3L;
+        String sender = "jane.smith@example.com";
+        String receiver = "peter.jones@example.com";
         String content = "Hello, this is a test message.";
         String timestamp = "2025-04-05T12:00:00";
         boolean isRead = true;
@@ -45,8 +45,8 @@ class MessageTest {
     @Test
     void testMessageConstructorWithoutIdAndTimestamp() {
 
-        Long sender = 2L;
-        Long receiver = 3L;
+        String sender = "jane.smith@example.com";
+        String receiver = "peter.jones@example.com";
         String content = "Hello, this is another test message.";
         boolean isRead = false;
 
@@ -69,8 +69,8 @@ class MessageTest {
 
         Message message = new Message();
         Long id = 1L;
-        Long sender = 2L;
-        Long receiver = 3L;
+        String sender = "jane.smith@example.com";
+        String receiver = "peter.jones@example.com";
         String content = "Testing setters and getters.";
         String timestamp = "2025-04-05T12:00:00";
         boolean isRead = true;

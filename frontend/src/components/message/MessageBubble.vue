@@ -5,6 +5,9 @@ const props = defineProps({
   message: Object,
   onRespondToOffer: Function
 });
+
+// For debugging
+console.log('Message:', props.message);
 </script>
 
 <template>
@@ -38,29 +41,41 @@ const props = defineProps({
 <style scoped>
 .message {
   max-width: 70%;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   display: flex;
   flex-direction: column;
+  clear: both;
+  width: fit-content;
 }
 
 .message.received {
   align-self: flex-start;
+  margin-right: auto;
 }
 
 .message.sent {
   align-self: flex-end;
+  margin-left: auto;
 }
 
 .message-bubble {
-  padding: 10px 15px;
+  padding: 12px 16px;
   border-radius: 18px;
   background-color: #f1f1f1;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  word-break: break-word;
 }
 
 .message.sent .message-bubble {
-  background-color: #007bff;
+  background-color: #0084ff;
   color: white;
+  border-top-right-radius: 4px;
+}
+
+.message.received .message-bubble {
+  background-color: #e9e9eb;
+  color: #000;
+  border-top-left-radius: 4px;
 }
 
 .message-bubble.offer {
@@ -125,7 +140,10 @@ const props = defineProps({
   font-size: 0.7rem;
   color: #888;
   margin-top: 3px;
-  margin-left: 5px;
-  margin-right: 5px;
+  align-self: flex-end;
+}
+
+.message.received .message-timestamp {
+  align-self: flex-start;
 }
 </style>
