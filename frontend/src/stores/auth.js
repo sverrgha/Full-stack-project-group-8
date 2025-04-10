@@ -5,6 +5,7 @@ import { authService } from '../services/authService.js';
 import router from '../router';
 
 export const useAuthStore = defineStore('auth', {
+    // State - contains authentication data and status
     state: () => ({
         user: JSON.parse(localStorage.getItem('user')) || null,
         token: localStorage.getItem('token') || null,
@@ -20,7 +21,9 @@ export const useAuthStore = defineStore('auth', {
         getCurrentUserId: (state) => state.user?.id
     },
 
+    // Methods that handle authentication logic
     actions: {
+        // Register a new user
         async register(userData) {
             this.loading = true;
             this.error = null;
@@ -38,6 +41,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        // Log in an existing user
         async login(credentials) {
             this.loading = true;
             this.error = null;
@@ -55,6 +59,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        // Request a new token before the current one expires
         async refreshToken() {
             try {
                 const response = await authService.refreshToken();
@@ -66,6 +71,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        // Log out user and clear authentication data
         logout() {
             // Clear the logout timer
             if (this.logoutTimer) {
@@ -81,6 +87,7 @@ export const useAuthStore = defineStore('auth', {
             router.push('/login');
         },
 
+        // Set the authentication data in the store and local storage
         setAuthData(data) {
             this.user = {
                 id: data.id,
@@ -97,6 +104,7 @@ export const useAuthStore = defineStore('auth', {
             this.setLogoutTimer();
         },
 
+        // Set a timer to automatically logout the user when the token expires, or refresh if the page is open
         setLogoutTimer() {
             if (this.logoutTimer) {
                 clearTimeout(this.logoutTimer);
