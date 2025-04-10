@@ -64,6 +64,12 @@ const conditions = [
   'poor'
 ]
 
+let locationData = {
+  country: '',
+  longitude: null,
+  latitude: null
+}
+
 // Set up debounced validation
 const debouncedValidate = debounce(async (field) => {
   await validateField(field)
@@ -127,6 +133,9 @@ const validateField = async (field) => {
       const result = await postalCodeService(form.postalCode)
       if (result.valid) {
         postalCity.value = result.city
+        locationData.country = result.country
+        locationData.longitude = result.longitude
+        locationData.latitude = result.latitude
         errors.postalCode = ''
       } else {
         errors.postalCode = 'newListing.invalidPostalCode'
@@ -187,8 +196,14 @@ const createListing = async () => {
       // Use the mapping from categoryMap
       categoryId: categoryMap[form.category],
       userId: 7,
-      postalCode: "7000",
-      status: "active"
+      status: "active",
+      location: {
+        postalCode: form.postalCode,
+        city: postalCity.value,
+        country: locationData.country,
+        longitude: locationData.longitude,
+        latitude: locationData.latitude
+      }
     };
 
     console.log("Sending listing data:", JSON.stringify(listingData, null, 2));

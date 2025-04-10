@@ -3,12 +3,15 @@ package ntnu.idatt2105.project.backend.controller;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
+import ntnu.idatt2105.project.backend.util.TokenExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ntnu.idatt2105.project.backend.service.ListingService;
@@ -124,6 +127,51 @@ public class ListingController {
     }
   }
 
+  /**
+   * Endpoint for updating a listing by its ID.
+   * It takes the ID of the listing to be updated,
+   * and the new data for the listing.
+   *
+   * @param id         the ID of the listing to be updated, is part of the URL
+   * @param request    the new data for the listing
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with a message indicating the result of the update
+   */
+  @PutMapping("/{id}")
+  public ResponseEntity<String> updateListing(
+          @PathVariable Long id,
+          @Valid @RequestBody ModifyListingRequest request,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to update listing with ID: " + id);
+    try {
+      listingService.updateListing(id, request, TokenExtractor.extractToken(authHeader));
+      logger.info("Listing updated successfully with ID: " + id);
+      return ResponseEntity.ok("Listing updated successfully");
+    } catch (IllegalAccessException e) {
+      logger.warning("Unauthorized attempt to update listing: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+              .body("Unauthorized: " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid argument: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+              .body("Invalid argument: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while updating listing: " + e.getMessage());
+      return ResponseEntity.internalServerError().body("An unexpected error occurred while updating listing: "
+              + e.getMessage());
+    }
+  }
+
+  /**
+   * Endpoint for retrieving recommended listings for a user.
+   * It takes the user ID as a parameter, and returns a list of recommended listings
+   * for that user.
+   *
+   * @param userId   the ID of the user for whom to fetch recommended listings
+   * @param pageable pagination parameters
+   * @return ResponseEntity with MultipleListingsResponse containing the recommended listings
+   */
   @GetMapping("/user/recommended")
   public ResponseEntity<MultipleListingsResponse> getRecommendedListings(
           @RequestParam Long userId,
