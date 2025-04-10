@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n from './i18n.js'
-import { useAuthStore } from './stores/auth' // Import the auth store
+import { useAuthStore } from './stores/auth'
 
 const pinia = createPinia()
 const app = createApp(App)
