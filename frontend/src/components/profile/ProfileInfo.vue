@@ -1,18 +1,57 @@
-<!-- ProfileInfo.vue - The upper part of the ProfilePage, including profile picture
- name, biography and settings icon-->
-
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
+import { userService } from '../../services/userService'
 
-//Initialize router
+// Initialize router
 const router = useRouter()
+const auth = useAuthStore()
 
-//Placeholders to profile text
-const name = 'John Doe'
-const biography = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+// User data with reactive references
+const name = ref('Loading...')
+const biography = ref('')
+const loading = ref(true)
 
-//Navigate to profile settings page
+// Navigate to profile settings page
 const settings = () => router.push('/profile/settings')
+
+// Fetch user data from API
+const fetchUserData = async () => {
+  try {
+    loading.value = true
+    const userId = auth.user.id
+
+    // Check if user ID is available
+    if (!userId) {
+      console.error('No user ID available')
+      name.value = 'Unknown User'
+      return
+    }
+
+    const response = await userService.getUserById(userId)
+
+    // Check if response data is valid
+    if (response.data && typeof response.data === 'object') {
+      if (response.data.firstname && response.data.lastname) {
+        name.value = `${response.data.firstname} ${response.data.lastname}`
+      } else {
+        name.value = 'Unknown User'
+      }
+    } else {
+      name.value = 'Unknown User'
+    }
+  } catch (error) {
+    console.error('Error loading user:', error)
+    name.value = 'Error loading user'
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchUserData()
+})
 </script>
 
 <template>
@@ -22,18 +61,18 @@ const settings = () => router.push('/profile/settings')
       <img src="../../assets/settings.png" alt="Settings" @click="settings" class="settings-icon" />
     </div>
 
-    <!-- Profile picture, name and biography -->
     <div class="profile-content">
-
       <!-- Profile picture -->
       <div class="profile-image">
         <img src="../../assets/user.png" alt="Profile Image" />
       </div>
 
-      <!-- Name and biography -->
+      <!-- Name-->
       <div class="profile-text">
-        <h1>{{ name }}</h1>
-        <p>{{ biography }}</p>
+        <div v-if="loading" class="loading">Loading user information...</div>
+        <template v-else>
+          <h1>{{ name }}</h1>
+        </template>
       </div>
     </div>
   </div>
@@ -60,6 +99,11 @@ const settings = () => router.push('/profile/settings')
 .profile-text p {
   margin: 0;
   width: 100%;
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
 }
 
 .profile-image img {

@@ -1,4 +1,4 @@
-<!-- ProfileSettingsEditName.vue - The component for editing user name -->
+<!-- ProfileSettingsEditMail.vue - The component for editing user email -->
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -6,15 +6,14 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../../stores/auth'
 import BaseInputField from '../form/BaseInputField.vue'
 import { userService } from '../../services/userService'
+import { authService } from '../../services/authService'
 
 const { t } = useI18n()
 const auth = useAuthStore()
 
-const firstname = ref('')
-const lastname = ref('')
+const email = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
-const successMsg = ref('')
 
 const emit = defineEmits(['saveChanges', 'error'])
 
@@ -34,36 +33,61 @@ const fetchUserData = async () => {
     }
 
     const response = await userService.getUserById(userId)
-    firstname.value = response.data.firstname || ''
-    lastname.value = response.data.lastname || ''
+    email.value = response.data.email || ''
   } catch (error) {
-    errorMsg.value = t('profileSettingsEditName.fetchError') || 'Failed to fetch user data'
+    errorMsg.value = t('profileSettingsEditName.fetchError')
   } finally {
     loading.value = false
   }
 }
 
-// Handle input changes
+// Validate email format
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+// Handle save changes
 const handleSave = async () => {
   try {
+    if (!isValidEmail(email.value)) {
+      emit('error', t('profileSettingsEditMail.invalidEmail'))
+      return
+    }
+
     loading.value = true
 
     const userId = auth.user?.id
     if (!userId) {
-      // Emit error event instead of handling locally
-      emit('error', t('profileSettingsEditName.noUserId'))
+      emit('error', t('profileSettingsEditMail.noUserId'))
       return
     }
 
+    const oldEmail = auth.user.email
+
+    // Update the email in database
     await userService.updateUser(userId, {
-      firstname: firstname.value,
-      lastname: lastname.value
+      email: email.value
     })
 
-    // Emit success event
-    emit('saveChanges')
+    // If email changed, show success message and then logout
+    if (oldEmail !== email.value) {
+      emit('saveChanges')
+
+      // Give the user time to see the success message before logout
+      setTimeout(() => {
+        // Show notification that re-login is required
+        alert(t('profileSettingsEditMail.loginAgainRequired') ||
+            'Your email has been updated. Please log in again with your new email.')
+        // Logout the user
+        auth.logout()
+      }, 1500)
+    } else {
+      // No email change, just show success
+      emit('saveChanges')
+    }
   } catch (error) {
-    emit('error', t('profileSettingsEditName.saveError'))
+    emit('error', t('profileSettingsEditMail.saveError'))
   } finally {
     loading.value = false
   }
@@ -72,34 +96,19 @@ const handleSave = async () => {
 
 <template>
   <div class="settings-section">
-    <h2>{{ t('profileSettingsEditName.h2') }}</h2>
+    <h2>{{ t('profileSettingsSideBar.mail') }}</h2>
 
-    <!-- Error message -->
     <div v-if="errorMsg" class="error-message">
       {{ errorMsg }}
     </div>
 
-    <!-- Success message -->
-    <div v-if="successMsg" class="success-message">
-      {{ successMsg }}
-    </div>
-
-    <!-- Input field for first name -->
     <div class="input-container">
       <BaseInputField
-          id="firstname-input"
-          :label="t('registerForm.firstname')"
-          v-model="firstname"
-          placeholder="Enter your first name"
-          class="input-field"
-      />
-
-      <!-- Input field for last name -->
-      <BaseInputField
-          id="lastname-input"
-          :label="t('registerForm.lastname')"
-          v-model="lastname"
-          placeholder="Enter your last name"
+          id="email-input"
+          :label="t('registerForm.email')"
+          v-model="email"
+          type="email"
+          placeholder="Enter your email address"
           class="input-field"
       />
     </div>
@@ -173,14 +182,6 @@ const handleSave = async () => {
 .error-message {
   background-color: #ffebee;
   color: #c62828;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 16px;

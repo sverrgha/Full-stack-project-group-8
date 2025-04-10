@@ -4,23 +4,17 @@
 import { ref, computed } from 'vue'
 import ProfileSettingsSidebar from "../components/profile/ProfileSettingsSidebar.vue"
 import ProfileSettingsEditName from "../components/profile/ProfileSettingsEditName.vue"
-import ProfileSettingsEditBiography from "../components/profile/ProfileSettingsEditBiography.vue"
-import ProfileSettingsEditPicture from "../components/profile/ProfileSettingsEditPicture.vue"
+import ProfileSettingsEditPhoneNr from "../components/profile/ProfileSettingsEditPhoneNr.vue";
 import { useAuthStore } from '../stores/auth'
+import { useI18n } from 'vue-i18n'
+import ProfileSettingsEditPassword from "../components/profile/ProfileSettingsEditPassword.vue";
+import ProfileSettingsEditMail from "../components/profile/ProfileSettingsEditMail.vue";
 
 const authStore = useAuthStore()
-
+const { t } = useI18n()
 
 // Reactive reference to track the active section, default is 'name'
 const activeSection = ref('name')
-
-// Placeholder user data
-const userData = ref({
-  name: 'John Doe',
-  biography: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-  profilePicture: '../assets/user.png'
-})
 
 // Message states
 const errorMessage = ref('')
@@ -31,18 +25,11 @@ const handleLogout = () => {
   authStore.logout()
 }
 
-// Function to validate the name
-const isValidName = (name) => {
-  const regex = /^[A-Za-z\s]+$/
-  return regex.test(name.trim())
-}
-
 // Use computed property to determine current active component
 const activeComponent = computed(() => activeSection.value)
 
 // Function to change the active section
 const changeSection = (section) => {
-  // Clear any messages when changing sections
   clearMessages()
   activeSection.value = section
 }
@@ -53,67 +40,30 @@ const clearMessages = () => {
   errorMessage.value = ''
 }
 
-// Function to save changes, with validation for different sections
-const saveChanges = () => {
-  // Clear any previous messages
+// Function to handle successful changes
+const handleSaveChanges = () => {
   clearMessages()
 
   if (activeSection.value === 'name') {
-    if (!isValidName(userData.value.name)) {
-      errorMessage.value = 'Name can only contain letters and spaces.'
-
-      // Auto-clear error message after 3 seconds
-      setTimeout(() => {
-        errorMessage.value = ''
-      }, 3000)
-
-      return
-    }
+    successMessage.value = t('editProfile.saveNameSuccess')
+  } else {
+    successMessage.value = t('editProfile.saveSuccess')
   }
 
-  // Show success message
-  successMessage.value = 'Changes saved successfully!'
-
-  // Optionally clear success message after a few seconds
   setTimeout(() => {
     successMessage.value = ''
   }, 3000)
 }
 
-// Function to handle profile picture change with validation
-const handleProfilePictureChange = (event) => {
-  // Clear any previous messages
+// Function to handle error from child components
+const handleError = (message) => {
   clearMessages()
+  errorMessage.value = message
 
-  const file = event.target.files[0]
-  if (!file) return
-
-  // Size validation only - format is restricted by the accept attribute
-  const maxSizeInMB = 2
-  if (file.size > maxSizeInMB * 1024 * 1024) {
-    errorMessage.value = `File must be smaller than ${maxSizeInMB}MB.`
-
-    // Auto-clear error message after 3 seconds
-    setTimeout(() => {
-      errorMessage.value = ''
-    }, 3000)
-
-    return
-  }
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    userData.value = {
-      ...userData.value,
-      profilePicture: e.target.result
-    }
-  }
-  reader.readAsDataURL(file)
-}
-
-// Update user data from child components
-const updateUserData = (newUserData) => {
-  userData.value = newUserData
+  // Auto-clear error message after a few seconds
+  setTimeout(() => {
+    errorMessage.value = ''
+  }, 3000)
 }
 </script>
 
@@ -145,27 +95,31 @@ const updateUserData = (newUserData) => {
         <!-- Name edit section -->
         <ProfileSettingsEditName
             v-if="activeComponent === 'name'"
-            :userData="userData"
-            @update:userData="updateUserData"
-            @saveChanges="saveChanges"
+            @saveChanges="handleSaveChanges"
+            @error="handleError"
         />
 
-        <!-- Biography edit section -->
-        <ProfileSettingsEditBiography
-            v-if="activeComponent === 'biography'"
-            :userData="userData"
-            @update:userData="updateUserData"
-            @saveChanges="saveChanges"
+        <!-- Mail edit section -->
+        <ProfileSettingsEditMail
+            v-if="activeComponent === 'mail'"
+            @saveChanges="handleSaveChanges"
+            @error="handleError"
         />
 
-        <!-- Profile Picture edit section -->
-        <ProfileSettingsEditPicture
-            v-if="activeComponent === 'profilePicture'"
-            :userData="userData"
-            :pictureError="errorMessage"
-            @pictureChange="handleProfilePictureChange"
-            @saveChanges="saveChanges"
+        <!-- Phone number edit section -->
+        <ProfileSettingsEditPhoneNr
+            v-if="activeComponent === 'phoneNr'"
+            @saveChanges="handleSaveChanges"
+            @error="handleError"
         />
+
+        <!-- Password edit section -->
+        <ProfileSettingsEditPassword
+            v-if="activeComponent === 'password'"
+            @saveChanges="handleSaveChanges"
+            @error="handleError"
+        />
+
       </div>
     </div>
   </div>

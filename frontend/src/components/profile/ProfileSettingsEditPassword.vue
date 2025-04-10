@@ -1,7 +1,7 @@
-<!-- ProfileSettingsEditName.vue - The component for editing user name -->
+<!-- ProfileSettingsEditPassword.vue - Component for changing password -->
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../../stores/auth'
 import BaseInputField from '../form/BaseInputField.vue'
@@ -10,60 +10,62 @@ import { userService } from '../../services/userService'
 const { t } = useI18n()
 const auth = useAuthStore()
 
-const firstname = ref('')
-const lastname = ref('')
+const currentPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
-const successMsg = ref('')
 
 const emit = defineEmits(['saveChanges', 'error'])
 
-onMounted(async () => {
-  await fetchUserData()
-})
+// Validate password strength
+const isValidPassword = (password) => {
+  return password && password.length >= 6
+}
 
-// Fetch user data from API
-const fetchUserData = async () => {
+// Handle save changes
+const handleSave = async () => {
   try {
-    loading.value = true
-    const userId = auth.user?.id
-
-    if (!userId) {
-      console.error('No user ID available')
+    // Validate input fields
+    if (!currentPassword.value) {
+      emit('error', t('profileSettingsEditPassword.currentPasswordRequired'))
       return
     }
 
-    const response = await userService.getUserById(userId)
-    firstname.value = response.data.firstname || ''
-    lastname.value = response.data.lastname || ''
-  } catch (error) {
-    errorMsg.value = t('profileSettingsEditName.fetchError') || 'Failed to fetch user data'
-  } finally {
-    loading.value = false
-  }
-}
+    if (!isValidPassword(newPassword.value)) {
+      emit('error', t('registerForm.passwordLength'))
+      return
+    }
 
-// Handle input changes
-const handleSave = async () => {
-  try {
+    if (newPassword.value !== confirmPassword.value) {
+      emit('error', t('registerForm.passwordsMustMatch'))
+      return
+    }
+
     loading.value = true
 
     const userId = auth.user?.id
     if (!userId) {
-      // Emit error event instead of handling locally
       emit('error', t('profileSettingsEditName.noUserId'))
       return
     }
 
-    await userService.updateUser(userId, {
-      firstname: firstname.value,
-      lastname: lastname.value
+    // Update password in database
+    await userService.updatePassword(userId, {
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value
     })
 
-    // Emit success event
+    // Clear input fields
+    currentPassword.value = ''
+    newPassword.value = ''
+    confirmPassword.value = ''
+
+    // Show success message
     emit('saveChanges')
+
   } catch (error) {
-    emit('error', t('profileSettingsEditName.saveError'))
+    emit('error', t('profileSettingsEditPassword.saveError'))
   } finally {
     loading.value = false
   }
@@ -72,34 +74,34 @@ const handleSave = async () => {
 
 <template>
   <div class="settings-section">
-    <h2>{{ t('profileSettingsEditName.h2') }}</h2>
+    <h2>{{ t('profileSettingsSideBar.password') }}</h2>
 
-    <!-- Error message -->
     <div v-if="errorMsg" class="error-message">
       {{ errorMsg }}
     </div>
 
-    <!-- Success message -->
-    <div v-if="successMsg" class="success-message">
-      {{ successMsg }}
-    </div>
-
-    <!-- Input field for first name -->
     <div class="input-container">
       <BaseInputField
-          id="firstname-input"
-          :label="t('registerForm.firstname')"
-          v-model="firstname"
-          placeholder="Enter your first name"
+          id="current-password"
+          :label="t('profileSettingsEditPassword.currentPassword')"
+          v-model="currentPassword"
+          type="password"
           class="input-field"
       />
 
-      <!-- Input field for last name -->
       <BaseInputField
-          id="lastname-input"
-          :label="t('registerForm.lastname')"
-          v-model="lastname"
-          placeholder="Enter your last name"
+          id="new-password"
+          :label="t('profileSettingsEditPassword.newPassword')"
+          v-model="newPassword"
+          type="password"
+          class="input-field"
+      />
+
+      <BaseInputField
+          id="confirm-password"
+          :label="t('profileSettingsEditPassword.confirmPassword')"
+          v-model="confirmPassword"
+          type="password"
           class="input-field"
       />
     </div>
@@ -173,14 +175,6 @@ const handleSave = async () => {
 .error-message {
   background-color: #ffebee;
   color: #c62828;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 16px;
