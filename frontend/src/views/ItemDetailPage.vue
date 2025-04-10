@@ -1,21 +1,28 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {ref, onMounted, computed} from 'vue';
+import {useRoute} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 import ImageGallery from '../components/Gallery.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
-import { useListingStore } from "../stores/listing.js";
-import { useAuthStore } from "../stores/auth.js";
+import {useListingStore} from "../stores/listing.js";
+import {useAuthStore} from "../stores/auth.js";
 
 const route = useRoute();
-const { t } = useI18n();
+const {t} = useI18n();
 const listingStore = useListingStore();
 const authStore = useAuthStore();
 const product = ref({});
 const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
+const showStatusDropdown = ref(false);
+const statusOptions = [
+  {value: 'available', label: t('itemDetailPage.available')},
+  {value: 'sold', label: t('itemDetailPage.sold')},
+  {value: 'reserved', label: t('itemDetailPage.reserved')},
+  {value: 'archived', label: t('itemDetailPage.archived')}
+];
 
 
 const isOwner = computed(() => {
@@ -75,6 +82,16 @@ const deleteItem = async () => {
     }
   }
 };
+
+const toggleStatusDropdown = () => {
+  showStatusDropdown.value = !showStatusDropdown.value;
+};
+
+const updateStatus = async (status) => {
+  await listingStore.updateListingStatus(product.value.id, status);
+  product.value.status = status;
+  showStatusDropdown.value = false;
+}
 const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
@@ -113,11 +130,24 @@ const updateImages = (newImages) => {
               <button v-if="!isEditing" @click="deleteItem" class="action-button delete-button">
                 {{ t('itemDetailPage.delete') }}
               </button>
+              <div v-if="isOwner" class="dropdown-menu">
+                <button @click="toggleStatusDropdown" class="action-button">
+                  {{ product.status }}
+                </button>
+                <div v-if="showStatusDropdown" class="dropdown-menu">
+                  <button v-for="option in statusOptions"
+                          :key="option.value"
+                          @click="updateStatus(option.value)"
+                          class="status-option">
+                    {{ option.label }}
+                  </button>
+                </div>
+              </div>
               <button v-if="isEditing" @click="saveChanges" class="action-button save-button">
                 {{ t('itemDetailPage.save') }}
               </button>
               <button v-if="isEditing" @click="toggleEditMode" class="action-button cancel-button">
-                {{ t('itemDetailPage.cancel')}}
+                {{ t('itemDetailPage.cancel') }}
               </button>
             </div>
           </div>
@@ -295,13 +325,14 @@ const updateImages = (newImages) => {
   box-sizing: border-box;
   overflow-wrap: break-word;
 }
+
 .product-description {
   margin: 30px 0;
 }
 
 .product-details-table {
   margin: 30px 0;
-  }
+}
 
 .detail-row {
   display: flex;

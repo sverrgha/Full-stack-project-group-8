@@ -4,10 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
-import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
-import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
-import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.*;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -650,7 +647,8 @@ class ListingServiceTest {
             .thenReturn(true);
     doNothing().when(listingRepo).updateListingStatus(listing1.getId(), newStatus);
 
-    listingService.updateListingStatus(listing1.getId(), newStatus, token);
+    listingService.updateListingStatus(listing1.getId(),
+            new ListingStatusRequest(newStatus), token);
 
     verify(listingRepo, times(1)).getListingById(listing1.getId());
     verify(userService, times(1))
@@ -670,7 +668,8 @@ class ListingServiceTest {
     String validToken = "validToken";
 
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            listingService.updateListingStatus(null, newStatus, validToken)
+            listingService.updateListingStatus(null,
+                    new ListingStatusRequest(newStatus), validToken)
     );
 
     assertEquals("Listing ID cannot be null", exception.getMessage());
@@ -691,7 +690,8 @@ class ListingServiceTest {
     when(listingRepo.getListingById(listing1.getId())).thenReturn(Optional.empty());
 
     RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            listingService.updateListingStatus(listing1.getId(), newStatus, validToken)
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(newStatus), validToken)
     );
 
     assertEquals("Listing not found", exception.getMessage());
@@ -715,7 +715,8 @@ class ListingServiceTest {
             .thenReturn(false);
 
     assertThrows(IllegalAccessException.class, () ->
-            listingService.updateListingStatus(listing1.getId(), newStatus, validToken)
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(newStatus), validToken)
     );
 
     verify(listingRepo).getListingById(listing1.getId());
@@ -738,7 +739,8 @@ class ListingServiceTest {
             .thenReturn(true);
 
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-            listingService.updateListingStatus(listing1.getId(), invalidStatus, validToken)
+            listingService.updateListingStatus(listing1.getId(),
+                    new ListingStatusRequest(invalidStatus), validToken)
     );
 
     assertTrue(exception.getMessage().contains("Invalid status:"));

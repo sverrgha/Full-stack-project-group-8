@@ -3,6 +3,7 @@ package ntnu.idatt2105.project.backend.controller;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
+import ntnu.idatt2105.project.backend.dto.request.ListingStatusRequest;
 import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
@@ -210,7 +211,7 @@ public class ListingController {
   @PutMapping("/{listingId}/status")
   public ResponseEntity<String> updateListingStatus(
           @PathVariable Long listingId,
-          @RequestParam String status,
+          @RequestBody ListingStatusRequest status,
           @RequestHeader("Authorization") String authHeader
   ) {
     logger.info("Received request to update listing status with ID: " + listingId);

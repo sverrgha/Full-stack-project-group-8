@@ -1,9 +1,6 @@
 package ntnu.idatt2105.project.backend.controller;
 
-import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
-import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
-import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
-import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.*;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -463,13 +460,14 @@ class ListingControllerTest {
   @WithMockUser("test")
   void updateListingStatus_success() throws Exception {
     Long listingIdToUpdate = listing1.getId();
-    String newStatus = "SOLD";
+    ListingStatusRequest newStatus = new ListingStatusRequest("SOLD");
 
     doNothing().when(listingService).updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
 
     mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" + listingIdToUpdate
                             + "/status", listingIdToUpdate)
-                    .param("status", newStatus)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newStatus))
                     .header("Authorization", tokenHeader))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("Listing status updated successfully"));
@@ -487,15 +485,17 @@ class ListingControllerTest {
   @WithMockUser("test")
   void updateListingStatus_unauthorized() throws Exception {
     Long listingIdToUpdate = listing1.getId();
-    String newStatus = "SOLD";
+    ListingStatusRequest newStatus = new ListingStatusRequest("SOLD");
     String errorMessage = "User is unauthorized to update this listing";
+
 
     doThrow(new IllegalAccessException(errorMessage)).when(listingService)
             .updateListingStatus(listingIdToUpdate, newStatus, extractedToken);
 
     mockMvc.perform(MockMvcRequestBuilders.put("/api/listing/" +
                             listingIdToUpdate + "/status", listingIdToUpdate)
-                    .param("status", newStatus)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newStatus))
                     .header("Authorization", tokenHeader))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())
             .andExpect(MockMvcResultMatchers.content().string("Unauthorized: " + errorMessage));

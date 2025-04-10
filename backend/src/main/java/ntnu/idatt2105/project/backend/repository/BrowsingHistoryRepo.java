@@ -60,9 +60,9 @@ public class BrowsingHistoryRepo {
   public Optional<BrowsingHistory> getBrowsingHistoryByUserIdAndListingId(Long userId, Long id) {
     String sql = "SELECT * FROM browsing_history WHERE user_id = ? AND listing_id = ?";
     return jdbcTemplate.query(sql, (rs, rowNum) -> new BrowsingHistory(
-            rs.getLong("id"),
             rs.getLong("user_id"),
-            rs.getLong("listing_id")
+            rs.getLong("listing_id"),
+            rs.getDate("viewed_at")
     ), userId, id).stream().findFirst();
   }
 }

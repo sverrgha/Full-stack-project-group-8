@@ -1,10 +1,7 @@
 package ntnu.idatt2105.project.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
-import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
-import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
-import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.*;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
@@ -408,11 +405,13 @@ public class ListingService {
    * an IllegalArgumentException.
    *
    * @param listingId the ID of the listing to update
-   * @param status    the new status to set
+   * @param request    the new statusRequest to set
    * @param token     the JWT token of the user making the request
    * @throws IllegalAccessException if the user is not authorized to update the listing
    */
-  public void updateListingStatus(Long listingId, String status, String token) throws IllegalAccessException {
+  public void updateListingStatus(Long listingId, ListingStatusRequest request, String token) throws IllegalAccessException {
+    String status = request.getStatus();
+
     if (listingId == null) {
       throw new IllegalArgumentException("Listing ID cannot be null");
     }

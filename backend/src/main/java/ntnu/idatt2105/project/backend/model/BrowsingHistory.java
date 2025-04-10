@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BrowsingHistory {
-  private Long id;
   private Long userId;
   private Long listingId;
+  private Date viewedAt;
 }
