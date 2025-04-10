@@ -9,6 +9,7 @@ import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
+import ntnu.idatt2105.project.backend.model.BrowsingHistory;
 import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
 import ntnu.idatt2105.project.backend.model.Location;
@@ -250,7 +251,12 @@ public class ListingService {
 
     List<String> images = listingImageRepo.getAllImagesByListingId(id);
 
-    browsingHistoryRepo.addBrowsingHistory(listing.getUserId(), listing.getId());
+
+    Optional<BrowsingHistory> browsingHistoryOptional = browsingHistoryRepo.getBrowsingHistoryByUserIdAndListingId(
+            listing.getUserId(), id);
+    if (browsingHistoryOptional.isEmpty()) {
+      browsingHistoryRepo.addBrowsingHistory(listing.getUserId(), listing.getId());
+    }
 
     listingRepo.incrementViewsCount(id);
 
@@ -402,8 +408,8 @@ public class ListingService {
    * an IllegalArgumentException.
    *
    * @param listingId the ID of the listing to update
-   * @param status the new status to set
-   * @param token the JWT token of the user making the request
+   * @param status    the new status to set
+   * @param token     the JWT token of the user making the request
    * @throws IllegalAccessException if the user is not authorized to update the listing
    */
   public void updateListingStatus(Long listingId, String status, String token) throws IllegalAccessException {

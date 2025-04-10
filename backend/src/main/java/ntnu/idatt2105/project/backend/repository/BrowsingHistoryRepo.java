@@ -1,10 +1,12 @@
 package ntnu.idatt2105.project.backend.repository;
 
+import ntnu.idatt2105.project.backend.model.BrowsingHistory;
 import ntnu.idatt2105.project.backend.model.CategoryShare;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class BrowsingHistoryRepo {
@@ -53,5 +55,14 @@ public class BrowsingHistoryRepo {
   public void addBrowsingHistory(Long userId, Long listingId) {
     String sql = "INSERT INTO browsing_history (user_id, listing_id) VALUES (?, ?)";
     jdbcTemplate.update(sql, userId, listingId);
+  }
+
+  public Optional<BrowsingHistory> getBrowsingHistoryByUserIdAndListingId(Long userId, Long id) {
+    String sql = "SELECT * FROM browsing_history WHERE user_id = ? AND listing_id = ?";
+    return jdbcTemplate.query(sql, (rs, rowNum) -> new BrowsingHistory(
+            rs.getLong("id"),
+            rs.getLong("user_id"),
+            rs.getLong("listing_id")
+    ), userId, id).stream().findFirst();
   }
 }
