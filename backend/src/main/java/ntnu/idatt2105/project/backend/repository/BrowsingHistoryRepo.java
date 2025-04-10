@@ -14,6 +14,13 @@ public class BrowsingHistoryRepo {
     this.jdbcTemplate = jdbcTemplate;
   }
 
+  /**
+   * This method retrieves the category shares for a specific user.
+   * It calculates the percentage of views for each category based on the user's browsing history.
+   *
+   * @param userId The ID of the user
+   * @return A list of CategoryShare objects containing category ID, view count, and percentage
+   */
   public List<CategoryShare> getUsersCategoryShares(Long userId) {
     String categorySql = """
                 SELECT l.category_id, COUNT(*) as view_count, 
@@ -36,6 +43,13 @@ public class BrowsingHistoryRepo {
     );
   }
 
+  /**
+   * This method adds a new browsing history entry to the database.
+   * It takes the user ID and listing ID as parameters.
+   *
+   * @param userId    The ID of the user
+   * @param listingId The ID of the listing
+   */
   public void addBrowsingHistory(Long userId, Long listingId) {
     String sql = "INSERT INTO browsing_history (user_id, listing_id) VALUES (?, ?)";
     jdbcTemplate.update(sql, userId, listingId);

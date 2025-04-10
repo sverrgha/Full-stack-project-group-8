@@ -395,6 +395,17 @@ public class ListingService {
     return listingRepo.getListingById(id).isPresent();
   }
 
+  /**
+   * Updates the status of a listing. It checks if the user is authorized to
+   * update the listing and if the status is valid. If the user is not authorized
+   * it throws an IllegalAccessException. If the status is invalid, it throws
+   * an IllegalArgumentException.
+   *
+   * @param listingId the ID of the listing to update
+   * @param status the new status to set
+   * @param token the JWT token of the user making the request
+   * @throws IllegalAccessException if the user is not authorized to update the listing
+   */
   public void updateListingStatus(Long listingId, String status, String token) throws IllegalAccessException {
     if (listingId == null) {
       throw new IllegalArgumentException("Listing ID cannot be null");

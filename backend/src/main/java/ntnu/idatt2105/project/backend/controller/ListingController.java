@@ -197,6 +197,16 @@ public class ListingController {
     }
   }
 
+  /**
+   * Endpoint for updating the status of a listing.
+   * It takes the ID of the listing to be updated, the new status,
+   * and the authorization header containing the token.
+   *
+   * @param listingId  the ID of the listing to be updated
+   * @param status     the new status for the listing
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with a status and message indicating the result of the update
+   */
   @PutMapping("/{listingId}/status")
   public ResponseEntity<String> updateListingStatus(
           @PathVariable Long listingId,
