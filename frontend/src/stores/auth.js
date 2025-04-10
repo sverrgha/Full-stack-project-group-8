@@ -145,9 +145,5 @@ export const useAuthStore = defineStore('auth', {
                 this.setLogoutTimer();
             }
         },
-
-        clearError() {
-            this.error = null;
-        }
     }
 });

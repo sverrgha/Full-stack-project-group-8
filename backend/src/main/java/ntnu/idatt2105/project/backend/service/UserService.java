@@ -215,9 +215,9 @@ public class UserService implements UserDetailsService {
     String phoneNumber = request.getPhoneNumber() != null &&
             !request.getPhoneNumber().isBlank() ? request.getPhoneNumber()
             : oldUser.getPhoneNumber();
-    String password = PasswordUtil.hashPassword(request.getPhoneNumber() != null &&
-            request.getPhoneNumber().length() >= 8 ? request.getPhoneNumber()
-            : oldUser.getPhoneNumber());
+    String password = request.getPassword() != null &&
+            request.getPassword().length() >= 8 ? PasswordUtil.hashPassword(request.getPassword())
+            : oldUser.getPassword();
 
 
     User newUser = new User(

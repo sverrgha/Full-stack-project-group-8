@@ -10,7 +10,7 @@ const props = defineProps({
   activeSection: {
     type: String,
     required: true,
-    validator: (value) => ['name', 'biography', 'profilePicture'].includes(value)
+    validator: (value) => ['name', 'mail', 'phoneNr', 'password'].includes(value)
   }
 })
 
@@ -24,8 +24,9 @@ const changeSection = (section) => {
 // Navigation items with proper translations - made reactive with computed()
 const navItems = computed(() => [
   { id: 'name', label: t('profileSettingsSideBar.name') },
-  { id: 'biography', label: t('profileSettingsSideBar.biography') },
-  { id: 'profilePicture', label: t('profileSettingsSideBar.profilePicture') }
+  { id: 'mail', label: t('profileSettingsSideBar.mail') },
+  { id: 'phoneNr', label: t('profileSettingsSideBar.phoneNr') },
+  { id: 'password', label: t('profileSettingsSideBar.password') },
 ])
 </script>
 
