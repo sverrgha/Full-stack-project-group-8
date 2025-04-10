@@ -1,123 +1,97 @@
 <script setup>
-import { ref, computed } from 'vue';
+import {ref, computed, onMounted} from 'vue';
+import { useMessageStore } from "../stores/messages.js";
 import ConversationItem from "../components/message/ConversationItem.vue";
 import MessageBubble from "../components/message/MessageBubble.vue";
+import {useAuthStore} from "../stores/auth.js";
 
-// Mock data for conversations (would come from API in the future)
-// Update the conversations data to include profile images
-const conversations = ref([
-  { id: 1, username: 'John Doe', lastMessage: 'Hi there!', timestamp: '10:30', unread: true, profileImage: 'https://i.pravatar.cc/150?img=1' },
-  { id: 2, username: 'Jane Smith', lastMessage: 'When will the item be available?', timestamp: 'Yesterday', unread: false, profileImage: 'https://i.pravatar.cc/150?img=5' },
-  { id: 3, username: 'Mike Johnson', lastMessage: 'Thanks for the info', timestamp: 'Monday', unread: false, profileImage: 'https://i.pravatar.cc/150?img=3' },
-  { id: 4, username: 'Sara Wilson', lastMessage: 'Is the price negotiable?', timestamp: 'Last week', unread: true}
-]);
-
-// Mock data for messages in a conversation (would come from API in the future)
-const messagesByConversation = {
-  1: [
-    { id: 1, sender: 'John Doe', content: 'Hi there!', timestamp: '10:30', isSent: false },
-    { id: 2, sender: 'Me', content: 'Hello! How can I help you?', timestamp: '10:32', isSent: true },
-  ],
-  2: [
-    { id: 3, sender: 'Jane Smith', content: 'Is the item still available?', timestamp: 'Yesterday 15:45', isSent: false },
-    { id: 4, sender: 'Me', content: 'Yes, it is!', timestamp: 'Yesterday 16:00', isSent: true },
-    { id: 5, sender: 'Jane Smith', content: 'When will the item be available?', timestamp: 'Yesterday 16:05', isSent: false },
-  ],
-  4: [
-    { id: 6, sender: 'Sara Wilson', content: 'Is the price negotiable?', timestamp: 'Last week', isSent: false },
-    { id: 7, sender: 'Me', content: 'Yes, what did you have in mind?', timestamp: 'Last week', isSent: true },
-    {
-      id: 8,
-      sender: 'Sara Wilson',
-      content: '$75',
-      timestamp: 'Last week',
-      isSent: false,
-      type: 'offer',
-      originalPrice: '$100',
-      offerPrice: '$75',
-      status: 'pending'
-    },
-  ],
-};
-
-const selectedConversation = ref(4);
+const messageStore = useMessageStore();
+const selectedConversation = ref(null);
 const newMessage = ref('');
 const showSideMenu = ref(false);
 
-const currentMessages = computed(() => {
-  return messagesByConversation[selectedConversation.value] || [];
-});
+const authStore = useAuthStore();
+const currentUserId = computed(() => authStore.user?.id);
 
-const selectConversation = (id) => {
-  selectedConversation.value = id;
-  showSideMenu.value = false; // Hide side menu on mobile when a conversation is selected
-  // In the future: Mark conversation as read when selected
+// Load inbox on component mount
+onMounted(async () => {
+  console.log("Component mounted, fetching inbox");
+  try {
+    await messageStore.fetchInbox();
+    console.log("Inbox fetched:", messageStore.inbox);
+  } catch (error) {
+    console.error("Error in onMounted:", error);
+  }
+})
+
+// Computed properties for conversations and messages
+const conversations = computed(() => messageStore.inbox);
+const currentMessages = computed(() =>
+    selectedConversation.value ? messageStore.currentConversation : []
+);
+
+const selectConversation = async (userId) => {
+  console.log("Selecting conversation with user ID:", userId);
+  selectedConversation.value = userId;
+  showSideMenu.value = false;
+
+  try {
+    await messageStore.fetchConversation(userId);
+    console.log("Conversation fetched:", messageStore.currentConversation);
+  } catch (error) {
+    console.error('Failed to fetch conversation:', error);
+  }
 };
 
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return;
+const sendMessage = async () => {
+  if (!newMessage.value.trim() || !selectedConversation.value) return;
 
-  // In a real app, this would send to an API
-  const message = {
-    id: Math.random().toString(36).substring(2, 9),
-    sender: 'Me',
-    content: newMessage.value,
-    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-    isSent: true
-  };
-
-  if (!messagesByConversation[selectedConversation.value]) {
-    messagesByConversation[selectedConversation.value] = [];
+  try {
+    await messageStore.sendMessage(
+        currentUserId.value,
+        selectedConversation.value,
+        newMessage.value
+    );
+    newMessage.value = '';
+  } catch (error) {
+    console.error('Failed to send message:', error);
   }
+}
 
-  messagesByConversation[selectedConversation.value].push(message);
-  newMessage.value = '';
+const sendOffer = async (price) => {
+  if (!selectedConversation.value) return;
+
+  try {
+    await messageStore.sendMessage(
+        currentUserId.value,
+        selectedConversation.value,
+        JSON.stringify({
+          type: 'offer',
+          originalPrice: '$100', // Replace with actual listing price
+          offerPrice: price,
+          status: 'pending'
+        })
+    );
+  } catch (error) {
+    console.error('Failed to send offer:', error);
+  }
 };
 
-// Send offer from the current user (this would normally be triggered from listing page)
-const sendOffer = (price) => {
-  const offer = {
-    id: Math.random().toString(36).substring(2, 9),
-    sender: 'Me',
-    content: price,
-    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-    isSent: true,
-    type: 'offer',
-    originalPrice: '$100',
-    offerPrice: price,
-    status: 'pending'
-  };
+const respondToOffer = async (messageId, response) => {
+  if (!selectedConversation.value) return;
 
-  if (!messagesByConversation[selectedConversation.value]) {
-    messagesByConversation[selectedConversation.value] = [];
+  try {
+    // Send response message
+    await messageStore.sendMessage(
+        currentUserId.value,
+        selectedConversation.value,
+        response === 'accepted'
+            ? `Offer accepted: ${messageId}`
+            : `Offer declined: ${messageId}`
+    );
+  } catch (error) {
+    console.error('Failed to respond to offer:', error);
   }
-
-  messagesByConversation[selectedConversation.value].push(offer);
-};
-
-const respondToOffer = (messageId, response) => {
-  // Find and update the offer message
-  const messages = messagesByConversation[selectedConversation.value];
-  const offerIndex = messages.findIndex(msg => msg.id === messageId);
-
-  if (offerIndex >= 0) {
-    messages[offerIndex].status = response;
-  }
-
-  // Add a response message
-  const responseText = response === 'accepted'
-      ? `I accept your offer of ${messages[offerIndex].offerPrice}.`
-      : `Sorry, I cannot accept your offer of ${messages[offerIndex].offerPrice}.`;
-
-  const message = {
-    id: Math.random().toString(36).substring(2, 9),
-    sender: 'Me',
-    content: responseText,
-    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-    isSent: true
-  };
-
-  messages.push(message);
 };
 </script>
 
@@ -129,46 +103,51 @@ const respondToOffer = (messageId, response) => {
         <h2>Messages</h2>
       </div>
 
-      <ConversationItem
-          v-for="conv in conversations"
-          :key="conv.id"
-          :conversation="conv"
-          :isSelected="selectedConversation === conv.id"
-          :onSelect="selectConversation"
-      />
-
+      <div v-if="messageStore.loading">Loading conversations...</div>
+      <div v-else-if="conversations.length === 0">No conversations yet</div>
+      <div v-else>
+        <ConversationItem
+            v-for="conv in conversations"
+            :key="conv.id"
+            :conversation="conv"
+            :isSelected="selectedConversation === conv.id"
+            :onSelect="() => selectConversation(conv.id)"
+        />
+      </div>
     </div>
+
     <!-- Right side - Message content -->
     <div class="message-content">
       <div class="header">
         <button class="toggle-menu" @click="showSideMenu = !showSideMenu">
           <span class="toggle-icon">&lt;</span>
         </button>
-        <div class="user-header">
-          <div class="user-avatar">
-            <img
-                v-if="conversations.find(c => c.id === selectedConversation)?.profileImage"
-                :src="conversations.find(c => c.id === selectedConversation)?.profileImage"
-                alt="Profile"
-            />
-            <div v-else class="avatar-placeholder">
-              {{ conversations.find(c => c.id === selectedConversation)?.username.charAt(0) }}
-            </div>
+        <div class="user-header" v-if="selectedConversation">
+          <div class="avatar-placeholder">
+            {{ conversations.find(c => c.id === selectedConversation)?.email.charAt(0) }}
           </div>
-          <h3>{{ conversations.find(c => c.id === selectedConversation)?.username || 'Select a conversation' }}</h3>
+          <h3>{{ conversations.find(c => c.id === selectedConversation)?.email || 'Select a conversation' }}</h3>
+        </div>
+        <div v-else class="user-header">
+          <h3>Select a conversation</h3>
         </div>
       </div>
 
       <div class="messages-container">
-        <MessageBubble
-            v-for="msg in currentMessages"
-            :key="msg.id"
-            :message="msg"
-            :onRespondToOffer="respondToOffer"
-        />
+        <div v-if="messageStore.loading">Loading messages...</div>
+        <div v-else-if="!selectedConversation">Select a conversation to view messages</div>
+        <div v-else-if="currentMessages.length === 0">No messages in this conversation yet</div>
+        <template v-else>
+          <MessageBubble
+              v-for="msg in currentMessages"
+              :key="msg.id"
+              :message="msg"
+              :onRespondToOffer="respondToOffer"
+          />
+        </template>
       </div>
 
-      <div class="message-input">
+      <div class="message-input" v-if="selectedConversation">
         <input
             type="text"
             v-model="newMessage"
