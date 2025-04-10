@@ -33,24 +33,14 @@ export const useMessageStore = defineStore('messages', {
             }
         },
 
-        async sendMessage(sender, receiver, content) {
+        async sendMessage(senderEmail, receiverEmail, content) {
             try {
-                this.loading = true;
-                const response = await messageService.send(sender, receiver, content);
-                this.currentConversation.push({
-                    id: response.id,
-                    sender: sender,
-                    receiver: receiver,
-                    content: content,
-                    timestamp: response.timestamp,
-                    isSent: true
-                });
+                const response = await messageService.send(senderEmail, receiverEmail, content);
+                await this.fetchConversation(receiverEmail);
                 return response;
             } catch (error) {
-                this.error = error.message;
+                console.error('Failed to send message:', error);
                 throw error;
-            } finally {
-                this.loading = false;
             }
         },
 
