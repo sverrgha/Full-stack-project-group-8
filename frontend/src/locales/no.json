@@ -65,14 +65,16 @@
     "like_new": "Som ny",
     "good": "God",
     "fair": "Brukbar",
-    "poor": "Slitt"
+    "poor": "Slitt",
+    "condition": "Tilstand"
   },
   "common": {
     "cancel": "Avbryt",
     "submitting": "Sender inn...",
     "requiredField": "Obligatorisk felt",
     "saving": "Lagrer...",
-    "loading": "Laster..."
+    "loading": "Laster...",
+    "deleting": "Sletter..."
   },
   "profilePage": {
     "posts": "Innlegg",
@@ -119,9 +121,15 @@
     "activity": "Aktivitet og fritid",
     "beauty": "Skjønnhet og helse",
     "noResults": "No results",
+    "loading": "Laster...",
+    "recommended": "Anbefalt for deg",
     "gridView": "Rutenettvisning",
     "mapView": "Kartvisning",
-    "loading": "Laster..."
+    "loading": "Laster...",
+    "vehicles": "Kjøretøy",
+    "beauty and health": "Skjønnhet",
+    "furniture and interior": "Møbler",
+    "activity and leisure": "Aktivitet"
   },
   "sort": {
     "newest": "Nyeste",
@@ -155,7 +163,10 @@
     "active": "Aktiv",
     "sold": "Solgt",
     "archived": "Arkivert",
-    "reserved": "Reservert"
+    "reserved": "Reservert",
+    "confirmDelete": "Er du sikker på at du vil slette denne annonsen?",
+    "briefDescription": "Kort beskrivelse",
+    "updateSuccess": "Oppdatering vellykket"
   },
   "admin": {
     "dashboard": "Admin Kontrollpanel",

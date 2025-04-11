@@ -13,6 +13,7 @@ import RadioButtonGroup from "../components/form/RadioButtonGroup.vue";
 import { validatePostalCode as postalCodeService } from "../services/postalCodeService";
 import ImageUpload from '../components/ImageUpload.vue';
 import { ref } from 'vue';
+import {categoriesService} from "../services/categoriesService.js";
 
 const router = useRouter()
 const { t } = useI18n()
@@ -45,15 +46,26 @@ const errors = reactive({
 })
 
 // Available categories
-const categories = [
-  'vehicle',
-  'clothing',
-  'interior',
-  'property',
-  'activity',
-  'electronics',
-  'beauty'
-];
+const categories = ref([]);
+
+// Add a function to fetch categories
+const fetchCategories = async () => {
+  try {
+    const response = await categoriesService.getAllCategories();
+    categories.value = response.data.categories.map(category => category.nameEn.toLowerCase());
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    // Fallback to empty array if fetch fails
+    categories.value = [];
+  }
+};
+
+// Call fetchCategories in onMounted
+onMounted(async () => {
+  await fetchCategories();
+  const titleInput = document.getElementById('title');
+  if (titleInput) titleInput.focus();
+});
 
 // Available conditions
 const conditions = [

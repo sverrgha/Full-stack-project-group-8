@@ -26,11 +26,66 @@ export const listingService = {
         return apiClient.put(`/listing/${id}/status`, { status });
     },
 
+    updateListing(id, listingData) {
+        return apiClient.put(`/listing/${id}`, listingData);
+    },
+
+    // Delete a listing by ID
+    deleteListing(id) {
+        return apiClient.delete(`/listing/${id}`);
+    },
+
     //Get recommended listing for a user
     getRecommendedListings(userId, pageable = {}) {
         return apiClient.get('/listing/user/recommended', {
             params: {
                 userId,
+                ...pageable
+            }
+        });
+    },
+
+    getPersonalListings(userId, pageable = {}) {
+        return apiClient.get(`/listing/${userId}/posted`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
+    },
+
+    getFavoriteListings(userId, pageable = {}) {
+        console.log(pageable);
+        return apiClient.get(`/favorites/${userId}`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
+    },
+
+    addFavorite(userId, listingId) {
+        return apiClient.post('/favorites', {
+                userId: userId,
+                listingId: listingId
+            }
+        );
+    },
+
+    removeFavorite(userId, listingId) {
+        return apiClient.delete(`/favorites`, {
+                data: {
+                    userId: userId,
+                    listingId: listingId
+                }
+            }
+        )
+            ;
+    },
+    searchListings(query, pageable = {}) {
+        return apiClient.get('/listing/search', {
+            params: {
+                query,
                 ...pageable
             }
         });

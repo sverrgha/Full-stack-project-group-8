@@ -18,7 +18,8 @@ const emit = defineEmits(['update:modelValue'])
 
 // Method to change active tab
 const setActiveTab = (tab) => {
-  emit('update:modelValue', tab)
+  const newTab = props.modelValue === 'posts' ? 'favorites' : 'posts'
+  emit('update:modelValue', newTab)
 }
 </script>
 
@@ -35,12 +36,6 @@ const setActiveTab = (tab) => {
         @click="setActiveTab('favorites')"
     >
       <img src="../../assets/heart1.svg" class="icon" /> {{ t('profilePage.favorites') }}
-    </button>
-    <button
-        :class="{ active: modelValue === 'purchased' }"
-        @click="setActiveTab('purchased')"
-    >
-      <img src="../../assets/purchased.svg" class="icon" /> {{ t('profilePage.purchased') }}
     </button>
   </div>
 </template>

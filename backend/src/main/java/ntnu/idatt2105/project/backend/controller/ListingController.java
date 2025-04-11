@@ -108,6 +108,39 @@ public class ListingController {
   }
 
   /**
+   * Endpoint for deleting a listing.
+   * Only the owner of the listing or an admin can delete it.
+   *
+   * @param listingId  the ID of the listing to be deleted
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with a message indicating the result of the deletion
+   */
+  @DeleteMapping("/{listingId}")
+  public ResponseEntity<String> deleteListing(
+    @PathVariable Long listingId,
+    @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to delete listing with ID: " + listingId);
+    try {
+      listingService.deleteListing(listingId, TokenExtractor.extractToken(authHeader));
+      logger.info("Listing deleted successfully with ID: " + listingId);
+      return ResponseEntity.ok("Listing deleted successfully");
+    } catch (IllegalAccessException e) {
+      logger.warning("Unauthorized attempt to delete listing: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body("Unauthorized: " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid listing ID: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body("Invalid listing ID: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while deleting listing: " + e.getMessage());
+      return ResponseEntity.internalServerError()
+        .body("An unexpected error occurred while deleting listing: " + e.getMessage());
+    }
+  }
+
+  /**
    * Endpoint for adding a new listing.
    *
    * @param listing the listing to be added, with necessary information about the listing
@@ -242,6 +275,42 @@ public class ListingController {
   }
 
   /**
+   * Endpoint for retrieving all listings a user has posted.
+   * It takes the user ID as a parameter, and returns a list of listings
+   * posted by that user.
+   *
+   * @param userId         the ID of the user whose posted listings to fetch
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with MultipleListingsResponse containing the posted listings
+   */
+  @GetMapping("/{userId}/posted")
+  public ResponseEntity<MultipleListingsResponse> getPostedListings(
+          @PathVariable Long userId,
+          @PageableDefault(size = 20, page = 1) Pageable pageable,
+          @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request for posted listings for user ID: " + userId);
+    try {
+      MultipleListingsResponse response = listingService.getPostedListings(userId, pageable,
+              TokenExtractor.extractToken(authHeader));
+      logger.info("Posted listings fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid user ID: " + e.getMessage());
+      return ResponseEntity.badRequest().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    } catch (Exception e) {
+      logger.severe("Error while fetching posted listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    }
+  }
+
+  /**
    * Endpoint for retrieving recommended listings for a user.
    * It takes the user ID as a parameter, and returns a list of recommended listings
    * for that user.
@@ -343,6 +412,34 @@ public class ListingController {
       logger.severe("Error while updating listing status: " + e.getMessage());
       return ResponseEntity.internalServerError().body("An unexpected error occurred while updating listing status: "
               + e.getMessage());
+    }
+  }
+
+  /**
+   * Endpoint for searching listings based on a query string.
+   * It takes the query string and pagination parameters,
+   * and returns a list of listings that match the query.
+   *
+   * @param query the query string to search for listings
+   * @param pageable pagination parameters
+   * @return ResponseEntity with MultipleListingsResponse containing the search results
+   */
+  @GetMapping("/search")
+  public ResponseEntity<MultipleListingsResponse> searchListings(
+          @RequestParam String query,
+          @PageableDefault(size = 20, page = 1) Pageable pageable
+  ) {
+    logger.info("Received request to search listings with query: " + query);
+    try {
+      MultipleListingsResponse response = listingService.searchForListings(query, pageable);
+      logger.info("Search results fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      logger.severe("Error while searching listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
     }
   }
 }

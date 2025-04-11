@@ -204,6 +204,37 @@ public class ListingService {
   }
 
   /**
+   * Deletes a listing if the user is authorized to do so.
+   * Only the listing owner or an admin can delete the listing.
+   *
+   * @param listingId the ID of the listing to delete
+   * @param token    the JWT token of the user making the request
+   * @throws IllegalAccessException if the user is not authorized
+   * @throws IllegalArgumentException if the listing doesn't exist
+   */
+  @Transactional
+  public void deleteListing(Long listingId, String token) throws IllegalAccessException {
+    if (listingId == null) {
+      throw new IllegalArgumentException("Listing ID cannot be null");
+    }
+
+    Listing listing = listingRepo.getListingById(listingId)
+      .orElseThrow(() -> new IllegalArgumentException("Listing not found"));
+
+    if (!userService.validateUserIdMatchesToken(listing.getUserId(), token)) {
+      throw new IllegalAccessException("User is not authorized to delete this listing");
+    }
+
+    // Delete associated images first
+    List<String> imageUrls = listingImageRepo.getAllImagesByListingId(listingId);
+    for (String url : imageUrls) {
+      listingImageRepo.deleteImage(listingId, url);
+    }
+
+    listingRepo.deleteById(listingId);
+  }
+
+  /**
    * Helper method to add a location to the database if it does not already exist.
    * It checks if the location with the given postal code exists in the database,
    * and if not, it saves the new location.
@@ -248,7 +279,6 @@ public class ListingService {
 
     List<String> images = listingImageRepo.getAllImagesByListingId(id);
 
-
     Optional<BrowsingHistory> browsingHistoryOptional = browsingHistoryRepo.getBrowsingHistoryByUserIdAndListingId(
             listing.getUserId(), id);
     if (browsingHistoryOptional.isEmpty()) {
@@ -256,7 +286,7 @@ public class ListingService {
     }
 
     listingRepo.incrementViewsCount(id);
-
+    
     return new FullListingResponse(
             listing.getId(),
             listing.getTitle(),
@@ -404,7 +434,35 @@ public class ListingService {
   }
 
   /**
-   * Updates the status of a listing. It checks if the user is authorized to
+   * Retrieves all listings posted by a user. It uses pagination to limit the number of
+   * listings returned in a single request. It also checks if the user ID matches the token
+   * to ensure that the user is authorized to view their own listings.
+   *
+   * @param userId   the ID of the user whose listings are to be fetched
+   * @param pageable the pagination parameters
+   * @param token    the token to validate the user ID
+   * @return MultipleListingsResponse containing the listings and pagination info
+   * @throws IllegalAccessException if the user ID does not match the token
+   */
+  public MultipleListingsResponse getPostedListings(Long userId, Pageable pageable,
+                                                    String token) throws IllegalAccessException {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    if (!userService.validateUserIdMatchesToken(userId, token)) {
+      throw new IllegalAccessException("User ID does not match token");
+    }
+
+    int pageNumber = Math.max(pageable.getPageNumber() - 1, 0);
+    pageable = PageRequest.of(
+            pageNumber,
+            pageable.getPageSize());
+
+    Page<Listing> listings = listingRepo.getPostedListings(userId, pageable);
+
+    return mapToMultipleListingResponse(listings);
+  }
+   /** Updates the status of a listing. It checks if the user is authorized to
    * update the listing and if the status is valid. If the user is not authorized
    * it throws an IllegalAccessException. If the status is invalid, it throws
    * an IllegalArgumentException.
@@ -433,5 +491,22 @@ public class ListingService {
     }
 
     listingRepo.updateListingStatus(listingId, status);
+  }
+
+  /**
+   * Searches for listings based on a search term. It uses pagination to limit the
+   * number of listings returned in a single request.
+   *
+   * @param searchTerm the search term to filter listings
+   * @param pageable the pagination parameters
+   * @return MultipleListingsResponse containing the listings and pagination info
+   */
+  public MultipleListingsResponse searchForListings(String searchTerm, Pageable pageable) {
+    int page = Math.max(pageable.getPageNumber() - 1, 0);
+
+    pageable = PageRequest.of(page, pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
+
+    Page<Listing> listings = listingRepo.searchListings(searchTerm, pageable);
+    return mapToMultipleListingResponse(listings);
   }
 }
