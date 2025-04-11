@@ -34,5 +34,14 @@ export const listingService = {
                 ...pageable
             }
         });
+    },
+
+    searchListings(query, pageable = {}) {
+        return apiClient.get('/listing/search', {
+            params: {
+                query,
+                ...pageable
+            }
+        });
     }
 };

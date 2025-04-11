@@ -120,6 +120,8 @@
     "electronics": "Electronics",
     "beauty": "Beauty and health",
     "noResults": "No results",
+    "loading": "Loading...",
+    "recommended": "Recommended for you",
     "gridView": "Grid view",
     "mapView": "Map view",
     "loading": "Loading..."

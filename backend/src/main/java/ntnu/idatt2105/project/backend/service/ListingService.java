@@ -434,4 +434,21 @@ public class ListingService {
 
     listingRepo.updateListingStatus(listingId, status);
   }
+
+  /**
+   * Searches for listings based on a search term. It uses pagination to limit the
+   * number of listings returned in a single request.
+   *
+   * @param searchTerm the search term to filter listings
+   * @param pageable the pagination parameters
+   * @return MultipleListingsResponse containing the listings and pagination info
+   */
+  public MultipleListingsResponse searchForListings(String searchTerm, Pageable pageable) {
+    int page = Math.max(pageable.getPageNumber() - 1, 0);
+
+    pageable = PageRequest.of(page, pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "created_at"));
+
+    Page<Listing> listings = listingRepo.searchListings(searchTerm, pageable);
+    return mapToMultipleListingResponse(listings);
+  }
 }
