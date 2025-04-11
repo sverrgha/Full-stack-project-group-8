@@ -55,7 +55,7 @@ const toggleFavorite = async () => {
 
 <style scoped>
 .favorite-button {
-  background-color: gra;
+  background-color: lightgray;
   border-radius: 15%;
   cursor: pointer;
   padding: 8px;

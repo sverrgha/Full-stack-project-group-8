@@ -18,7 +18,8 @@ const emit = defineEmits(['update:modelValue'])
 
 // Method to change active tab
 const setActiveTab = (tab) => {
-  emit('update:modelValue', tab)
+  const newTab = props.modelValue === 'posts' ? 'favorites' : 'posts'
+  emit('update:modelValue', newTab)
 }
 </script>
 

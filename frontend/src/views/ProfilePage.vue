@@ -24,6 +24,7 @@ const itemsToShow = computed(() => {
 
 watch(activeTab, async () => {
   await fetchPosts()
+  console.log(activeTab.value)
 })
 
 const fetchPosts = async () => {
@@ -35,6 +36,7 @@ const fetchPosts = async () => {
     await listingStore.fetchFavoriteListings(userId, currentPage, pageSize)
     favorites.value = listingStore.listings
   }
+  console.log(listingStore.listings)
 }
 
 onMounted(async () => {
@@ -47,7 +49,7 @@ onMounted(async () => {
     <ProfileInfo />
     <div class="profile-posts card">
       <!-- Reference to access the component instance -->
-      <ProfilePostsNav v-model="activeTab" />
+      <ProfilePostsNav v-model="activeTab"/>
       <!-- Pass the items from the computed property -->
       <ItemGrid :items="itemsToShow.value" class="grid-layout" />
     </div>

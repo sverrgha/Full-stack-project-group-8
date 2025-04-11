@@ -124,7 +124,7 @@ export const useListingStore = defineStore('listing', {
             try {
                 const pageable = { page, size };
                 const response = await listingService.getFavoriteListings(userId, pageable);
-                return response.data;
+                return this.handleMultipleListings(response, page.value);
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to fetch favorite listings';
                 throw error;

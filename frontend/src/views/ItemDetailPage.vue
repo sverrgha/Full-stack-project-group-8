@@ -42,7 +42,8 @@ onMounted(async () => {
         category: listingStore.currentListing.categoryId,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
-        postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
+        postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString(),
+        isFavorite: listingStore.currentListing.isFavorite || false,
       };
     }
   } catch (err) {
@@ -84,9 +85,9 @@ const updateImages = (newImages) => {
 const handleToggleFavorite = async (payload) => {
   try {
     if (!payload.isFavorite) {
-      await listingStore.removeFavorite(product.value.userId, payload.listingId);
+      await listingStore.removeFavorite(authStore.getUser.id, payload.listingId);
     } else {
-      await listingStore.addFavorite(product.value.userId, payload.listingId);
+      await listingStore.addFavorite(authStore.getUser.id, payload.listingId);
     }
     product.value.isFavorite = payload.isFavorite;
   } catch (err) {
