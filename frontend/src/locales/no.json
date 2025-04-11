@@ -119,7 +119,9 @@
     "activity": "Aktivitet og fritid",
     "beauty": "Skjønnhet og helse",
     "noResults": "No results",
-    "loading": "Laster..."
+    "loading": "Laster...",
+    "recommended": "Anbefalt for deg"
+
   },
   "sort": {
     "newest": "Nyeste",

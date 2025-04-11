@@ -120,7 +120,8 @@
     "electronics": "Electronics",
     "beauty": "Beauty and health",
     "noResults": "No results",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "recommended": "Recommended for you"
   },
   "sort": {
     "newest": "Newest",
