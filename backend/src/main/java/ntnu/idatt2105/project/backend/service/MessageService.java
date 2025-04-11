@@ -30,7 +30,7 @@ public class MessageService {
    * Sends a message from one user to another.
    *
    * @param request The MessageRequest object containing the sender, receiver, and message content.
-   * @return The sent Message object.
+   * @return The MessageResponse.
    */
   public MessageResponse sendMessage(MessageRequest request) {
     if (request.getSender().length() <= 0 || request.getReceiver().length() <= 0) {
@@ -39,9 +39,9 @@ public class MessageService {
 
     Message message = new Message(request.getSender(), request.getReceiver(), request.getContent(), false);
     Optional<User> userSender = userService.findByEmail(request.getSender());
-    Optional<User> userReciver = userService.findByEmail(request.getReceiver());
+    Optional<User> userReceiver = userService.findByEmail(request.getReceiver());
 
-    messageRepo.sendMessage(userSender.get().getId(), userReciver.get().getId(), message.getContent());
+    messageRepo.sendMessage(userSender.get().getId(), userReceiver.get().getId(), message.getContent());
 
     return new MessageResponse(
         message.getSender(),
