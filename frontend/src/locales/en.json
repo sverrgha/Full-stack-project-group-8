@@ -29,7 +29,7 @@
     "phoneNumber": "Phone number",
     "invalidPhoneNumber": "Enter a valid phone number",
     "password": "Password",
-    "passwordLength": "Password must be at least 6 characters",
+    "passwordLength": "Password must be at least 8 characters",
     "confirmPassword": "Confirm password",
     "passwordsMustMatch": "Passwords do not match",
     "register": "Register",
