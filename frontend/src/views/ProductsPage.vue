@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {ref, computed, onMounted, onBeforeUnmount} from 'vue';
+import {useI18n} from 'vue-i18n';
 import ItemGrid from '../components/ItemGrid.vue'
 import CategoryButtons from "../components/products/CategoryButtons.vue";
 import FilterButton from '../components/products/FilterButton.vue';
@@ -8,9 +8,9 @@ import FilterSidebar from '../components/products/FilterSidebar.vue';
 import SelectField from '../components/form/SelectField.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import searchIcon from '/src/assets/SearchIcon.svg';
-import { useListingStore } from "../stores/listing.js";
+import {useListingStore} from "../stores/listing.js";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const listingStore = useListingStore();
 
 // State to track if sidebar is open
@@ -41,12 +41,12 @@ const fetchListings = async (resetPage = true) => {
 
   // Filter parameters
   const filterParams = {
-    ...(filters.value.searchQuery && { query: filters.value.searchQuery }),
-    ...(filters.value.priceMin && { minPrice: filters.value.priceMin }),
-    ...(filters.value.priceMax && { maxPrice: filters.value.priceMax }),
-    ...(filters.value.city && { city: filters.value.city }),
-    ...(filters.value.conditions?.length > 0 && { conditions: filters.value.conditions.join(',') }),
-    ...(filters.value.category && { categoryId: filters.value.category }),
+    ...(filters.value.searchQuery && {query: filters.value.searchQuery}),
+    ...(filters.value.priceMin && {minPrice: filters.value.priceMin}),
+    ...(filters.value.priceMax && {maxPrice: filters.value.priceMax}),
+    ...(filters.value.city && {city: filters.value.city}),
+    ...(filters.value.conditions?.length > 0 && {conditions: filters.value.conditions.join(',')}),
+    ...(filters.value.category && {categoryId: filters.value.category}),
     sortBy: filters.value.sortBy || 'created_at',
     sortOrder: filters.value.sortDirection || 'DESC'
   };
@@ -125,7 +125,7 @@ const handleCategorySelect = (categoryId) => {
     // Deselect category
     currentCategory.value = null;
     // Create a new filters object without the category property
-    const newFilters = { ...filters.value };
+    const newFilters = {...filters.value};
     delete newFilters.category;
     filters.value = newFilters;
   } else {
@@ -138,7 +138,9 @@ const handleCategorySelect = (categoryId) => {
   }
 
   // Fetch listings with updated filters
-  fetchListings();
+  if (categoryId !== -1) {
+    fetchListings();
+  }
 };
 
 // Load next page for infinite scrolling
@@ -236,10 +238,10 @@ const selectedSort = ref('');
 
 // Define the options for sorting
 const sortOptions = computed(() => [
-  { value: 'created_at,DESC', label: t('sort.newest') },
-  { value: 'created_at,ASC', label: t('sort.oldest') },
-  { value: 'price,ASC', label: t('sort.priceLowToHigh') },
-  { value: 'price,DESC', label: t('sort.priceHighToLow') }
+  {value: 'created_at,DESC', label: t('sort.newest')},
+  {value: 'created_at,ASC', label: t('sort.oldest')},
+  {value: 'price,ASC', label: t('sort.priceLowToHigh')},
+  {value: 'price,DESC', label: t('sort.priceHighToLow')}
 ]);
 
 const handleSortChange = () => {
@@ -338,7 +340,7 @@ const handleSortChange = () => {
     </div>
 
     <div class="category-buttons card">
-      <CategoryButtons @select-category="handleCategorySelect" />
+      <CategoryButtons @select-category="handleCategorySelect"/>
     </div>
 
     <div class="products-posts card">
@@ -358,7 +360,7 @@ const handleSortChange = () => {
       </div>
 
       <!-- Show listings -->
-      <ItemGrid v-else :items="listingStore.listings" class="grid-layout" />
+      <ItemGrid v-else :items="listingStore.listings" class="grid-layout"/>
 
       <!-- Loading more indicator -->
       <div v-if="loadingMore" class="loading-more">
