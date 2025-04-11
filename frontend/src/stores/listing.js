@@ -33,11 +33,7 @@ export const useListingStore = defineStore('listing', {
 
                 const response = await listingService.getListings(filters, pageable);
 
-                if (page === 1) {
-                    this.listings = response.data.elements;
-                } else {
-                    this.listings = [...this.listings, ...response.data.elements];
-                }
+                this.listings = response.data.elements;
 
                 this.totalElements = response.data.totalElements;
                 this.totalPages = response.data.totalPages;
