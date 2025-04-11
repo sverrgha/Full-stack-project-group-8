@@ -1,7 +1,7 @@
 <!-- CategoryButtons.vue -->
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import RecommendedButton from '../RecommendedButton.vue'; // Fixed import path
+import RecommendedButton from '../RecommendedButton.vue';
 import { useI18n } from 'vue-i18n';
 import { categoriesService } from '../../services/categoriesService';
 import { useListingStore } from '../../stores/listing';
