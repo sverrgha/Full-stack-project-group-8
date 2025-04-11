@@ -269,4 +269,32 @@ public class ListingController {
               + e.getMessage());
     }
   }
+
+  /**
+   * Endpoint for searching listings based on a query string.
+   * It takes the query string and pagination parameters,
+   * and returns a list of listings that match the query.
+   *
+   * @param query the query string to search for listings
+   * @param pageable pagination parameters
+   * @return ResponseEntity with MultipleListingsResponse containing the search results
+   */
+  @GetMapping("/search")
+  public ResponseEntity<MultipleListingsResponse> searchListings(
+          @RequestParam String query,
+          @PageableDefault(size = 20, page = 1) Pageable pageable
+  ) {
+    logger.info("Received request to search listings with query: " + query);
+    try {
+      MultipleListingsResponse response = listingService.searchForListings(query, pageable);
+      logger.info("Search results fetched successfully " + response.getElements().size() + " listings found");
+      return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      logger.severe("Error while searching listings: " + e.getMessage());
+      return ResponseEntity.internalServerError().body(new MultipleListingsResponse(
+              Collections.emptyList(), 0, 0,
+              pageable.getPageNumber(), pageable.getPageSize(), true, true
+      ));
+    }
+  }
 }

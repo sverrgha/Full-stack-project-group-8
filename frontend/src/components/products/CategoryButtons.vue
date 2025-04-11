@@ -1,16 +1,20 @@
 <!-- CategoryButtons.vue -->
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import RecommendedButton from '../RecommendedButton.vue';
 import { useI18n } from 'vue-i18n';
 import { categoriesService } from '../../services/categoriesService';
+import { useListingStore } from '../../stores/listing';
 
 const { t, locale } = useI18n();
 const emit = defineEmits(['select-category']);
+const listingStore = useListingStore();
 
 const categories = ref([]);
 const selectedCategory = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
+const isRecommendedActive = ref(false);
 
 // Fetch categories from the backend API
 const fetchCategories = async () => {
@@ -47,13 +51,45 @@ const fetchCategories = async () => {
 
 // Handle category selection
 const selectCategory = (categoryId) => {
+  isRecommendedActive.value = false;
+
   if (selectedCategory.value === categoryId) {
     selectedCategory.value = null;
   } else {
     selectedCategory.value = categoryId;
   }
 
-  emit('select-category', selectedCategory.value);
+  // Reset the listings in the store when changing categories
+  // This ensures we don't append to existing listings
+  listingStore.$patch({
+    listings: [],
+    totalElements: 0,
+    totalPages: 0,
+    currentPage: 0
+  });
+
+  emit('select-category', selectedCategory.value, false);
+};
+
+// Handle recommended selection
+const handleRecommendedSelected = (recommendedData) => {
+  isRecommendedActive.value = true;
+  selectedCategory.value = -1;
+
+  // Use the recommended data to update the store if available
+  if (recommendedData && recommendedData.elements) {
+    listingStore.$patch({
+      listings: recommendedData.elements,
+      totalElements: recommendedData.totalElements,
+      totalPages: recommendedData.totalPages,
+      currentPage: recommendedData.currentPage,
+      pageSize: recommendedData.pageSize,
+      hasNext: recommendedData.hasNext,
+      hasPrevious: recommendedData.hasPrevious
+    });
+  }
+
+  emit('select-category', -1, true);
 };
 
 // Update category names when language changes
@@ -85,11 +121,19 @@ onMounted(fetchCategories);
 
     <!-- Categories display -->
     <div v-else class="categories-row">
+      <!-- Recommended Button -->
+      <RecommendedButton
+          :class="{ 'active': isRecommendedActive }"
+          @recommended-selected="handleRecommendedSelected"
+          class="category-button"
+      />
+
+      <!-- Category buttons -->
       <div
           v-for="category in categories"
           :key="category.id"
           class="category-button"
-          :class="{ 'active': selectedCategory === category.id }"
+          :class="{ 'active': selectedCategory === category.id && !isRecommendedActive }"
           @click="selectCategory(category.id)"
       >
         <div class="category-content">
