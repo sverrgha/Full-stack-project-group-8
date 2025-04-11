@@ -333,8 +333,48 @@ public class ListingRepo {
             pageable.getPageSize(), pageable.getOffset());
   }
 
+  /**
+   * Updates the status of a listing based on its ID.
+   *
+   * @param listingId the ID of the listing to be updated
+   * @param status    the new status to be set for the listing
+   */
   public void updateListingStatus(Long listingId, String status) {
     String sql = "UPDATE sverrgha_datab.listings SET status = ? WHERE id = ?";
     jdbcTemplate.update(sql, status.toLowerCase(), listingId);
+  }
+
+  /**
+   * Searches for listings based on a search term.
+   * The search is performed on the title, brief description, and description fields.
+   *
+   * @param searchTerm the term to search for in the listings
+   * @param pageable   the pagination information
+   * @return a page of listings matching the search term
+   */
+  public Page<Listing> searchListings(String searchTerm, Pageable pageable) {
+    String searchPattern = "%" + (searchTerm != null ? searchTerm : "") + "%";
+
+    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE title LIKE ? OR brief_description LIKE ? OR description LIKE ?";
+
+    Long total = jdbcTemplate.queryForObject(countSql,
+            (rs, rowNum) -> rs.getLong(1),
+            searchPattern, searchPattern, searchPattern);
+
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE title LIKE ? OR brief_description LIKE ? OR description LIKE ?";
+    sql += " LIMIT ? OFFSET ?";
+
+
+    List<Listing> listings = jdbcTemplate.query(sql,
+            ps -> {
+              ps.setString(1, searchPattern);
+              ps.setString(2, searchPattern);
+              ps.setString(3, searchPattern);
+              ps.setInt(4, pageable.getPageSize());
+              ps.setInt(5, (int) pageable.getOffset());
+            }, (rs, rowNum) -> mapResultSetToListing(rs)
+    );
+
+    return new PageImpl<>(listings, pageable, total != null ? total : 0);
   }
 }
