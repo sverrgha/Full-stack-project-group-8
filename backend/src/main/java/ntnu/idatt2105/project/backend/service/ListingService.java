@@ -1,14 +1,12 @@
 package ntnu.idatt2105.project.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
-import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
-import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
-import ntnu.idatt2105.project.backend.dto.request.ModifyListingRequest;
+import ntnu.idatt2105.project.backend.dto.request.*;
 import ntnu.idatt2105.project.backend.dto.response.AddListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.FullListingResponse;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
+import ntnu.idatt2105.project.backend.model.BrowsingHistory;
 import ntnu.idatt2105.project.backend.model.CategoryShare;
 import ntnu.idatt2105.project.backend.model.Listing;
 import ntnu.idatt2105.project.backend.model.Location;
@@ -236,6 +234,7 @@ public class ListingService {
    * @return FullListingResponse containing all the listing details
    * @throws IllegalArgumentException if no listing is found
    */
+  @Transactional
   public FullListingResponse getListingById(Long id) throws IllegalArgumentException {
     Optional<Listing> listingOptional = listingRepo.getListingById(id);
     if (listingOptional.isEmpty()) {
@@ -248,6 +247,15 @@ public class ListingService {
             .orElse(null);
 
     List<String> images = listingImageRepo.getAllImagesByListingId(id);
+
+
+    Optional<BrowsingHistory> browsingHistoryOptional = browsingHistoryRepo.getBrowsingHistoryByUserIdAndListingId(
+            listing.getUserId(), id);
+    if (browsingHistoryOptional.isEmpty()) {
+      browsingHistoryRepo.addBrowsingHistory(listing.getUserId(), listing.getId());
+    }
+
+    listingRepo.incrementViewsCount(id);
 
     return new FullListingResponse(
             listing.getId(),
@@ -282,9 +290,8 @@ public class ListingService {
   private List<ShortListingResponse> mapListingsToShortResponse(Listing[] listings) {
     return Arrays.stream(listings)
             .map(listing -> {
-              String city = locationRepo.getLocationByPostalCode(listing.getPostalCode())
-                      .flatMap(location -> Optional.ofNullable(location.getCity()))
-                      .orElse(null);
+              Optional<Location> location = locationRepo.getLocationByPostalCode(listing.getPostalCode());
+
               String imageUrl = listingImageRepo.getOneImageByListingId(listing.getId())
                       .orElse(null);
 
@@ -293,9 +300,15 @@ public class ListingService {
                       listing.getTitle(),
                       listing.getPrice(),
                       listing.getBriefDescription(),
-                      city,
                       imageUrl,
-                      listing.getCondition().name().toLowerCase()
+                      listing.getCondition().name().toLowerCase(),
+                      location.isEmpty() ? null : new LocationDTO(
+                              location.map(Location::getPostalCode).orElse(null),
+                              location.map(Location::getCity).orElse(null),
+                              location.map(Location::getCountry).orElse(null),
+                              location.map(Location::getLatitude).orElse(null),
+                              location.map(Location::getLongitude).orElse(null)
+                      )
               );
             })
             .collect(Collectors.toList());
@@ -390,4 +403,35 @@ public class ListingService {
     return listingRepo.getListingById(id).isPresent();
   }
 
+  /**
+   * Updates the status of a listing. It checks if the user is authorized to
+   * update the listing and if the status is valid. If the user is not authorized
+   * it throws an IllegalAccessException. If the status is invalid, it throws
+   * an IllegalArgumentException.
+   *
+   * @param listingId the ID of the listing to update
+   * @param request    the new statusRequest to set
+   * @param token     the JWT token of the user making the request
+   * @throws IllegalAccessException if the user is not authorized to update the listing
+   */
+  public void updateListingStatus(Long listingId, ListingStatusRequest request, String token) throws IllegalAccessException {
+    String status = request.getStatus();
+
+    if (listingId == null) {
+      throw new IllegalArgumentException("Listing ID cannot be null");
+    }
+
+    Listing listing = listingRepo.getListingById(listingId)
+            .orElseThrow(() -> new IllegalArgumentException("Listing not found"));
+
+    if (!userService.validateUserIdMatchesToken(listing.getUserId(), token)) {
+      throw new IllegalAccessException("User is unauthorized to update this listing");
+    }
+
+    if (!EnumUtils.isValidEnumIgnoreCase(Listing.Status.class, status)) {
+      throw new IllegalArgumentException("Invalid status: " + status);
+    }
+
+    listingRepo.updateListingStatus(listingId, status);
+  }
 }

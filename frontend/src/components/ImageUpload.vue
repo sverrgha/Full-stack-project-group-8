@@ -1,7 +1,7 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../FirebaseConfig.js'; // Import your configured storage
+import { storage } from '../config/FirebaseConfig.js'; // Import your configured storage
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();

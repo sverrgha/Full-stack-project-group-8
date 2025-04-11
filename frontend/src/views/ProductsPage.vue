@@ -9,6 +9,7 @@ import SelectField from '../components/form/SelectField.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import searchIcon from '/src/assets/SearchIcon.svg';
 import {useListingStore} from "../stores/listing.js";
+import Map from "../components/ItemMap.vue";
 
 const {t} = useI18n();
 const listingStore = useListingStore();
@@ -17,8 +18,9 @@ const listingStore = useListingStore();
 const isSidebarOpen = ref(false);
 const currentCategory = ref(null);
 const currentPage = ref(1);
-const pageSize = ref(20);
+const pageSize = ref(12);
 const loadingMore = ref(false);
+const isMapview = ref(false);
 
 // Filter state
 const filters = ref({
@@ -33,12 +35,7 @@ const filters = ref({
 });
 
 
-// In the Vue component
 const fetchListings = async (resetPage = true) => {
-  if (resetPage) {
-    currentPage.value = 1;
-  }
-
   // Filter parameters
   const filterParams = {
     ...(filters.value.searchQuery && {query: filters.value.searchQuery}),
@@ -52,9 +49,15 @@ const fetchListings = async (resetPage = true) => {
   };
 
   try {
+    const pageToFetch = resetPage ? 1 : currentPage.value;
+
+    if (resetPage) {
+      currentPage.value = 1;
+    }
+
     await listingStore.fetchListings(
         filterParams,
-        currentPage.value,
+        pageToFetch,
         pageSize.value
     );
   } catch (error) {
@@ -68,6 +71,13 @@ const fetchRecommendedListings = async () => {
   } catch (error) {
     console.error('Error fetching recommended listings:', error);
   }
+};
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  fetchListings(false);
+  // Scroll to top of grid
+  window.scrollTo({ top: 500, behavior: 'smooth' });
 };
 
 // Initialize listings when component mounts
@@ -95,6 +105,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleOutsideClick);
 });
+
+const toggleMapView = () => {
+  isMapview.value = !isMapview.value;
+};
 
 // Toggle sidebar visibility
 const toggleSidebar = () => {
@@ -148,16 +162,6 @@ const handleCategorySelect = (categoryId) => {
   // Fetch listings with updated filters
   if (categoryId !== -1) {
     fetchListings();
-  }
-};
-
-// Load next page for infinite scrolling
-const loadNextPage = async () => {
-  if (listingStore.hasNext && !loadingMore.value) {
-    loadingMore.value = true;
-    currentPage.value++;
-    await fetchListings(false);
-    loadingMore.value = false;
   }
 };
 
@@ -324,6 +328,12 @@ const handleSortChange = () => {
         </div>
       </div>
 
+      <div>
+        <button @click="toggleMapView" class="map-toggle">
+          {{ isMapview ? t('productPage.gridView') : t('productPage.mapView') }}
+        </button>
+      </div>
+
       <div class="filter-sort-controls">
         <FilterButton
             :isOpen="isSidebarOpen"
@@ -367,25 +377,39 @@ const handleSortChange = () => {
         {{ t('productPage.noResults') }}
       </div>
 
-      <!-- Show listings -->
-      <ItemGrid v-else :items="listingStore.listings" class="grid-layout"/>
-
-      <!-- Loading more indicator -->
-      <div v-if="loadingMore" class="loading-more">
-        {{ t('productPage.loadingMore') }}
-      </div>
-
-      <!-- Load more button -->
-      <div v-if="listingStore.hasNext && !loadingMore" class="load-more-container">
-        <button @click="loadNextPage" class="load-more-button">
-          {{ t('productPage.loadMore') }}
-        </button>
+      <!-- Main content container -->
+      <div v-else class="content-container">
+        <!-- Show listings -->
+        <Map v-if="isMapview" :listings="listingStore.listings"/>
+        <ItemGrid
+            v-else
+            :items="listingStore.listings"
+            :total-pages="listingStore.totalPages"
+            :current-page="currentPage"
+            :loading="listingStore.loading"
+            class="grid-layout"
+            @page-change="handlePageChange"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
 .products-page {
   max-width: 1000px;
   margin: 0 auto;
@@ -581,6 +605,27 @@ const handleSortChange = () => {
   background-color: #f5f5f5;
 }
 
+.map-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 25px;
+  padding: 8px 16px;
+  height: 40px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  color: #374151;
+}
+
+.map-toggle:hover {
+  background-color: #f5f5f5;
+}
 @media (max-width: 768px) {
   .top-controls {
     flex-direction: column;

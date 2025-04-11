@@ -121,7 +121,9 @@
     "noResults": "No results",
     "loading": "Laster...",
     "recommended": "Anbefalt for deg"
-
+    "gridView": "Rutenettvisning",
+    "mapView": "Kartvisning",
+    "loading": "Laster..."
   },
   "sort": {
     "newest": "Nyeste",
@@ -150,7 +152,12 @@
     "edit": "Rediger",
     "save": "Lagre",
     "cancel": "Avbryt",
-    "maxPictures": "Maks 10 bilder"
+    "maxPictures": "Maks 10 bilder",
+    "status": "Status",
+    "active": "Aktiv",
+    "sold": "Solgt",
+    "archived": "Arkivert",
+    "reserved": "Reservert"
   },
   "admin": {
     "dashboard": "Admin Kontrollpanel",
@@ -201,5 +208,8 @@
     "confirmPassword": "Bekreft nytt passord",
     "currentPasswordRequired": "Nåværende passord er påkrevd",
     "saveError": "Feil ved lagring av passord"
+  },
+  "messages": {
+    "productInterest": "Hei, jeg er interessert i produktet ditt."
   }
 }

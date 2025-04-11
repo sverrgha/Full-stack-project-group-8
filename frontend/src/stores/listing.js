@@ -32,12 +32,7 @@ export const useListingStore = defineStore('listing', {
                 };
 
                 const response = await listingService.getListings(filters, pageable);
-
-                if (page === 0) {
-                    this.listings = response.data.elements;
-                } else {
-                    this.listings = [...this.listings, ...response.data.elements];
-                }
+                this.listings = response.data.elements;
 
                 this.totalElements = response.data.totalElements;
                 this.totalPages = response.data.totalPages;
@@ -85,7 +80,23 @@ export const useListingStore = defineStore('listing', {
             }
         },
 
-        async fetchRecommendedListings(userId, pageable = {}) {
+        async updateListingStatus(id, status) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await listingService
+                    .updateListingStatus(id, status);
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to update listing status';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchRecommendedListings(userId, page = 1, size = 20) {
             this.loading = true;
             this.error = null;
 
