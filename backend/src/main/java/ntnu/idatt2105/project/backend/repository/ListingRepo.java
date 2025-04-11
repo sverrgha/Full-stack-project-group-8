@@ -36,10 +36,18 @@ public class ListingRepo {
   }
 
   /**
-   * Saves a listing to the database.
+   * Saves a new listing in the database and returns the saved listing.
    *
-   * @param listing the listing to be saved
-   * @return the saved listing
+   * @param title            the title of the listing
+   * @param categoryId       the ID of the category to which the listing belongs
+   * @param price            the price of the listing
+   * @param briefDescription a brief description of the listing
+   * @param description      the detailed description of the listing
+   * @param userId           the ID of the user who created the listing
+   * @param condition        the condition of the listing (new, used, etc.)
+   * @param postalCode       the postal code of the listing's location
+   * @return an Optional containing the saved listing if successful,
+   * or an empty Optional if not
    */
   public Optional<Listing> save(String title, Long categoryId, Double price,
                                 String briefDescription, String description,
@@ -92,6 +100,7 @@ public class ListingRepo {
             listing.getSoldAt(),
             listing.getId());
   }
+
   /**
    * Deletes a listing based on its ID.
    *
@@ -102,7 +111,12 @@ public class ListingRepo {
     jdbcTemplate.update(sql, id);
   }
 
-  public void increaseViewsCount(Long id) {
+  /**
+   * Increments the views count of a listing by its ID.
+   *
+   * @param id the ID of the listing whose views count is to be incremented
+   */
+  public void incrementViewsCount(Long id) {
     String sql = "UPDATE sverrgha_datab.listings SET views_count = views_count + 1 WHERE id = ?";
     jdbcTemplate.update(sql, id);
   }
@@ -267,6 +281,13 @@ public class ListingRepo {
     );
   }
 
+  /**
+   * Retrieves multiple listings by their IDs.
+   *
+   * @param ids      the list of IDs of the listings to be retrieved
+   * @param pageable the pagination information
+   * @return a page of listings with the specified IDs
+   */
   public Page<Listing> getMultipleListingsByIds(List<Long> ids, Pageable pageable) {
     if (ids == null || ids.isEmpty()) {
       return Page.empty(pageable);
@@ -323,5 +344,9 @@ public class ListingRepo {
             pageable.getPageSize(), pageable.getOffset());
 
     return new PageImpl<>(listings, pageable, totalResults != null ? totalResults : 0);
+
+  public void updateListingStatus(Long listingId, String status) {
+    String sql = "UPDATE sverrgha_datab.listings SET status = ? WHERE id = ?";
+    jdbcTemplate.update(sql, status.toLowerCase(), listingId);
   }
 }

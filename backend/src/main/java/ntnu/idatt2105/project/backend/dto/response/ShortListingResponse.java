@@ -3,6 +3,7 @@ package ntnu.idatt2105.project.backend.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ntnu.idatt2105.project.backend.dto.request.LocationDTO;
 
 /**
  * DTO class for the short response of a listing.
@@ -17,7 +18,7 @@ public class ShortListingResponse {
   private String title;
   private Double price;
   private String briefDescription;
-  private String city;
   private String pathToImage;
   private String condition;
+  private LocationDTO location;
 }

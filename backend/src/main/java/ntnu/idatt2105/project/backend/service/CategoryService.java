@@ -47,7 +47,7 @@ public class CategoryService {
     if (!userService.validateAdmin(token)) {
       throw new IllegalAccessException("User is not an admin");
     }
-    categoryRepo.addCategory(request.getNameEn(), request.getNameNo());
+    categoryRepo.addCategory(request.getNameEn(), request.getNameNo(), request.getUrl());
   }
 
   /**

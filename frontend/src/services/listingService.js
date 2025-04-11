@@ -21,6 +21,11 @@ export const listingService = {
         return apiClient.post('/listing', listingData);
     },
 
+    // Update the status of a listing
+    updateListingStatus(id, status) {
+        return apiClient.put(`/listing/${id}/status`, { status });
+    },
+
     //Get recommended listing for a user
     getRecommendedListings(userId, pageable = {}) {
         return apiClient.get('/listing/user/recommended', {
