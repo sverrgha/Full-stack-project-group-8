@@ -74,7 +74,7 @@ const selectCategory = (categoryId) => {
 // Handle recommended selection
 const handleRecommendedSelected = (recommendedData) => {
   isRecommendedActive.value = true;
-  selectedCategory.value = null;
+  selectedCategory.value = -1;
 
   // Use the recommended data to update the store if available
   if (recommendedData && recommendedData.elements) {
@@ -89,7 +89,7 @@ const handleRecommendedSelected = (recommendedData) => {
     });
   }
 
-  emit('select-category', null, true);
+  emit('select-category', -1, true);
 };
 
 // Update category names when language changes

@@ -62,6 +62,14 @@ const fetchListings = async (resetPage = true) => {
   }
 };
 
+const fetchRecommendedListings = async () => {
+  try {
+    await listingStore.fetchRecommendedListings();
+  } catch (error) {
+    console.error('Error fetching recommended listings:', error);
+  }
+};
+
 // Initialize listings when component mounts
 onMounted(() => {
   fetchListings();
