@@ -1,5 +1,12 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ntnu.idatt2105.project.backend.dto.request.FavoriteRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.service.FavoriteService;
@@ -14,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
  * Controller for managing user favorites.
  * This controller provides endpoints to add, remove, and fetch user favorites.
  */
+@Tag(name = "User Favorites", description = "Endpoints for managing user's favorite listings")
 @RestController
 @RequestMapping("/api/favorites")
 public class UserFavoriteController {
@@ -37,6 +45,26 @@ public class UserFavoriteController {
    * @param pageable   pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing the favorite listings
    */
+  @Operation(
+          summary = "Get user's favorite listings",
+          description = "Retrieves a paginated list of listings that a user has marked as favorites.",
+          security = @SecurityRequirement(name = "BearerAuth"),
+          parameters = {
+                  @Parameter(name = "userId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the user"),
+                  @Parameter(name = "Authorization", in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER, required = true, description = "Bearer token for authentication"),
+                  @Parameter(name = "size", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, description = "Number of items per page (default: 20)"),
+                  @Parameter(name = "page", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, description = "Page number (default: 1)"),
+                  @Parameter(name = "sort", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, description = "Sorting criteria (e.g., 'created_at')"),
+                  @Parameter(name = "direction", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, description = "Sorting direction (e.g., 'asc' or 'desc')")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully retrieved favorite listings",
+                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = MultipleListingsResponse.class))),
+                  @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+                  @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error")
+          }
+  )
   @GetMapping("/{userId}")
   public ResponseEntity<MultipleListingsResponse> getFavorites(
           @PathVariable Long userId,
@@ -71,6 +99,21 @@ public class UserFavoriteController {
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
+  @Operation(
+          summary = "Add a listing to user's favorites",
+          description = "Adds a specific listing to a user's list of favorite listings.",
+          security = @SecurityRequirement(name = "BearerAuth"),
+          parameters = {
+                  @Parameter(name = "userId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the user"),
+                  @Parameter(name = "listingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the listing to add"),
+                  @Parameter(name = "Authorization", in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER, required = true, description = "Bearer token for authentication")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully added listing to favorites"),
+                  @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+                  @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error")
+          })
   @PostMapping
   public ResponseEntity<String> addFavorite(
           @RequestBody FavoriteRequest request,
@@ -102,6 +145,22 @@ public class UserFavoriteController {
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
+  @Operation(
+          summary = "Remove a listing from user's favorites",
+          description = "Removes a specific listing from a user's list of favorite listings.",
+          security = @SecurityRequirement(name = "BearerAuth"),
+          parameters = {
+                  @Parameter(name = "userId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the user"),
+                  @Parameter(name = "listingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the listing to remove"),
+                  @Parameter(name = "Authorization", in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER, required = true, description = "Bearer token for authentication")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully removed listing from favorites"),
+                  @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+                  @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error")
+          }
+  )
   @DeleteMapping
   public ResponseEntity<String> removeFavorite(
           @RequestBody FavoriteRequest request,
