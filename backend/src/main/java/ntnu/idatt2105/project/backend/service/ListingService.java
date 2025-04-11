@@ -249,6 +249,8 @@ public class ListingService {
 
     List<String> images = listingImageRepo.getAllImagesByListingId(id);
 
+
+
     return new FullListingResponse(
             listing.getId(),
             listing.getTitle(),

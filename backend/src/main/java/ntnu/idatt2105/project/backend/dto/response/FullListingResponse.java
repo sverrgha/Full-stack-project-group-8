@@ -35,4 +35,5 @@ public class FullListingResponse {
     private int viewsCount;
     private List<String> images;
     private String city;
+    private String isFavorite;
 }
