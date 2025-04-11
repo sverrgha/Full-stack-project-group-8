@@ -97,6 +97,7 @@ class FavoriteServiceTest {
   @Test
   void removeListingAsFavorite_validInput_deletes() {
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
+    when(userFavoritesRepo.existsByUserIdAndListingId(userId, listingId)).thenReturn(true);
     favoriteService.removeListingAsFavorite(new FavoriteRequest(
             userId, listingId
     ), token);

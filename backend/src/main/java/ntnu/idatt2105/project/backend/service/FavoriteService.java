@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ntnu.idatt2105.project.backend.dto.request.FavoriteRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.repository.UserFavoritesRepo;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -88,6 +89,8 @@ public class FavoriteService {
    * @return a response containing the favorite listings
    */
   public MultipleListingsResponse getAllFavorites(long userId, Pageable pageable, String token) {
+    pageable = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize(),
+            pageable.getSort());
     if (userId <= 0) {
       throw new IllegalArgumentException("User ID must be positive");
     }
