@@ -89,7 +89,7 @@ public class FavoriteService {
    * @return a response containing the favorite listings
    */
   public MultipleListingsResponse getAllFavorites(long userId, Pageable pageable, String token) {
-    pageable = PageRequest.of(pageable.getPageNumber() - 1, pageable.getPageSize(),
+    pageable = PageRequest.of(Math.max(pageable.getPageNumber() - 1, 0), pageable.getPageSize(),
             pageable.getSort());
     if (userId <= 0) {
       throw new IllegalArgumentException("User ID must be positive");

@@ -431,7 +431,7 @@ public class ListingService {
 
     return mapToMultipleListingResponse(listings);
   }
-   * Updates the status of a listing. It checks if the user is authorized to
+   /** Updates the status of a listing. It checks if the user is authorized to
    * update the listing and if the status is valid. If the user is not authorized
    * it throws an IllegalAccessException. If the status is invalid, it throws
    * an IllegalArgumentException.
