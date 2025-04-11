@@ -1,5 +1,6 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import ntnu.idatt2105.project.backend.dto.request.FavoriteRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.service.FavoriteService;
 import ntnu.idatt2105.project.backend.util.TokenExtractor;
@@ -36,9 +37,9 @@ public class UserFavoriteController {
    * @param pageable   pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing the favorite listings
    */
-  @GetMapping
+  @GetMapping("/{userId}")
   public ResponseEntity<MultipleListingsResponse> getFavorites(
-          @RequestParam Long userId,
+          @PathVariable Long userId,
           @RequestHeader("Authorization") String authHeader,
           @PageableDefault(size = 20, page = 1, sort = "created_at",
                   direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
@@ -66,23 +67,20 @@ public class UserFavoriteController {
    * It also requires an authorization header containing the token, to verify the
    * user's identity.
    *
-   * @param userId     the ID of the user adding the favorite
-   * @param listingId  the ID of the listing to be added as a favorite
+   * @param request    the request body containing user ID and listing ID
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
   @PostMapping
   public ResponseEntity<String> addFavorite(
-          @RequestParam Long userId,
-          @RequestParam Long listingId,
+          @RequestBody FavoriteRequest request,
           @RequestHeader("Authorization") String authHeader
   ) {
-    logger.info("Received request to add favorite listing for user ID: "
-            + userId + " and listing ID: " + listingId);
+    logger.info("Received favorite request: " + request);
     try {
-      favoriteService.addListingAsFavorite(userId, listingId,
+      favoriteService.addListingAsFavorite(request,
               TokenExtractor.extractToken(authHeader));
-      logger.info("Favorite listing added successfully for user ID: " + userId);
+      logger.info("Favorite listing added successfully for user ID: " + request.getUserId());
       return ResponseEntity.ok().body("Favorite listing added successfully");
     } catch (IllegalArgumentException e) {
       logger.warning("Invalid favorite request: " + e.getMessage());
@@ -100,23 +98,20 @@ public class UserFavoriteController {
    * It also requires an authorization header containing the token, to verify the
    * user's identity.
    *
-   * @param userId     the ID of the user removing the favorite
-   * @param listingId  the ID of the listing to be removed from favorites
+   * @param request    the request body containing user ID and listing ID
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
   @DeleteMapping
   public ResponseEntity<String> removeFavorite(
-          @RequestParam Long userId,
-          @RequestParam Long listingId,
+          @RequestBody FavoriteRequest request,
           @RequestHeader("Authorization") String authHeader
   ) {
-    logger.info("Received request to remove favorite listing for user ID: "
-            + userId + " and listing ID: " + listingId);
+    logger.info("Received request to remove favorite listing: " + request);
     try {
-      favoriteService.removeListingAsFavorite(userId, listingId,
+      favoriteService.removeListingAsFavorite(request,
               TokenExtractor.extractToken(authHeader));
-      logger.info("Favorite listing removed successfully for user ID: " + userId);
+      logger.info("Favorite listing removed successfully for user ID: " + request.getUserId());
       return ResponseEntity.ok().body("Favorite listing removed successfully");
     } catch (IllegalArgumentException e) {
       logger.warning("Invalid favorite request: " + e.getMessage());

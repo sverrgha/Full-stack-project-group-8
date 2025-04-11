@@ -31,4 +31,10 @@ public class  UserFavoritesRepo {
     String sql = "DELETE FROM sverrgha_datab.user_favorites WHERE user_id = ? AND listing_id = ?";
     jdbcTemplate.update(sql, userId, listingId);
   }
+
+  public boolean existsByUserIdAndListingId(long userId, long listingId) {
+    String sql = "SELECT COUNT(*) FROM sverrgha_datab.user_favorites WHERE user_id = ? AND listing_id = ?";
+    List<Integer> counts = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt(1), userId, listingId);
+    return !counts.isEmpty() && counts.get(0) > 0;
+  }
 }

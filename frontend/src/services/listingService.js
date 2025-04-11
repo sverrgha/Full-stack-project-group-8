@@ -36,6 +36,43 @@ export const listingService = {
         });
     },
 
+    getPersonalListings(userId, pageable = {}) {
+        return apiClient.get(`/listing/${userId}/posted`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
+    },
+
+    getFavoriteListings(userId, pageable = {}) {
+        console.log(pageable);
+        return apiClient.get(`/favorites/${userId}`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
+    },
+
+    addFavorite(userId, listingId) {
+        return apiClient.post('/favorites', {
+                userId: userId,
+                listingId: listingId
+            }
+        );
+    },
+
+    removeFavorite(userId, listingId) {
+        return apiClient.delete(`/favorites`, {
+                data: {
+                    userId: userId,
+                    listingId: listingId
+                }
+            }
+        )
+            ;
+    },
     searchListings(query, pageable = {}) {
         return apiClient.get('/listing/search', {
             params: {

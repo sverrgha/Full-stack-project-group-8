@@ -334,10 +334,30 @@ public class ListingRepo {
   }
 
   /**
+   * Retrieves a list of listings posted by a specific user.
+   *
+   * @param userId the ID of the user whose listings are to be retrieved
+   * @param pageable the pagination information
+   * @return a page of listings posted by the specified user
+   */
+  public Page<Listing> getPostedListings(Long userId, Pageable pageable) {
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE user_id = ? " +
+            "ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE user_id = ?";
+
+    Integer totalResults = jdbcTemplate.queryForObject(countSql, Integer.class, userId);
+
+    List<Listing> listings = jdbcTemplate.query(sql, (rs, rowNum) -> mapResultSetToListing(rs), userId,
+            pageable.getPageSize(), pageable.getOffset());
+
+    return new PageImpl<>(listings, pageable, totalResults != null ? totalResults : 0);
+  }
+
+  /**
    * Updates the status of a listing based on its ID.
    *
    * @param listingId the ID of the listing to be updated
-   * @param status    the new status to be set for the listing
+   * @param status   the new status to be set for the listing
    */
   public void updateListingStatus(Long listingId, String status) {
     String sql = "UPDATE sverrgha_datab.listings SET status = ? WHERE id = ?";

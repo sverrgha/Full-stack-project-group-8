@@ -1,5 +1,6 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import ntnu.idatt2105.project.backend.dto.request.FavoriteRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.service.FavoriteService;
 import ntnu.idatt2105.project.backend.util.TokenExtractor;
@@ -77,18 +78,24 @@ class UserFavoriteControllerTest {
   void addFavorite_validRequest_returnsOk() throws Exception {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
-      doNothing().when(favoriteService).addListingAsFavorite(userId, listingId, extractedToken);
+      doNothing().when(favoriteService).addListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.post("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isOk())
               .andExpect(MockMvcResultMatchers.content().string("Favorite listing added successfully"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).addListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).addListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -103,18 +110,24 @@ class UserFavoriteControllerTest {
   void addFavorite_invalidInput_returnsBadRequest() throws Exception {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
-      doNothing().when(favoriteService).removeListingAsFavorite(userId, listingId, extractedToken);
+      doNothing().when(favoriteService).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.delete("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isOk())
               .andExpect(MockMvcResultMatchers.content().string("Favorite listing removed successfully"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).removeListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -130,18 +143,24 @@ class UserFavoriteControllerTest {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
       doThrow(new RuntimeException("Database error")).when(favoriteService)
-              .addListingAsFavorite(userId, listingId, extractedToken);
+              .addListingAsFavorite(new FavoriteRequest(
+                      userId, listingId
+              ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.post("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isInternalServerError())
               .andExpect(MockMvcResultMatchers.content().string("Error while adding favorite listing: Database error"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).addListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).addListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -156,18 +175,24 @@ class UserFavoriteControllerTest {
   void removeFavorite_validRequest_returnsOk() throws Exception {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
-      doNothing().when(favoriteService).removeListingAsFavorite(userId, listingId, extractedToken);
+      doNothing().when(favoriteService).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.delete("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isOk())
               .andExpect(MockMvcResultMatchers.content().string("Favorite listing removed successfully"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).removeListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -183,18 +208,24 @@ class UserFavoriteControllerTest {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
       doThrow(new IllegalArgumentException("Invalid input")).when(favoriteService)
-              .removeListingAsFavorite(userId, listingId, extractedToken);
+              .removeListingAsFavorite(new FavoriteRequest(
+                      userId, listingId
+              ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.delete("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isBadRequest())
               .andExpect(MockMvcResultMatchers.content().string("Invalid favorite request: Invalid input"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).removeListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -210,18 +241,24 @@ class UserFavoriteControllerTest {
     try (MockedStatic<TokenExtractor> mockedTokenExtractor = mockStatic(TokenExtractor.class)) {
       mockedTokenExtractor.when(() -> TokenExtractor.extractToken(anyString())).thenReturn(extractedToken);
       doThrow(new RuntimeException("Database error")).when(favoriteService)
-              .removeListingAsFavorite(userId, listingId, extractedToken);
+              .removeListingAsFavorite(new FavoriteRequest(
+                      userId, listingId
+              ), extractedToken);
 
       mockMvc.perform(MockMvcRequestBuilders.delete("/api/favorites")
-                      .param("userId", String.valueOf(userId))
-                      .param("listingId", String.valueOf(listingId))
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .content(objectMapper.writeValueAsString(new FavoriteRequest(
+                              userId, listingId
+                      )))
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isInternalServerError())
               .andExpect(MockMvcResultMatchers.content().string("Error while removing favorite listing: Database error"));
 
       mockedTokenExtractor.verify(() -> TokenExtractor.extractToken(validToken));
-      verify(favoriteService, times(1)).removeListingAsFavorite(userId, listingId, extractedToken);
+      verify(favoriteService, times(1)).removeListingAsFavorite(new FavoriteRequest(
+              userId, listingId
+      ), extractedToken);
     }
   }
 
@@ -240,8 +277,7 @@ class UserFavoriteControllerTest {
       when(favoriteService.getAllFavorites(eq(userId), any(Pageable.class), eq(extractedToken)))
               .thenReturn(mockResponse);
 
-      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites")
-                      .param("userId", String.valueOf(userId))
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites/" + userId)
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isOk())
@@ -267,8 +303,7 @@ class UserFavoriteControllerTest {
       when(favoriteService.getAllFavorites(eq(0L), any(Pageable.class), eq(extractedToken)))
               .thenThrow(new IllegalArgumentException("User ID must be positive"));
 
-      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites")
-                      .param("userId", String.valueOf(0L))
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites/" + 0L)
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -294,8 +329,7 @@ class UserFavoriteControllerTest {
       when(favoriteService.getAllFavorites(eq(userId), any(Pageable.class), eq(extractedToken)))
               .thenThrow(new RuntimeException("Database error"));
 
-      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites")
-                      .param("userId", String.valueOf(userId))
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/favorites/" + userId)
                       .header("Authorization", validToken)
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isInternalServerError())

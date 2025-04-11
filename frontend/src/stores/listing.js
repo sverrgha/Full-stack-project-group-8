@@ -26,14 +26,9 @@ export const useListingStore = defineStore('listing', {
             this.error = null;
 
             try {
-                const pageable = {
-                    page,
-                    size
-                };
-
+                const pageable = { page, size };
                 const response = await listingService.getListings(filters, pageable);
                 this.listings = response.data.elements;
-
                 this.totalElements = response.data.totalElements;
                 this.totalPages = response.data.totalPages;
                 this.currentPage = response.data.currentPage;
@@ -85,8 +80,7 @@ export const useListingStore = defineStore('listing', {
             this.error = null;
 
             try {
-                const response = await listingService
-                    .updateListingStatus(id, status);
+                const response = await listingService.updateListingStatus(id, status);
                 return response.data;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to update listing status';
@@ -101,20 +95,43 @@ export const useListingStore = defineStore('listing', {
             this.error = null;
 
             try {
+                const pageable = { page, size };
                 const response = await listingService.getRecommendedListings(userId, pageable);
-
-                // Update the store state with the new recommended listings
-                this.listings = response.data.elements || [];
-                this.totalElements = response.data.totalElements;
-                this.totalPages = response.data.totalPages;
-                this.currentPage = response.data.currentPage;
-                this.pageSize = response.data.pageSize;
-                this.hasNext = response.data.hasNext;
-                this.hasPrevious = response.data.hasPrevious;
-
-                return response.data;
+                return this.handleMultipleListings(response, page);
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to fetch recommended listings';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchPersonalListings(userId, page = 1, size = 20) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const pageable = { page, size };
+                const response = await listingService.getPersonalListings(userId, pageable);
+                return this.handleMultipleListings(response, page);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to fetch personal listings';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchFavoriteListings(userId, page = 1, size = 20) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const pageable = { page, size };
+                const response = await listingService.getFavoriteListings(userId, pageable);
+                return this.handleMultipleListings(response, page);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to fetch favorite listings';
                 throw error;
             } finally {
                 this.loading = false;
@@ -126,11 +143,7 @@ export const useListingStore = defineStore('listing', {
             this.error = null;
 
             try {
-                const pageable = {
-                    page,
-                    size
-                };
-
+                const pageable = { page, size };
                 const response = await listingService.searchListings(query, pageable);
                 this.listings = response.data.elements || [];
                 this.totalElements = response.data.totalElements;
@@ -139,7 +152,6 @@ export const useListingStore = defineStore('listing', {
                 this.pageSize = response.data.pageSize;
                 this.hasNext = response.data.hasNext;
                 this.hasPrevious = response.data.hasPrevious;
-
                 return response.data;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to search listings';
@@ -147,6 +159,53 @@ export const useListingStore = defineStore('listing', {
             } finally {
                 this.loading = false;
             }
+        },
+
+        async addFavorite(userId, listingId) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                await listingService.addFavorite(userId, listingId);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to add favorite';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async removeFavorite(userId, listingId) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                await listingService.removeFavorite(userId, listingId);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to remove favorite';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        clearCurrentListing() {
+            this.currentListing = null;
+        },
+
+        handleMultipleListings(response, page) {
+            if (page === 1) {
+                this.listings = response.data.elements;
+            } else {
+                this.listings = [...this.listings, ...response.data.elements];
+            }
+            this.totalElements = response.data.totalElements;
+            this.totalPages = response.data.totalPages;
+            this.currentPage = response.data.currentPage;
+            this.pageSize = response.data.pageSize;
+            this.hasNext = response.data.hasNext;
+            this.hasPrevious = response.data.hasPrevious;
+            return response.data;
         }
     }
 });

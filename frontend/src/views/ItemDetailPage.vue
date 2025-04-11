@@ -5,13 +5,13 @@ import {useI18n} from 'vue-i18n';
 import ImageGallery from '../components/Gallery.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
+import FavoriteButton from "../components/products/FavoriteButton.vue";
 import {useListingStore} from "../stores/listing.js";
 import {useAuthStore} from "../stores/auth.js";
 import SelectField from "../components/form/SelectField.vue";
 import router from "../router/index.js";
 import { userService } from '../services/userService.js';
 import {useMessageStore} from "../stores/messages.js";
-
 
 const route = useRoute();
 const {t} = useI18n();
@@ -55,7 +55,8 @@ onMounted(async () => {
         status: listingStore.currentListing.status,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
-        postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
+        postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString(),
+        isFavorite: listingStore.currentListing.isFavorite || false,
       };
     }
   } catch (err) {
@@ -120,6 +121,19 @@ const updateStatus = async (status) => {
 const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
+};
+
+const handleToggleFavorite = async (payload) => {
+  try {
+    if (!payload.isFavorite) {
+      await listingStore.removeFavorite(authStore.getUser.id, payload.listingId);
+    } else {
+      await listingStore.addFavorite(authStore.getUser.id, payload.listingId);
+    }
+    product.value.isFavorite = payload.isFavorite;
+  } catch (err) {
+    error.value = "Failed to toggle favorite";
+  }
 };
 
 const sendMessageToSeller = async () => {
@@ -220,6 +234,13 @@ const contactSeller = async () => {
               <button v-if="!isOwner" class="contact-button" @click="contactSeller">
                 {{ t('itemDetailPage.contactSeller') }}
               </button>
+            </div>
+            <div class="favorite-button">
+              <FavoriteButton
+                  :is-favorite="product.isFavorite"
+                  :listing-id="product.id"
+                  @toggle-favorite="handleToggleFavorite"
+              />
             </div>
           </template>
 

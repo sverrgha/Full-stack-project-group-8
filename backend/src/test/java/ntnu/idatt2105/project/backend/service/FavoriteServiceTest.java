@@ -1,5 +1,6 @@
 package ntnu.idatt2105.project.backend.service;
 
+import ntnu.idatt2105.project.backend.dto.request.FavoriteRequest;
 import ntnu.idatt2105.project.backend.dto.response.MultipleListingsResponse;
 import ntnu.idatt2105.project.backend.dto.response.ShortListingResponse;
 import ntnu.idatt2105.project.backend.model.Listing;
@@ -64,7 +65,9 @@ class FavoriteServiceTest {
     when(listingService.listingExists(listingId)).thenReturn(true);
     when(userService.userExists(userId)).thenReturn(true);
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
-    favoriteService.addListingAsFavorite(userId, listingId, token);
+    favoriteService.addListingAsFavorite(new FavoriteRequest(
+            userId, listingId
+    ), token);
     verify(userFavoritesRepo, times(1)).save(userId, listingId);
   }
 
@@ -79,7 +82,9 @@ class FavoriteServiceTest {
     when(userService.userExists(userId)).thenReturn(true);
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(false);
     assertThrows(IllegalArgumentException.class, () ->
-                    favoriteService.addListingAsFavorite(userId, listingId, token),
+                    favoriteService.addListingAsFavorite(new FavoriteRequest(
+                            userId, listingId
+                    ), token),
             "User ID does not match token"
     );
     verify(userFavoritesRepo, never()).save(anyLong(), anyLong());
@@ -92,7 +97,10 @@ class FavoriteServiceTest {
   @Test
   void removeListingAsFavorite_validInput_deletes() {
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(true);
-    favoriteService.removeListingAsFavorite(userId, listingId, token);
+    when(userFavoritesRepo.existsByUserIdAndListingId(userId, listingId)).thenReturn(true);
+    favoriteService.removeListingAsFavorite(new FavoriteRequest(
+            userId, listingId
+    ), token);
     verify(userFavoritesRepo, times(1)).deleteByUserIdAndListingId(userId, listingId);
   }
 
@@ -104,7 +112,9 @@ class FavoriteServiceTest {
   void removeListingAsFavorite_userIdMismatch_throws() {
     when(userService.validateUserIdMatchesToken(userId, token)).thenReturn(false);
     assertThrows(IllegalArgumentException.class, () ->
-                    favoriteService.removeListingAsFavorite(userId, listingId, token),
+                    favoriteService.removeListingAsFavorite(new FavoriteRequest(
+                            userId, listingId
+                    ), token),
             "User ID does not match token"
     );
     verify(userFavoritesRepo, never()).deleteByUserIdAndListingId(anyLong(), anyLong());
