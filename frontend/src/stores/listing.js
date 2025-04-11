@@ -60,6 +60,18 @@ export const useListingStore = defineStore('listing', {
             }
         },
 
+        async updateListing(id, listingData) {
+            try {
+                const response = await listingService.updateListing(id, listingData);
+                // Update the current listing in the store
+                await this.fetchListingById(id);
+                return response;
+            } catch (error) {
+                console.error("Error updating listing:", error);
+                throw error;
+            }
+        },
+
         async addListing(listingData) {
             this.loading = true;
             this.error = null;
@@ -69,6 +81,23 @@ export const useListingStore = defineStore('listing', {
                 return response.data;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Failed to add listing';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteListing(id) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await listingService.deleteListing(id);
+                // Optionally, you can refresh the listings after deletion
+                await this.fetchListings();
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to delete listing';
                 throw error;
             } finally {
                 this.loading = false;

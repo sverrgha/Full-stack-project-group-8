@@ -204,6 +204,37 @@ public class ListingService {
   }
 
   /**
+   * Deletes a listing if the user is authorized to do so.
+   * Only the listing owner or an admin can delete the listing.
+   *
+   * @param listingId the ID of the listing to delete
+   * @param token    the JWT token of the user making the request
+   * @throws IllegalAccessException if the user is not authorized
+   * @throws IllegalArgumentException if the listing doesn't exist
+   */
+  @Transactional
+  public void deleteListing(Long listingId, String token) throws IllegalAccessException {
+    if (listingId == null) {
+      throw new IllegalArgumentException("Listing ID cannot be null");
+    }
+
+    Listing listing = listingRepo.getListingById(listingId)
+      .orElseThrow(() -> new IllegalArgumentException("Listing not found"));
+
+    if (!userService.validateUserIdMatchesToken(listing.getUserId(), token)) {
+      throw new IllegalAccessException("User is not authorized to delete this listing");
+    }
+
+    // Delete associated images first
+    List<String> imageUrls = listingImageRepo.getAllImagesByListingId(listingId);
+    for (String url : imageUrls) {
+      listingImageRepo.deleteImage(listingId, url);
+    }
+
+    listingRepo.deleteById(listingId);
+  }
+
+  /**
    * Helper method to add a location to the database if it does not already exist.
    * It checks if the location with the given postal code exists in the database,
    * and if not, it saves the new location.
