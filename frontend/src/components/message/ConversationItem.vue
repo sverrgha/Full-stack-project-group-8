@@ -2,7 +2,10 @@
 import { defineProps } from 'vue';
 
 const props = defineProps({
-  conversation: Object,
+  conversation: {
+    type: Object,
+    required: true
+  },
   isSelected: Boolean,
   onSelect: Function
 });
@@ -12,20 +15,14 @@ const props = defineProps({
   <div
       class="conversation-item"
       :class="{ 'selected': isSelected, 'unread': conversation.unread }"
-      @click="onSelect(conversation.id)"
+      @click="onSelect"
   >
     <div class="avatar">
-      <img
-          v-if="conversation.profileImage"
-          :src="conversation.profileImage"
-          alt="Profile"
-          class="avatar-image"
-      />
-      <template v-else>{{ conversation.username.charAt(0) }}</template>
+      <div class="avatar-placeholder">{{ conversation.email.charAt(0) }}</div>
     </div>
     <div class="conversation-info">
       <div class="conversation-header">
-        <span class="username">{{ conversation.username }}</span>
+        <span class="username">{{ conversation.email }}</span>
         <span class="timestamp">{{ conversation.timestamp }}</span>
       </div>
       <div class="last-message">{{ conversation.lastMessage }}</div>
@@ -56,21 +53,19 @@ const props = defineProps({
 .avatar {
   width: 40px;
   height: 40px;
+  margin-right: 15px;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background-color: #007bff;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
   font-weight: bold;
-  overflow: hidden;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .conversation-info {

@@ -7,9 +7,17 @@ import lombok.Data;
 @Data
 public class MessageRequest {
     @NotNull(message = "Sender ID is required, and cannot be null")
-    private Long sender;
+    private String sender;
     @NotNull(message = "Receiver ID is required, and cannot be null")
-    private Long receiver;
+    private String receiver;
     @NotBlank(message = "Content is required, and cannot be blank")
     private String content;
+
+    public String getSenderEmail() {
+        return sender;
+    }
+
+    public String getReceiverEmail() {
+        return receiver;
+    }
 }

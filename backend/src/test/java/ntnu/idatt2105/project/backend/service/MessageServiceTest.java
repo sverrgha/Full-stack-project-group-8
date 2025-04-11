@@ -4,8 +4,10 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import ntnu.idatt2105.project.backend.dto.response.MessageResponse;
+import ntnu.idatt2105.project.backend.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +30,9 @@ class MessageServiceTest {
     @Mock
     private MessageRepo messageRepo;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private MessageService messageService;
     /**
@@ -45,21 +50,43 @@ class MessageServiceTest {
      * and returns the expected Message object.
      */
     @Test
-    void testSendMessage() {
-
+    public void testSendMessage() {
+        // Arrange
         MessageRequest request = new MessageRequest();
-        request.setSender(1L);
-        request.setReceiver(2L);
-        request.setContent("Hello!");
+        request.setSender("sender@example.com");
+        request.setReceiver("receiver@example.com");
+        request.setContent("Hello, this is a test message");
+
+        // Create mock users that will be returned
+        User senderUser = new User();
+        senderUser.setId(1L); // Set appropriate ID
+        senderUser.setEmail("sender@example.com");
+
+        User receiverUser = new User();
+        receiverUser.setId(2L); // Set appropriate ID
+        receiverUser.setEmail("receiver@example.com");
+
+        // Mock userService behavior
+        when(userService.findByEmail("sender@example.com")).thenReturn(Optional.of(senderUser));
+        when(userService.findByEmail("receiver@example.com")).thenReturn(Optional.of(receiverUser));
+
+        // Mock messageRepo behavior
         doNothing().when(messageRepo).sendMessage(anyLong(), anyLong(), anyString());
 
-        MessageResponse message = messageService.sendMessage(request);
+        // Act
+        MessageResponse response = messageService.sendMessage(request);
 
-        assertNotNull(message);
-        assertEquals(1L, message.getSender());
-        assertEquals(2L, message.getReceiver());
-        assertEquals("Hello!", message.getContent());
-        assertFalse(message.isRead());
+        // Assert
+        assertNotNull(response);
+        assertEquals(request.getSender(), response.getSender());
+        assertEquals(request.getReceiver(), response.getReceiver());
+        assertEquals(request.getContent(), response.getContent());
+        assertFalse(response.isRead());
+
+        // Verify interactions
+        verify(userService).findByEmail("sender@example.com");
+        verify(userService).findByEmail("receiver@example.com");
+        verify(messageRepo).sendMessage(senderUser.getId(), receiverUser.getId(), request.getContent());
     }
 
     /**
@@ -67,11 +94,15 @@ class MessageServiceTest {
      * This test checks if the getConversation method correctly retrieves
      * the conversation between two users and returns a list of messages.
      */
+    /**
+
+
     @Test
     void testGetConversation() {
 
-        Message message1 = new Message(1L, 2L, "Hi!", false);
-        Message message2 = new Message(2L, 1L, "Hello!", true);
+
+        Message message1 = new Message("jane.smith@example.com", "peter.jones@example.com", "Hi!", false);
+        Message message2 = new Message("peter.jones@example.com", "jane.smith@example.com", "Hello!", true);
         when(messageRepo.findBySenderAndReceiver(anyLong(), anyLong())).thenReturn(List.of(message1, message2));
 
         List<Message> messages = messageService.getConversation(1L, 2L);
@@ -80,6 +111,30 @@ class MessageServiceTest {
         assertEquals(2, messages.size());
         assertEquals("Hi!", messages.get(0).getContent());
         assertEquals("Hello!", messages.get(1).getContent());
+    }
+     */
+
+    @Test
+    void testGetConversation() {
+        // Create test messages
+        Message message1 = new Message("jane.smith@example.com", "peter.jones@example.com", "Hi!", false);
+        Message message2 = new Message("peter.jones@example.com", "jane.smith@example.com", "Hello!", true);
+
+        // Mock the repository method that's actually being called
+        when(messageRepo.findByParticipants(anyLong(), anyLong()))
+            .thenReturn(List.of(message1, message2));
+
+        // Call the service method
+        List<Message> messages = messageService.getConversation(1L, 2L);
+
+        // Verify results
+        assertNotNull(messages);
+        assertEquals(2, messages.size());
+        assertEquals("Hi!", messages.get(0).getContent());
+        assertEquals("Hello!", messages.get(1).getContent());
+
+        // Verify the repository method was called with correct parameters
+        verify(messageRepo).findByParticipants(1L, 2L);
     }
 
     /**

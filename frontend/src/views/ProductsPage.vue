@@ -18,7 +18,7 @@ const listingStore = useListingStore();
 const isSidebarOpen = ref(false);
 const currentCategory = ref(null);
 const currentPage = ref(1);
-const pageSize = ref(20);
+const pageSize = ref(12);
 const loadingMore = ref(false);
 const isMapview = ref(false);
 
@@ -29,17 +29,13 @@ const filters = ref({
   priceMax: null,
   city: '',
   conditions: [],
+  category: null,
   sortBy: 'created_at',
   sortDirection: 'DESC'
 });
 
 
-// In the Vue component
 const fetchListings = async (resetPage = true) => {
-  if (resetPage) {
-    currentPage.value = 1;
-  }
-
   // Filter parameters
   const filterParams = {
     ...(filters.value.searchQuery && {query: filters.value.searchQuery}),
@@ -53,15 +49,29 @@ const fetchListings = async (resetPage = true) => {
   };
 
   try {
+    const pageToFetch = resetPage ? 1 : currentPage.value;
+
+    if (resetPage) {
+      currentPage.value = 1;
+    }
+
     await listingStore.fetchListings(
         filterParams,
-        currentPage.value,
+        pageToFetch,
         pageSize.value
     );
   } catch (error) {
     console.error('Error fetching listings:', error);
   }
 };
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+  fetchListings(false);
+  // Scroll to top of grid
+  window.scrollTo({ top: 500, behavior: 'smooth' });
+};
+
 
 // Initialize listings when component mounts
 onMounted(() => {
@@ -125,20 +135,25 @@ const applyFilters = (filterData) => {
   closeSidebar();
 };
 
-// Handle category selection
-const handleCategorySelect = (category) => {
-  currentCategory.value = category;
-  fetchListings();
-};
-
-// Load next page for infinite scrolling
-const loadNextPage = async () => {
-  if (listingStore.hasNext && !loadingMore.value) {
-    loadingMore.value = true;
-    currentPage.value++;
-    await fetchListings(false);
-    loadingMore.value = false;
+const handleCategorySelect = (categoryId) => {
+  if (currentCategory.value === categoryId) {
+    // Deselect category
+    currentCategory.value = null;
+    // Create a new filters object without the category property
+    const newFilters = { ...filters.value };
+    delete newFilters.category;
+    filters.value = newFilters;
+  } else {
+    // Select new category
+    currentCategory.value = categoryId;
+    filters.value = {
+      ...filters.value,
+      category: categoryId
+    };
   }
+
+  // Fetch listings with updated filters
+  fetchListings();
 };
 
 // Search functionality
@@ -353,29 +368,40 @@ const handleSortChange = () => {
         {{ t('productPage.noResults') }}
       </div>
 
-      <!-- Show listings -->
-      <div v-else>
+
+      <!-- Main content container -->
+      <div v-else class="content-container">
+        <!-- Show listings -->
         <Map v-if="isMapview" :listings="listingStore.listings"/>
-
-        <ItemGrid v-else :items="listingStore.listings" class="grid-layout"/>
-      </div>
-
-      <!-- Loading more indicator -->
-      <div v-if="loadingMore" class="loading-more">
-        {{ t('productPage.loadingMore') }}
-      </div>
-
-      <!-- Load more button -->
-      <div v-if="listingStore.hasNext && !loadingMore" class="load-more-container">
-        <button @click="loadNextPage" class="load-more-button">
-          {{ t('productPage.loadMore') }}
-        </button>
+        <ItemGrid
+            v-else
+            :items="listingStore.listings"
+            :total-pages="listingStore.totalPages"
+            :current-page="currentPage"
+            :loading="listingStore.loading"
+            class="grid-layout"
+            @page-change="handlePageChange"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
 .products-page {
   max-width: 1000px;
   margin: 0 auto;

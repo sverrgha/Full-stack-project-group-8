@@ -1,21 +1,28 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import {ref, onMounted, computed} from 'vue';
+import {useRoute} from 'vue-router';
+import {useI18n} from 'vue-i18n';
 import ImageGallery from '../components/Gallery.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
-import { useListingStore } from "../stores/listing.js";
-import { useAuthStore } from "../stores/auth.js";
+import {useListingStore} from "../stores/listing.js";
+import {useAuthStore} from "../stores/auth.js";
+import SelectField from "../components/form/SelectField.vue";
 
 const route = useRoute();
-const { t } = useI18n();
+const {t} = useI18n();
 const listingStore = useListingStore();
 const authStore = useAuthStore();
 const product = ref({});
 const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
+const statusOptions = [
+  {value: 'active', label: t('itemDetailPage.active')},
+  {value: 'sold', label: t('itemDetailPage.sold')},
+  {value: 'reserved', label: t('itemDetailPage.reserved')},
+  {value: 'archived', label: t('itemDetailPage.archived')}
+];
 
 
 const isOwner = computed(() => {
@@ -39,6 +46,7 @@ onMounted(async () => {
         userId: listingStore.currentListing.userId,
         seller: listingStore.currentListing.userId,
         category: listingStore.currentListing.categoryId,
+        status: listingStore.currentListing.status,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
         postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
@@ -75,6 +83,16 @@ const deleteItem = async () => {
     }
   }
 };
+
+const updateStatus = async (status) => {
+  try {
+    await listingStore.updateListingStatus(product.value.id, status);
+    product.value.status = status;
+  } catch (error) {
+    console.error('Failed to update status:', error);
+  }
+};
+
 const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
@@ -117,8 +135,19 @@ const updateImages = (newImages) => {
                 {{ t('itemDetailPage.save') }}
               </button>
               <button v-if="isEditing" @click="toggleEditMode" class="action-button cancel-button">
-                {{ t('itemDetailPage.cancel')}}
+                {{ t('itemDetailPage.cancel') }}
               </button>
+                <!-- Status Dropdown -->
+                <SelectField
+                    id="status"
+
+                    v-model="product.status"
+                    :options="statusOptions"
+                    option-value-key="value"
+                    option-label-key="label"
+                    @change="(event) => updateStatus(event.target.value)"
+                    :disabled="!isOwner"
+                />
             </div>
           </div>
 
@@ -222,6 +251,10 @@ const updateImages = (newImages) => {
           <span class="detail-label">{{ t('itemDetailPage.id') }}</span>
           <span class="detail-value">{{ product.id }}</span>
         </div>
+        <div class="detail-row">
+          <span class="detail-label">{{ t('itemDetailPage.status') }}</span>
+          <span class="detail-value">{{ t(`itemDetailPage.${product.status}`) }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -295,13 +328,14 @@ const updateImages = (newImages) => {
   box-sizing: border-box;
   overflow-wrap: break-word;
 }
+
 .product-description {
   margin: 30px 0;
 }
 
 .product-details-table {
   margin: 30px 0;
-  }
+}
 
 .detail-row {
   display: flex;
@@ -425,9 +459,43 @@ const updateImages = (newImages) => {
   width: 100px;
 }
 
-.edit-row .edit-field {
-  flex: 1;
+.button-container :deep(select) {
+  height: 44px;
+  padding: 0 16px;
+}
+.button-container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: 800px;
+}
+
+.button-container .action-button {
+  min-width: 100px;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-container :deep(.form-group) {
   margin-bottom: 0;
+  width: 200px;
+}
+
+.button-container :deep(select) {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+}
+
+.button-container :deep(.select-wrapper) {
+  min-width: 120px;
+  height: 49px;
 }
 
 @media (max-width: 768px) {

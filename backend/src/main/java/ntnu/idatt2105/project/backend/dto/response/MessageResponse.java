@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MessageResponse {
-    private Long sender;
-    private Long receiver;
+    private String sender;
+    private String receiver;
     private String content;
     private String timestamp;
     private boolean isRead;

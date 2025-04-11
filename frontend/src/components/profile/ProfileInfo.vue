@@ -1,20 +1,24 @@
+<!-- ProfileInfo.vue -->
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { userService } from '../../services/userService'
+import { useI18n } from 'vue-i18n'
 
-// Initialize router
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 
-// User data with reactive references
 const name = ref('Loading...')
-const biography = ref('')
 const loading = ref(true)
+const isAdmin = ref(false)
 
 // Navigate to profile settings page
 const settings = () => router.push('/profile/settings')
+
+// Navigate to admin dashboard
+const goToAdminDashboard = () => router.push('/admin')
 
 // Fetch user data from API
 const fetchUserData = async () => {
@@ -38,6 +42,9 @@ const fetchUserData = async () => {
       } else {
         name.value = 'Unknown User'
       }
+
+      // Set admin status from API response
+      isAdmin.value = Boolean(response.data.admin)
     } else {
       name.value = 'Unknown User'
     }
@@ -56,8 +63,14 @@ onMounted(() => {
 
 <template>
   <div class="profile-info card">
-    <!-- Settings icon -->
-    <div class="settings-icon-wrapper">
+    <!-- Settings controls -->
+    <div class="settings-controls">
+      <!-- Admin button - only shown for admins -->
+      <button v-if="isAdmin" class="admin-toggle" @click="goToAdminDashboard">
+        <img src="../../assets/admin.svg" alt="" class="admin-icon" />
+        {{ t('admin.dashboard') || 'Admin' }}
+      </button>
+
       <img src="../../assets/settings.png" alt="Settings" @click="settings" class="settings-icon" />
     </div>
 
@@ -114,10 +127,13 @@ onMounted(() => {
   border: 3px solid black;
 }
 
-.settings-icon-wrapper {
+.settings-controls {
   position: absolute;
   top: 1rem;
   right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .settings-icon {
@@ -131,5 +147,34 @@ onMounted(() => {
 .settings-icon:hover {
   opacity: 1;
   transform: rotate(90deg);
+}
+
+.admin-toggle {
+  background-color: lightgrey;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-toggle:hover {
+  background-color: darkgrey;
+}
+
+.admin-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.admin-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
 }
 </style>

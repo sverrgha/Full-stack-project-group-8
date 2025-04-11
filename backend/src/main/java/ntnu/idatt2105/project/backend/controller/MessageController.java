@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,26 +55,39 @@ public class MessageController {
    */
   @PostMapping("/send")
   public ResponseEntity<MessageResponse> sendMessage(HttpServletRequest httpRequest, @Valid @RequestBody MessageRequest request) {
-    logger.info("Received send message request from user: " + request.getSender());
+    logger.info("Received send message request from user: " + request.getSenderEmail());
     try {
       String token = extractToken(httpRequest);
-      String email = jwtUtil.extractUsername(token);
-      Optional<User> optionalUser = userService.findByEmail(email);
+      String authenticatedEmail = jwtUtil.extractUsername(token);
 
-      if (optionalUser.isEmpty()) {
-        logger.warning("User not found: " + email);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-      }
-
-      User authenticatedUser = optionalUser.get();
-
-      if (!authenticatedUser.getId().equals(request.getSender())) {
-        logger.warning("Unauthorized sender: " + request.getSender());
+      // Verify sender email matches authenticated user
+      if (!authenticatedEmail.equals(request.getSenderEmail())) {
+        logger.warning("Unauthorized sender: " + request.getSenderEmail());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       }
 
-      MessageResponse response = messageService.sendMessage(request);
-      logger.info("Message sent successfully from user: " + request.getSender() + " to user: " + request.getReceiver());
+      // Get sender user
+      Optional<User> sender = userService.findByEmail(request.getSenderEmail());
+      if (sender.isEmpty()) {
+        logger.warning("Sender not found: " + request.getSenderEmail());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // Get receiver user
+      Optional<User> receiver = userService.findByEmail(request.getReceiverEmail());
+      if (receiver.isEmpty()) {
+        logger.warning("Receiver not found: " + request.getReceiverEmail());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // Create internal message request with IDs
+      MessageRequest internalRequest = new MessageRequest();
+      internalRequest.setSender(sender.get().getEmail());
+      internalRequest.setReceiver(receiver.get().getEmail());
+      internalRequest.setContent(request.getContent());
+
+      MessageResponse response = messageService.sendMessage(internalRequest);
+      logger.info("Message sent successfully from user: " + request.getSenderEmail() + " to user: " + request.getReceiverEmail());
       return ResponseEntity.ok(response);
 
     } catch (Exception e) {
@@ -99,6 +113,10 @@ public class MessageController {
       String email = jwtUtil.extractUsername(token);
       Optional<User> user = userService.findByEmail(email);
 
+      if (user.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+      }
+
       List<ConversationSummaryResponse> messages = messageService.getInboxList(user.get().getId());
       if (messages.isEmpty()) {
         logger.warning("No messages found for user: " + email);
@@ -108,7 +126,7 @@ public class MessageController {
       return ResponseEntity.ok(messages);
     } catch (Exception e) {
       logger.warning("Error retrieving inbox: " + e.getMessage());
-      return ResponseEntity.status(500).body("Error retrieving inbox: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving inbox: " + e.getMessage());
     }
   }
 
@@ -122,7 +140,8 @@ public class MessageController {
    * @param endUserId The User object representing the other user in the conversation
    * @return ResponseEntity with the list of MessageResponse or an error status
    */
-  @GetMapping("/conversation")
+  /*
+  @GetMapping("/conversation/{endUserId}")
   public ResponseEntity<?> getConversation(HttpServletRequest request,
                                            @RequestParam(required = false) Long endUserId) {
     logger.info("Received conversation request from user: " + endUserId);
@@ -171,6 +190,49 @@ public class MessageController {
     } catch (Exception e) {
       logger.warning("Error retrieving conversation: " + e.getMessage());
       return ResponseEntity.status(500).body("Error retrieving conversation: " + e.getMessage());
+    }
+  }
+
+   */
+
+  @GetMapping("/conversation/{endUserEmail}")
+  public ResponseEntity<?> getConversation(HttpServletRequest request,
+                                           @PathVariable String endUserEmail) {
+    try {
+      String token = extractToken(request);
+      String currentUserEmail = jwtUtil.extractUsername(token);
+
+      // Get users
+      User currentUser = userService.findByEmail(currentUserEmail)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+      User endUser = userService.findByEmail(endUserEmail)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+      if (currentUserEmail.equals(endUserEmail)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Cannot fetch conversation with yourself");
+      }
+
+      List<MessageResponse> messages = messageService
+        .getConversation(currentUser.getId(), endUser.getId())
+        .stream()
+        .map(message -> new MessageResponse(
+          message.getSender(),
+          message.getReceiver(),
+          message.getContent(),
+          message.getTimestamp(),
+          message.isRead()
+        ))
+        .toList();
+
+      return ResponseEntity.ok(messages);
+
+    } catch (ResponseStatusException e) {
+      throw e;
+    } catch (Exception e) {
+      logger.warning("Error retrieving conversation: " + e.getMessage());
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+        "Error retrieving conversation");
     }
   }
 }
