@@ -110,14 +110,6 @@ const respondToOffer = async (messageId, response) => {
       <div v-if="messageStore.loading">Loading conversations...</div>
       <div v-else-if="conversations.length === 0">No conversations yet</div>
       <div v-else>
-        <!--- Loop through conversations and display them
-        <ConversationItem
-            v-for="conv in conversations"
-            :key="conv.id"
-            :conversation="conv"
-            :isSelected="selectedConversation === conv.id"
-            :onSelect="() => selectConversation(conv.email)"
-        />-->
 
         <ConversationItem
             v-for="conv in conversations"
@@ -190,6 +182,26 @@ const respondToOffer = async (messageId, response) => {
   margin-right: 10px;
 }
 
+.avatar-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .conversation-list {
   width: 30%;
   min-width: 250px;
@@ -255,32 +267,10 @@ const respondToOffer = async (messageId, response) => {
   gap: 12px;
 }
 
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .user-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
 }
 
 /* Responsive design */

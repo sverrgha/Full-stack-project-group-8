@@ -8,15 +8,21 @@ import TextAreaField from "../components/form/TextAreaField.vue";
 import {useListingStore} from "../stores/listing.js";
 import {useAuthStore} from "../stores/auth.js";
 import SelectField from "../components/form/SelectField.vue";
+import router from "../router/index.js";
+import { userService } from '../services/userService.js';
+import {useMessageStore} from "../stores/messages.js";
+
 
 const route = useRoute();
 const {t} = useI18n();
 const listingStore = useListingStore();
 const authStore = useAuthStore();
+const messageStore = useMessageStore();
 const product = ref({});
 const loading = ref(true);
 const error = ref(null);
 const isEditing = ref(false);
+const sellerEmail = ref(null);
 const statusOptions = [
   {value: 'active', label: t('itemDetailPage.active')},
   {value: 'sold', label: t('itemDetailPage.sold')},
@@ -84,6 +90,24 @@ const deleteItem = async () => {
   }
 };
 
+onMounted(async () => {
+  const productId = route.params.id;
+  try {
+    await listingStore.fetchListingById(productId);
+    if (listingStore.currentListing) {
+      // ... existing product mapping ...
+
+      // Fetch seller's email
+      const sellerResponse = await userService.getUserById(listingStore.currentListing.userId);
+      sellerEmail.value = sellerResponse.data.email;
+    }
+  } catch (err) {
+    error.value = "Failed to load product details: " + (err.message || err);
+  } finally {
+    loading.value = false;
+  }
+});
+
 const updateStatus = async (status) => {
   try {
     await listingStore.updateListingStatus(product.value.id, status);
@@ -96,6 +120,33 @@ const updateStatus = async (status) => {
 const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
+};
+
+const sendMessageToSeller = async () => {
+  try {
+    const currentUserEmail = authStore.user.email; // Get current user's email
+    await messageStore.sendMessage(
+        currentUserEmail,
+        sellerEmail.value, // This should already be the receiver's email
+        t('messages.productInterest')
+    );
+  } catch (error) {
+    console.error('Failed to send message:', error);
+  }
+};
+
+const contactSeller = async () => {
+  if (!authStore.isAuthenticated) {
+    // Redirect to login if user is not authenticated
+    router.push('/login');
+    return;
+  }
+
+  await sendMessageToSeller();
+  // Navigate to messages with seller info as query params
+  router.push({
+    path: '/messages',
+  });
 };
 </script>
 
@@ -166,7 +217,7 @@ const updateImages = (newImages) => {
             <div class="seller-info">
               <h3>{{ t('itemDetailPage.seller') }}</h3>
               <div>{{ product.seller }}</div>
-              <button v-if="!isOwner" class="contact-button">
+              <button v-if="!isOwner" class="contact-button" @click="contactSeller">
                 {{ t('itemDetailPage.contactSeller') }}
               </button>
             </div>
