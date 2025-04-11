@@ -1,5 +1,13 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.AddListingRequest;
 import ntnu.idatt2105.project.backend.dto.request.ListingFilterRequest;
@@ -25,7 +33,7 @@ import java.util.logging.Logger;
  * ListingController handles requests related to listings.
  * It provides endpoints for adding, fetching, and filtering listings.
  */
-
+@Tag(name = "Listings", description = "Endpoints for managing and retrieving listings")
 @RestController
 @RequestMapping("/api/listing")
 public class ListingController {
@@ -52,6 +60,26 @@ public class ListingController {
    * @param pageable      pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing simple
    */
+  @Operation(
+          summary = "Get listings with optional filters and pagination",
+          description = "Retrieves a list of listings, optionally filtered by criteria and paginated.",
+          parameters = {
+                  @Parameter(name = "propertyType", in = ParameterIn.QUERY, description = "Filter by property type"),
+                  @Parameter(name = "location", in = ParameterIn.QUERY, description = "Filter by location"),
+                  @Parameter(name = "minPrice", in = ParameterIn.QUERY, description = "Filter by minimum price"),
+                  @Parameter(name = "maxPrice", in = ParameterIn.QUERY, description = "Filter by maximum price"),
+                  @Parameter(name = "amenities", in = ParameterIn.QUERY, description = "Filter by amenities (comma-separated)"),
+                  @Parameter(name = "size", in = ParameterIn.QUERY, description = "Number of items per page (default: 20)"),
+                  @Parameter(name = "page", in = ParameterIn.QUERY, description = "Page number (default: 1)"),
+                  @Parameter(name = "sort", in = ParameterIn.QUERY, description = "Sorting criteria (e.g., 'created_at,desc')")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully retrieved listings",
+                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = MultipleListingsResponse.class))),
+                  @ApiResponse(responseCode = "400", description = "Invalid filter request"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error")
+          }
+  )
   @GetMapping
   public ResponseEntity<MultipleListingsResponse> getListings(
           @Valid ListingFilterRequest filterRequest,
@@ -86,6 +114,22 @@ public class ListingController {
    * @return ResponseEntity with AddListingResponse containing the ID of the added and
    * a message
    */
+  @Operation(
+          summary = "Add a new listing",
+          description = "Adds a new listing to the system.",
+          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  description = "Listing details to add",
+                  required = true,
+                  content = @Content(schema = @Schema(implementation = AddListingRequest.class))
+          ),
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Listing added successfully",
+                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = AddListingResponse.class))),
+                  @ApiResponse(responseCode = "400", description = "Invalid listing data"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error while adding listing")
+          },
+          security = @SecurityRequirement(name = "BearerAuth")
+  )
   @PostMapping
   public ResponseEntity<AddListingResponse> addListing(
           @Valid @RequestBody AddListingRequest listing) {
@@ -115,6 +159,19 @@ public class ListingController {
    * @param id the ID of the listing to be fetched
    * @return ResponseEntity with FullListingResponse containing all the information
    */
+  @Operation(
+          summary = "Get listing by ID",
+          description = "Retrieves detailed information about a specific listing based on its ID.",
+          parameters = {
+                  @Parameter(name = "id", in = ParameterIn.PATH, required = true, description = "ID of the listing to retrieve")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully retrieved listing",
+                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = FullListingResponse.class))),
+                  @ApiResponse(responseCode = "404", description = "No listing found with the given ID"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error")
+          }
+  )
   @GetMapping("/{id}")
   public ResponseEntity<FullListingResponse> getListingById(@PathVariable Long id) {
     logger.info("Received request for listing with ID: " + id);
@@ -138,6 +195,26 @@ public class ListingController {
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating the result of the update
    */
+  @Operation(
+          summary = "Update a listing by ID",
+          description = "Updates the information of an existing listing.",
+          security = @SecurityRequirement(name = "BearerAuth"),
+          parameters = {
+                  @Parameter(name = "id", in = ParameterIn.PATH, required = true, description = "ID of the listing to update"),
+                  @Parameter(name = "Authorization", in = ParameterIn.HEADER, required = true, description = "Bearer token for authentication")
+          },
+          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  description = "New listing details",
+                  required = true,
+                  content = @Content(schema = @Schema(implementation = ModifyListingRequest.class))
+          ),
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Listing updated successfully"),
+                  @ApiResponse(responseCode = "401", description = "Unauthorized attempt to update listing"),
+                  @ApiResponse(responseCode = "404", description = "Invalid listing ID provided"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error while updating listing")
+          }
+  )
   @PutMapping("/{id}")
   public ResponseEntity<String> updateListing(
           @PathVariable Long id,
@@ -173,6 +250,21 @@ public class ListingController {
    * @param pageable pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing the recommended listings
    */
+  @Operation(
+          summary = "Get recommended listings for a user",
+          description = "Retrieves a paginated list of listings recommended for a specific user.",
+          parameters = {
+                  @Parameter(name = "userId", in = ParameterIn.QUERY, required = true, description = "ID of the user to get recommendations for"),
+                  @Parameter(name = "size", in = ParameterIn.QUERY, description = "Number of items per page (default: 20)"),
+                  @Parameter(name = "page", in = ParameterIn.QUERY, description = "Page number (default: 1)")
+          },
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Successfully retrieved recommended listings",
+                          content = @Content(mediaType = "application/json", schema = @Schema(implementation = MultipleListingsResponse.class))),
+                  @ApiResponse(responseCode = "400", description = "Invalid user ID"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error while fetching recommendations")
+          }
+  )
   @GetMapping("/user/recommended")
   public ResponseEntity<MultipleListingsResponse> getRecommendedListings(
           @RequestParam Long userId,
@@ -208,6 +300,26 @@ public class ListingController {
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a status and message indicating the result of the update
    */
+  @Operation(
+          summary = "Update listing status",
+          description = "Updates the status of a specific listing.",
+          security = @SecurityRequirement(name = "BearerAuth"),
+          parameters = {
+                  @Parameter(name = "listingId", in = ParameterIn.PATH, required = true, description = "ID of the listing to update status"),
+                  @Parameter(name = "Authorization", in = ParameterIn.HEADER, required = true, description = "Bearer token for authentication")
+          },
+          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  description = "New listing status",
+                  required = true,
+                  content = @Content(schema = @Schema(implementation = ListingStatusRequest.class))
+          ),
+          responses = {
+                  @ApiResponse(responseCode = "200", description = "Listing status updated successfully"),
+                  @ApiResponse(responseCode = "401", description = "Unauthorized attempt to update listing status"),
+                  @ApiResponse(responseCode = "404", description = "Invalid listing ID provided"),
+                  @ApiResponse(responseCode = "500", description = "Internal server error while updating listing status")
+          }
+  )
   @PutMapping("/{listingId}/status")
   public ResponseEntity<String> updateListingStatus(
           @PathVariable Long listingId,

@@ -1,5 +1,11 @@
 package ntnu.idatt2105.project.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ntnu.idatt2105.project.backend.dto.request.LoginRequest;
 import ntnu.idatt2105.project.backend.dto.request.RegisterRequest;
@@ -9,8 +15,11 @@ import ntnu.idatt2105.project.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.logging.Logger;
 
 /**
@@ -18,6 +27,8 @@ import java.util.logging.Logger;
  * It uses the UserService to perform the actual operations and returns appropriate responses.
  * All requests are returning a AuthResponse object containing the email, a message, token and user ID.
  */
+@Tag(name = "Authentication", description = "Endpoint for user registration, login and " +
+        "refreshing JWT token")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -34,7 +45,31 @@ public class AuthController {
    * @param request the registration request containing user details
    * @return ResponseEntity with login response containing email, message, token and user ID
    */
-
+  @Operation(
+          summary = "Register a new user",
+          description = "This endpoint allows a new user to register by providing their " +
+                  "email, password, firstname, lastname and phone number.",
+          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  description = "User registration details",
+                  required = true,
+                  content = @Content(schema = @Schema(implementation = RegisterRequest.class))
+          )
+  )
+  @ApiResponse(
+          responseCode = "201",
+          description = "User registered successfully",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(
+          responseCode = "400",
+          description = "User registration failed, due to invalid input or existing user",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(
+          responseCode = "500",
+          description = "Internal server error, unable to register user",
+          content = @Content(mediaType = "application/json", schema =
+          @Schema(implementation = AuthResponse.class)))
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> registerUser(@Valid @RequestBody RegisterRequest request) {
     logger.info("Received register request for user: " + request.getEmail());
@@ -50,9 +85,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error registering user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-        new AuthResponse(request.getEmail(),
-          AuthResponseMessage.SAVING_USER_ERROR.getMessage()
-            + e.getMessage(), null, null, null));
+              new AuthResponse(request.getEmail(),
+                      AuthResponseMessage.SAVING_USER_ERROR.getMessage()
+                              + e.getMessage(), null, null, null));
     }
   }
 
@@ -66,7 +101,24 @@ public class AuthController {
    * @param request the login request containing user email and password
    * @return ResponseEntity with login response containing email, message, token and user ID
    */
-
+  @Operation(
+          summary = "Log in an existing user",
+          description = "Authenticates a user and returns authentication details.",
+          requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  description = "User login details",
+                  required = true,
+                  content = @Content(schema = @Schema(implementation = LoginRequest.class))
+          )
+  )
+  @ApiResponse(responseCode = "200", description = "User logged in successfully",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(responseCode = "401", description = "Invalid login credentials",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(responseCode = "500", description = "Internal server error during login",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest request) {
     logger.info("Received login request for user: " + request.getEmail());
@@ -83,9 +135,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error logging in user: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-        new AuthResponse(request.getEmail(),
-          AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
-            + e.getMessage(), null, null, null));
+              new AuthResponse(request.getEmail(),
+                      AuthResponseMessage.USER_LOGIN_ERROR.getMessage()
+                              + e.getMessage(), null, null, null));
     }
   }
 
@@ -98,8 +150,25 @@ public class AuthController {
    * @param currentToken The current JWT token provided in the "Authorization" header.
    *                     It must start with the "Bearer" prefix.
    * @return ResponseEntity containing an AuthResponse object with the new token and user information,
-   *         or an error message if the token is invalid or expired.
+   * or an error message if the token is invalid or expired.
    */
+  @Operation(
+          summary = "Refresh JWT token",
+          description = "Refreshes an expired or soon-to-expire JWT token.",
+          security = @SecurityRequirement(name = "BearerAuth")
+  )
+  @ApiResponse(responseCode = "200", description = "Token refreshed successfully",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(responseCode = "400", description = "Invalid refresh token format",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(responseCode = "401", description = "Token is invalid or expired",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
+  @ApiResponse(responseCode = "500", description = "Internal server error during token refresh",
+          content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = AuthResponse.class)))
   @PostMapping("/refreshToken")
   public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String currentToken) {
     logger.info("Received refresh token request");
@@ -107,7 +176,7 @@ public class AuthController {
       if (currentToken == null || !currentToken.startsWith("Bearer")) {
         logger.warning("Invalid refresh token format");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-          new AuthResponse(null, "Invalid refresh token format", null, null, null)
+                new AuthResponse(null, "Invalid refresh token format", null, null, null)
         );
       }
 
@@ -125,9 +194,9 @@ public class AuthController {
     } catch (Exception e) {
       logger.warning("Error refreshing token: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-        new AuthResponse(null,
-          AuthResponseMessage.TOKEN_REFRESH_ERROR.getMessage()
-            + e.getMessage(), null, null, null)
+              new AuthResponse(null,
+                      AuthResponseMessage.TOKEN_REFRESH_ERROR.getMessage()
+                              + e.getMessage(), null, null, null)
       );
     }
   }
