@@ -16,10 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * ListingRepo class is a repository for managing listings in the database.
@@ -205,14 +202,13 @@ public class ListingRepo {
 
     if (pageable.getSort().isSorted()) {
       sql.append(" ORDER BY ");
-      List<Sort.Order> orderList = new ArrayList<>();
-      pageable.getSort().forEach(orderList::add);
-      for (int i = 0; i < orderList.size(); i++) {
-        Sort.Order order = orderList.get(i);
-        sql.append("l.").append(order.getProperty()).append(" ").append(order.getDirection().name());
-        if (i < orderList.size() - 1) {
-          sql.append(", ");
-        }
+
+      List<String> sortClauses = getSortClauses(pageable);
+
+      if (sortClauses.isEmpty()) {
+        sql.append("l.id ASC");
+      } else {
+        sql.append(String.join(", ", sortClauses));
       }
     } else {
       sql.append(" ORDER BY l.id ASC");
@@ -251,6 +247,28 @@ public class ListingRepo {
             (rs, rowNum) -> mapResultSetToListing(rs)
     );
     return new PageImpl<>(listings, pageable, totalResults != 0 ? totalResults : 0);
+  }
+
+  private static List<String> getSortClauses(Pageable pageable) {
+    Map<String, String> allowedSortFields = new HashMap<>();
+    allowedSortFields.put("id", "l.id");
+    allowedSortFields.put("title", "l.title");
+    allowedSortFields.put("price", "l.price");
+    allowedSortFields.put("created_at", "l.created_at");
+    allowedSortFields.put("condition", "l.condition");
+    allowedSortFields.put("categoryId", "l.category_id");
+
+    List<String> sortClauses = new ArrayList<>();
+
+    for (Sort.Order order : pageable.getSort()) {
+      String property = order.getProperty();
+
+      if (allowedSortFields.containsKey(property)) {
+        String direction = order.getDirection().isAscending() ? "ASC" : "DESC";
+        sortClauses.add(allowedSortFields.get(property) + " " + direction);
+      }
+    }
+    return sortClauses;
   }
 
   /**
