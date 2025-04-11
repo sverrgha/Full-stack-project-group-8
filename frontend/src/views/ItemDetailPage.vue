@@ -11,6 +11,9 @@ import SelectField from "../components/form/SelectField.vue";
 import router from "../router/index.js";
 import { userService } from '../services/userService.js';
 import {useMessageStore} from "../stores/messages.js";
+import {categoriesService} from "../services/categoriesService.js";
+import {validatePostalCode} from "../services/postalCodeService.js";
+import * as postalCodeService from "../services/postalCodeService.js";
 
 
 const route = useRoute();
@@ -30,6 +33,37 @@ const statusOptions = [
   {value: 'archived', label: t('itemDetailPage.archived')}
 ];
 
+const categories = ref([]);
+
+const availableConditions = ref(['new', 'like_new', 'good', 'fair', 'poor']); // Match your backend enum values
+const originalProduct = ref({}); // To store the original data before editing
+
+const fetchCategories = async () => {
+  try {
+    console.log('Fetching categories...');
+    const response = await categoriesService.getAllCategories();
+    // Check the actual response structure and adjust the mapping
+    categories.value = response.data.categories.map(category => ({
+      id: category.id,
+      value: category.id,
+      label: category.nameEn
+    }));
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    categories.value = [];
+  }
+};
+
+const toggleEditMode = () => {
+  if (isEditing.value) {
+    // Discard changes and revert to original data
+    product.value = JSON.parse(JSON.stringify(originalProduct.value));
+  } else {
+    // Store original data before entering edit mode
+    originalProduct.value = JSON.parse(JSON.stringify(product.value));
+  }
+  isEditing.value = !isEditing.value;
+};
 
 const isOwner = computed(() => {
   if (!product.value || !authStore.getUser) return false;
@@ -40,23 +74,33 @@ const isOwner = computed(() => {
 onMounted(async () => {
   const productId = route.params.id;
   try {
+    // Fetch categories first
+    await fetchCategories();
+
+    // Continue with existing listing fetch
     await listingStore.fetchListingById(productId);
-    // Map backend data to component format
     if (listingStore.currentListing) {
       product.value = {
         id: listingStore.currentListing.id,
         name: listingStore.currentListing.title,
         description: listingStore.currentListing.description,
+        briefDescription: listingStore.currentListing.briefDescription,
         price: listingStore.currentListing.price,
-        location: listingStore.currentListing.city,
+        location: {
+          postalCode: listingStore.currentListing.postalCode,
+          city: listingStore.currentListing.city
+        },
         userId: listingStore.currentListing.userId,
         seller: listingStore.currentListing.userId,
-        category: listingStore.currentListing.categoryId,
+        categoryId: listingStore.currentListing.categoryId, // Use actual categoryId
         status: listingStore.currentListing.status,
         condition: listingStore.currentListing.condition,
         images: listingStore.currentListing.images || [],
         postedDate: new Date(listingStore.currentListing.createdAt).toLocaleDateString()
       };
+
+      const sellerResponse = await userService.getUserById(listingStore.currentListing.userId);
+      sellerEmail.value = sellerResponse.data.email;
     }
   } catch (err) {
     error.value = "Failed to load product details: " + (err.message || err);
@@ -65,27 +109,87 @@ onMounted(async () => {
   }
 });
 
-
 const saveChanges = async () => {
   try {
-    // Implement the update logic using your API
-    // Example: await listingService.updateListing(product.value.id, mappedData);
+
+    const postalCodeResponse = await postalCodeService.validatePostalCode(product.value.location.postalCode);
+
+    if (!postalCodeResponse.valid) {
+      throw new Error(t('newListing.invalidPostalCode'));
+    }
+
+    // Create the request object for the new listing
+    const newListingData = {
+      title: product.value.name,
+      categoryId: product.value.categoryId,
+      price: parseFloat(product.value.price),
+      briefDescription: product.value.briefDescription || product.value.description.substring(0, 100),
+      description: product.value.description,
+      userId: authStore.user.id, // Add userId from auth store
+      condition: product.value.condition,
+      images: product.value.images,
+      location: {
+        postalCode: product.value.location.postalCode,
+        city: postalCodeResponse.city,
+        country: postalCodeResponse.country,
+        longitude: postalCodeResponse.longitude,
+        latitude: postalCodeResponse.latitude
+      }
+    };
+
+    // Create new listing first
+    const newListing = await listingStore.addListing(newListingData);
+
+    // Delete the old listing after the new one is created
+    await listingStore.deleteListing(product.value.id);
+    alert(t('itemDetailPage.updateSuccess') || 'Item updated successfully');
+
+    // Exit edit mode
     isEditing.value = false;
+
+    // Navigate to the new listing
+    await router.push(`/product/${newListing.id}`);
+    window.location.reload();
+
   } catch (err) {
-    error.value = "Failed to save changes";
+    error.value = "Failed to save changes: " + (err.message || err);
+    console.error(err);
   }
 };
 
+const conditions = ref(availableConditions.value.map(condition => ({
+  value: condition,
+  label: t(`conditions.${condition}`) || condition
+})));
+
 // Delete item function
+const isDeleting = ref(false);
+
 const deleteItem = async () => {
+  // Show confirmation dialog
   if (confirm(t('itemDetailPage.confirmDelete') || 'Are you sure you want to delete this item?')) {
     try {
-      // Implement the delete logic using your API
-      // Example: await listingService.deleteListing(product.value.id);
-      // Redirect to listings page or home
-      // router.push('/listings');
+      // Set loading state
+      isDeleting.value = true;
+
+      // Call API to delete the listing
+      await listingStore.deleteListing(product.value.id);
+
+      // Show success message
+      alert(t('itemDetailPage.deleteSuccess') || 'Item deleted successfully');
+
+      // Navigate to products page
+      await router.push('/products');
     } catch (err) {
-      error.value = "Failed to delete item";
+      // Prepare and show error message
+      const errorMessage = err.response?.data || t('itemDetailPage.deleteError') || 'Failed to delete item';
+      error.value = errorMessage;
+      alert(errorMessage);
+
+      console.error('Error deleting item:', err);
+    } finally {
+      // Reset loading state
+      isDeleting.value = false;
     }
   }
 };
@@ -148,6 +252,11 @@ const contactSeller = async () => {
     path: '/messages',
   });
 };
+
+const categoryName = computed(() => {
+  const category = categories.value.find(c => c.id === product.value.categoryId);
+  return category ? category.label : '';
+});
 </script>
 
 <template>
@@ -180,7 +289,8 @@ const contactSeller = async () => {
                 {{ t('itemDetailPage.edit') }}
               </button>
               <button v-if="!isEditing" @click="deleteItem" class="action-button delete-button">
-                {{ t('itemDetailPage.delete') }}
+                <span v-if="isDeleting">{{ t('common.deleting') }}...</span>
+                <span v-else>{{ t('itemDetailPage.delete') }}</span>
               </button>
               <button v-if="isEditing" @click="saveChanges" class="action-button save-button">
                 {{ t('itemDetailPage.save') }}
@@ -191,7 +301,6 @@ const contactSeller = async () => {
                 <!-- Status Dropdown -->
                 <SelectField
                     id="status"
-
                     v-model="product.status"
                     :options="statusOptions"
                     option-value-key="value"
@@ -208,7 +317,7 @@ const contactSeller = async () => {
             <div class="price-box">{{ product.price }} kr</div>
             <div class="location-box">
               <span class="label">{{ t('itemDetailPage.location') }}:</span>
-              <span>{{ product.location }}</span>
+              <span>{{ product.location.city }}</span>
             </div>
             <div class="posted-date">
               <span class="label">{{ t('itemDetailPage.dateAdded') }}:</span>
@@ -244,31 +353,51 @@ const contactSeller = async () => {
             <!-- Location input -->
             <div class="edit-row">
               <span class="label">{{ t('itemDetailPage.location') }}:</span>
-              <BaseInputField
-                  v-model="product.location"
-                  type="text"
-                  class="edit-field"
-              />
+                <BaseInputField
+                    v-model="product.location.postalCode"
+                    type="text"
+                    :placeholder="t('itemDetailPage.postalCode')"
+                    class="postal-code-input"
+                />
+
             </div>
 
             <!-- Category input -->
             <div class="edit-row">
               <span class="label">{{ t('itemDetailPage.category') }}:</span>
-              <select v-model="product.category" class="edit-field select-input">
-                <option v-for="category in availableCategories" :key="category" :value="category">
-                  {{ category }}
-                </option>
-              </select>
+              <SelectField
+                  id="category"
+                  v-model="product.categoryId"
+                  :options="categories"
+                  option-value-key="value"
+                  option-label-key="label"
+                  class="edit-field"
+              />
             </div>
 
             <!-- Condition input -->
             <div class="edit-row">
-              <span class="label">{{ t('itemDetailPage.condition') }}:</span>
-              <select v-model="product.condition" class="edit-field select-input">
-                <option v-for="condition in availableConditions" :key="condition" :value="condition">
-                  {{ condition }}
-                </option>
-              </select>
+              <span class="label">{{ t('conditions.condition') }}:</span>
+              <SelectField
+                  id="condition"
+                  v-model="product.condition"
+                  :options="conditions"
+                  option-value-key="value"
+                  option-label-key="label"
+                  class="edit-field"
+              />
+            </div>
+
+            <!-- Brief Description (add this if missing) -->
+            <div v-if="isEditing" class="edit-row">
+              <span class="label">{{ t('itemDetailPage.briefDescription') }}:</span>
+              <TextAreaField
+                  id="brief-description"
+                  v-model="product.briefDescription"
+                  rows="2"
+                  class="edit-field"
+                  :maxlength="100"
+              />
             </div>
           </template>
         </div>
@@ -292,7 +421,7 @@ const contactSeller = async () => {
         <h2>{{ t('itemDetailPage.itemDetails') }}</h2>
         <div class="detail-row">
           <span class="detail-label">{{ t('itemDetailPage.category') }}</span>
-          <span class="detail-value">{{ product.category }}</span>
+          <span class="detail-value">{{ categoryName }}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">{{ t('itemDetailPage.condition') }}</span>
@@ -325,6 +454,54 @@ const contactSeller = async () => {
   flex-wrap: wrap;
   gap: 30px;
   margin-bottom: 30px;
+}
+.edit-row {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.edit-row .label {
+  min-width: 100px;
+  font-weight: bold;
+}
+
+.edit-field {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.location-fields {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.city-input {
+  flex: 2;
+}
+
+.postal-code-input {
+  flex: 1;
+}
+
+.title-input {
+  font-size: 1.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.price-edit {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.price-input {
+  width: 120px;
+  margin-right: 0.5rem;
 }
 
 .product-images {
