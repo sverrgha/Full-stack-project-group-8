@@ -231,10 +231,6 @@ public class ListingService {
       listingImageRepo.deleteImage(listingId, url);
     }
 
-    // Delete the browsing history entries
-    //browsingHistoryRepo.deleteAllByListingId(listingId);
-
-    // Delete the listing
     listingRepo.deleteById(listingId);
   }
 
