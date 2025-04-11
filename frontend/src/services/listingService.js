@@ -48,5 +48,24 @@ export const listingService = {
                 page: pageable.page?.value,
             }
         });
-    }
+    },
+
+    addFavorite(userId, listingId) {
+        return apiClient.post('/favorites', {
+                userId: userId,
+                listingId: listingId
+            }
+        );
+    },
+
+    removeFavorite(userId, listingId) {
+        return apiClient.delete(`/favorites`, {
+                data: {
+                    userId: userId,
+                    listingId: listingId
+                }
+            }
+        )
+            ;
+    },
 };

@@ -7,6 +7,7 @@ import BaseInputField from '../components/form/BaseInputField.vue';
 import TextAreaField from "../components/form/TextAreaField.vue";
 import { useListingStore } from "../stores/listing.js";
 import { useAuthStore } from "../stores/auth.js";
+import FavoriteButton from "../components/products/FavoriteButton.vue";
 
 const route = useRoute();
 const { t } = useI18n();
@@ -79,6 +80,19 @@ const updateImages = (newImages) => {
   product.value.images = newImages;
   //implement api here
 };
+
+const handleToggleFavorite = async (payload) => {
+  try {
+    if (!payload.isFavorite) {
+      await listingStore.removeFavorite(product.value.userId, payload.listingId);
+    } else {
+      await listingStore.addFavorite(product.value.userId, payload.listingId);
+    }
+    product.value.isFavorite = payload.isFavorite;
+  } catch (err) {
+    error.value = "Failed to toggle favorite";
+  }
+};
 </script>
 
 <template>
@@ -140,6 +154,13 @@ const updateImages = (newImages) => {
               <button v-if="!isOwner" class="contact-button">
                 {{ t('itemDetailPage.contactSeller') }}
               </button>
+            </div>
+            <div class="favorite-button">
+              <FavoriteButton
+                  :is-favorite="product.isFavorite"
+                  :listing-id="product.id"
+                  @toggle-favorite="handleToggleFavorite"
+              />
             </div>
           </template>
 

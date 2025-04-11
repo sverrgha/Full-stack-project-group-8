@@ -150,6 +150,34 @@ export const useListingStore = defineStore('listing', {
             this.hasNext = response.data.hasNext;
             this.hasPrevious = response.data.hasPrevious;
             return response.data;
+        },
+
+        async addFavorite(userId, listingId) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                listingService.addFavorite(userId, listingId);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to add favorite';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async removeFavorite(userId, listingId) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                await listingService.removeFavorite(userId, listingId);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to remove favorite';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         }
     }
 })
