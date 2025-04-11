@@ -31,9 +31,9 @@ public class UserFavoriteController {
    * This method takes a user ID and pagination parameters to limit the number of
    * listings returned, and dividing them into pages.
    *
-   * @param userId the ID of the user whose favorites are to be fetched
+   * @param userId     the ID of the user whose favorites are to be fetched
    * @param authHeader the authorization header containing the token
-   * @param pageable pagination parameters
+   * @param pageable   pagination parameters
    * @return ResponseEntity with MultipleListingsResponse containing the favorite listings
    */
   @GetMapping
@@ -65,8 +65,9 @@ public class UserFavoriteController {
    * This method takes a user ID and listing ID to add the listing as a favorite.
    * It also requires an authorization header containing the token, to verify the
    * user's identity.
-   * @param userId the ID of the user adding the favorite
-   * @param listingId the ID of the listing to be added as a favorite
+   *
+   * @param userId     the ID of the user adding the favorite
+   * @param listingId  the ID of the listing to be added as a favorite
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
@@ -98,8 +99,9 @@ public class UserFavoriteController {
    * This method takes a user ID and listing ID to remove the listing from the favorites.
    * It also requires an authorization header containing the token, to verify the
    * user's identity.
-   * @param userId the ID of the user removing the favorite
-   * @param listingId the ID of the listing to be removed from favorites
+   *
+   * @param userId     the ID of the user removing the favorite
+   * @param listingId  the ID of the listing to be removed from favorites
    * @param authHeader the authorization header containing the token
    * @return ResponseEntity with a message indicating success or failure
    */
