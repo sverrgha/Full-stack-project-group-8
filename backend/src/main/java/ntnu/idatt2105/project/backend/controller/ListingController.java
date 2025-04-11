@@ -80,6 +80,39 @@ public class ListingController {
   }
 
   /**
+   * Endpoint for deleting a listing.
+   * Only the owner of the listing or an admin can delete it.
+   *
+   * @param listingId  the ID of the listing to be deleted
+   * @param authHeader the authorization header containing the token
+   * @return ResponseEntity with a message indicating the result of the deletion
+   */
+  @DeleteMapping("/{listingId}")
+  public ResponseEntity<String> deleteListing(
+    @PathVariable Long listingId,
+    @RequestHeader("Authorization") String authHeader
+  ) {
+    logger.info("Received request to delete listing with ID: " + listingId);
+    try {
+      listingService.deleteListing(listingId, TokenExtractor.extractToken(authHeader));
+      logger.info("Listing deleted successfully with ID: " + listingId);
+      return ResponseEntity.ok("Listing deleted successfully");
+    } catch (IllegalAccessException e) {
+      logger.warning("Unauthorized attempt to delete listing: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body("Unauthorized: " + e.getMessage());
+    } catch (IllegalArgumentException e) {
+      logger.warning("Invalid listing ID: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body("Invalid listing ID: " + e.getMessage());
+    } catch (Exception e) {
+      logger.severe("Error while deleting listing: " + e.getMessage());
+      return ResponseEntity.internalServerError()
+        .body("An unexpected error occurred while deleting listing: " + e.getMessage());
+    }
+  }
+
+  /**
    * Endpoint for adding a new listing.
    *
    * @param listing the listing to be added, with necessary information about the listing
