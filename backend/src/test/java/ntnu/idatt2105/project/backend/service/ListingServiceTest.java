@@ -145,7 +145,7 @@ class ListingServiceTest {
     assertEquals(listing1.getId(), shortListing.getId());
     assertEquals(listing1.getTitle(), shortListing.getTitle());
     assertEquals(listing1.getPrice(), shortListing.getPrice());
-    assertEquals(location1.getCity(), shortListing.getCity());
+    assertEquals(location1.getCity(), shortListing.getLocation().getCity());
     assertEquals("image1.jpg", shortListing.getPathToImage());
     assertEquals(listing1.getCondition().name().toLowerCase(), shortListing.getCondition());
 
@@ -196,7 +196,7 @@ class ListingServiceTest {
     assertEquals(listing1.getId(), shortListing1.getId());
     assertEquals(listing1.getTitle(), shortListing1.getTitle());
     assertEquals(listing1.getPrice(), shortListing1.getPrice());
-    assertEquals(location1.getCity(), shortListing1.getCity());
+    assertEquals(location1.getCity(), shortListing1.getLocation().getCity());
     assertEquals("image1.jpg", shortListing1.getPathToImage());
     assertEquals(listing1.getCondition().name().toLowerCase(), shortListing1.getCondition());
 
@@ -204,7 +204,7 @@ class ListingServiceTest {
     assertEquals(listing2.getId(), shortListing2.getId());
     assertEquals(listing2.getTitle(), shortListing2.getTitle());
     assertEquals(listing2.getPrice(), shortListing2.getPrice());
-    assertNull(shortListing2.getCity());
+    assertNull(shortListing2.getLocation());
     assertNull(shortListing2.getPathToImage());
     assertEquals(listing2.getCondition().name().toLowerCase(), shortListing2.getCondition());
 
@@ -375,7 +375,7 @@ class ListingServiceTest {
     assertEquals(listing1.getId(), shortListing1.getId());
     assertEquals(listing1.getTitle(), shortListing1.getTitle());
     assertEquals(listing1.getPrice(), shortListing1.getPrice());
-    assertEquals(location1.getCity(), shortListing1.getCity());
+    assertEquals(location1.getCity(), shortListing1.getLocation().getCity());
     assertEquals("image1.jpg", shortListing1.getPathToImage());
     assertEquals(listing1.getCondition().name().toLowerCase(), shortListing1.getCondition());
 
@@ -383,7 +383,7 @@ class ListingServiceTest {
     assertEquals(listing2.getId(), shortListing2.getId());
     assertEquals(listing2.getTitle(), shortListing2.getTitle());
     assertEquals(listing2.getPrice(), shortListing2.getPrice());
-    assertNull(shortListing2.getCity());
+    assertNull(shortListing2.getLocation());
     assertNull(shortListing2.getPathToImage());
     assertEquals(listing2.getCondition().name().toLowerCase(), shortListing2.getCondition());
 

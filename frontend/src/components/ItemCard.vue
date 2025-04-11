@@ -58,7 +58,7 @@ const imageSrc = computed(() => {
 
 <template>
   <div class="item-card">
-    <router-link :to="`/product/${id}`" class="item-link">
+    <router-link :to="`/product/${props.id}`" class="item-link">
       <div class="image-container">
         <img
             :src="imageSrc"

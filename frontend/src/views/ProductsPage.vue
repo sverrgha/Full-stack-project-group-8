@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {ref, computed, onMounted, onBeforeUnmount} from 'vue';
+import {useI18n} from 'vue-i18n';
 import ItemGrid from '../components/ItemGrid.vue'
 import CategoryButtons from "../components/products/CategoryButtons.vue";
 import FilterButton from '../components/products/FilterButton.vue';
@@ -8,9 +8,10 @@ import FilterSidebar from '../components/products/FilterSidebar.vue';
 import SelectField from '../components/form/SelectField.vue';
 import BaseInputField from '../components/form/BaseInputField.vue';
 import searchIcon from '/src/assets/SearchIcon.svg';
-import { useListingStore } from "../stores/listing.js";
+import {useListingStore} from "../stores/listing.js";
+import Map from "../components/ItemMap.vue";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const listingStore = useListingStore();
 
 // State to track if sidebar is open
@@ -19,6 +20,7 @@ const currentCategory = ref(null);
 const currentPage = ref(1);
 const pageSize = ref(12);
 const loadingMore = ref(false);
+const isMapview = ref(false);
 
 // Filter state
 const filters = ref({
@@ -36,12 +38,12 @@ const filters = ref({
 const fetchListings = async (resetPage = true) => {
   // Filter parameters
   const filterParams = {
-    ...(filters.value.searchQuery && { query: filters.value.searchQuery }),
-    ...(filters.value.priceMin && { minPrice: filters.value.priceMin }),
-    ...(filters.value.priceMax && { maxPrice: filters.value.priceMax }),
-    ...(filters.value.city && { city: filters.value.city }),
-    ...(filters.value.conditions?.length > 0 && { conditions: filters.value.conditions.join(',') }),
-    ...(filters.value.category && { categoryId: filters.value.category }),
+    ...(filters.value.searchQuery && {query: filters.value.searchQuery}),
+    ...(filters.value.priceMin && {minPrice: filters.value.priceMin}),
+    ...(filters.value.priceMax && {maxPrice: filters.value.priceMax}),
+    ...(filters.value.city && {city: filters.value.city}),
+    ...(filters.value.conditions?.length > 0 && {conditions: filters.value.conditions.join(',')}),
+    ...(filters.value.category && {categoryId: filters.value.category}),
     sortBy: filters.value.sortBy || 'created_at',
     sortOrder: filters.value.sortDirection || 'DESC'
   };
@@ -96,6 +98,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', handleOutsideClick);
 });
+
+const toggleMapView = () => {
+  isMapview.value = !isMapview.value;
+};
 
 // Toggle sidebar visibility
 const toggleSidebar = () => {
@@ -235,10 +241,10 @@ const selectedSort = ref('');
 
 // Define the options for sorting
 const sortOptions = computed(() => [
-  { value: 'created_at,DESC', label: t('sort.newest') },
-  { value: 'created_at,ASC', label: t('sort.oldest') },
-  { value: 'price,ASC', label: t('sort.priceLowToHigh') },
-  { value: 'price,DESC', label: t('sort.priceHighToLow') }
+  {value: 'created_at,DESC', label: t('sort.newest')},
+  {value: 'created_at,ASC', label: t('sort.oldest')},
+  {value: 'price,ASC', label: t('sort.priceLowToHigh')},
+  {value: 'price,DESC', label: t('sort.priceHighToLow')}
 ]);
 
 const handleSortChange = () => {
@@ -313,6 +319,12 @@ const handleSortChange = () => {
         </div>
       </div>
 
+      <div>
+        <button @click="toggleMapView" class="map-toggle">
+          {{ isMapview ? t('productPage.gridView') : t('productPage.mapView') }}
+        </button>
+      </div>
+
       <div class="filter-sort-controls">
         <FilterButton
             :isOpen="isSidebarOpen"
@@ -337,7 +349,7 @@ const handleSortChange = () => {
     </div>
 
     <div class="category-buttons card">
-      <CategoryButtons @select-category="handleCategorySelect" />
+      <CategoryButtons @select-category="handleCategorySelect"/>
     </div>
 
     <div class="products-posts card">
@@ -356,10 +368,13 @@ const handleSortChange = () => {
         {{ t('productPage.noResults') }}
       </div>
 
+
       <!-- Main content container -->
       <div v-else class="content-container">
         <!-- Show listings -->
+        <Map v-if="isMapview" :listings="listingStore.listings"/>
         <ItemGrid
+            v-else
             :items="listingStore.listings"
             :total-pages="listingStore.totalPages"
             :current-page="currentPage"
@@ -582,6 +597,27 @@ const handleSortChange = () => {
   background-color: #f5f5f5;
 }
 
+.map-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 25px;
+  padding: 8px 16px;
+  height: 40px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  line-height: 1.25rem;
+  color: #374151;
+}
+
+.map-toggle:hover {
+  background-color: #f5f5f5;
+}
 @media (max-width: 768px) {
   .top-controls {
     flex-direction: column;

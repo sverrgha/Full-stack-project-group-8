@@ -10,6 +10,7 @@ import MessagePage from "../views/MessagePage.vue"
 import ItemDetailPage from "../views/ItemDetailPage.vue"
 import AdminPage from "../views/AdminPage.vue"
 import { useAuthStore } from "../stores/auth.js"
+import ItemMap from "../components/ItemMap.vue";
 
 const routes = [
     {
@@ -65,6 +66,11 @@ const routes = [
         path: '/admin',
         name: 'admin',
         component: AdminPage
+    },
+    {
+        path: '/mapview',
+        name: 'MapView',
+        component: ItemMap
     }
 ]
 
