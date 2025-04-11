@@ -130,20 +130,19 @@ const sendMessageToSeller = async () => {
         sellerEmail.value, // This should already be the receiver's email
         "Hello, I am interested in your product."
     );
-    newMessage.value = '';
   } catch (error) {
     console.error('Failed to send message:', error);
   }
 };
 
-const contactSeller = () => {
+const contactSeller = async () => {
   if (!authStore.isAuthenticated) {
     // Redirect to login if user is not authenticated
     router.push('/login');
     return;
   }
 
-  sendMessageToSeller();
+  await sendMessageToSeller();
   // Navigate to messages with seller info as query params
   router.push({
     path: '/messages',
