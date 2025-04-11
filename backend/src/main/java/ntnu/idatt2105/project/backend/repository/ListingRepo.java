@@ -313,9 +313,9 @@ public class ListingRepo {
   }
 
   public Page<Listing> getPostedListings(Long userId, Pageable pageable) {
-    String sql = "SELECT * FROM sverrgha_datab.listings WHERE user_id = ? AND status = 'active' " +
+    String sql = "SELECT * FROM sverrgha_datab.listings WHERE user_id = ? " +
             "ORDER BY created_at DESC LIMIT ? OFFSET ?";
-    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE user_id = ? AND status = 'active'";
+    String countSql = "SELECT COUNT(*) FROM sverrgha_datab.listings WHERE user_id = ?";
 
     Integer totalResults = jdbcTemplate.queryForObject(countSql, Integer.class, userId);
 
