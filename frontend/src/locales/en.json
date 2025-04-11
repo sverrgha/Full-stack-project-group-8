@@ -205,5 +205,10 @@
     "confirmPassword": "Confirm New Password",
     "currentPasswordRequired": "Current password is required",
     "saveError": "Error saving password"
+  },
+  "messages": {
+    "productInterest": "Hello, I am interested in your product."
   }
+
+
 }
