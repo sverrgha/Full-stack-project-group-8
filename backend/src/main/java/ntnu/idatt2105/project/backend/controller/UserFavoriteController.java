@@ -149,16 +149,16 @@ public class UserFavoriteController {
    * @return ResponseEntity with a message indicating success or failure
    */
   @Operation(
-          summary = "Add a listing to user's favorites",
-          description = "Adds a specific listing to a user's list of favorite listings.",
+          summary = "Remove a listing from user's favorites",
+          description = "Removes a specific listing from a user's list of favorite listings.",
           security = @SecurityRequirement(name = "BearerAuth"),
           parameters = {
                   @Parameter(name = "userId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the user"),
-                  @Parameter(name = "listingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the listing to add"),
+                  @Parameter(name = "listingId", in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY, required = true, description = "ID of the listing to remove"),
                   @Parameter(name = "Authorization", in = io.swagger.v3.oas.annotations.enums.ParameterIn.HEADER, required = true, description = "Bearer token for authentication")
           },
           responses = {
-                  @ApiResponse(responseCode = "200", description = "Successfully added listing to favorites"),
+                  @ApiResponse(responseCode = "200", description = "Successfully removed listing from favorites"),
                   @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
                   @ApiResponse(responseCode = "401", description = "Unauthorized access"),
                   @ApiResponse(responseCode = "500", description = "Internal server error")
