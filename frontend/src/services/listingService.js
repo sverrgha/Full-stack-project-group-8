@@ -26,6 +26,15 @@ export const listingService = {
         return apiClient.put(`/listing/${id}/status`, { status });
     },
 
+    updateListing(id, listingData) {
+        return apiClient.put(`/listing/${id}`, listingData);
+    },
+
+    // Delete a listing by ID
+    deleteListing(id) {
+        return apiClient.delete(`/listing/${id}`);
+    },
+
     //Get recommended listing for a user
     getRecommendedListings(userId, pageable = {}) {
         return apiClient.get('/listing/user/recommended', {
