@@ -128,7 +128,7 @@ const sendMessageToSeller = async () => {
     await messageStore.sendMessage(
         currentUserEmail,
         sellerEmail.value, // This should already be the receiver's email
-        "Hello, I am interested in your product."
+        t('messages.productInterest')
     );
   } catch (error) {
     console.error('Failed to send message:', error);
