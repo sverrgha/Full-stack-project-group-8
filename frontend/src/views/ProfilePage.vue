@@ -1,101 +1,44 @@
 <script setup>
-import { ref, computed } from 'vue'
+import {ref, computed, watch, onMounted} from 'vue'
 import ProfileInfo from '../components/profile/ProfileInfo.vue'
 import ProfilePostsNav from '../components/profile/ProfilePostsNav.vue'
 import ItemGrid from '../components/ItemGrid.vue'
+import {useListingStore} from "../stores/listing.js";
+import {useAuthStore} from "../stores/auth.js";
 
+const authStore = useAuthStore();
+const listingStore = useListingStore();
 // Posts as default tab state
-const activeTab = ref('posts')
+const activeTab = ref('posts');
+const userId = authStore.getUser.id;
 
-// Mock data for items
-const posts = [
-  {
-    id: 1,
-    title: 'Chair',
-    location: 'Oslo',
-    price: 1200,
-    imageUrl: 'https://placehold.co/300x300?text=Chair'
-  },
-  {
-    id: 2,
-    title: 'Desk',
-    location: 'Bergen',
-    price: 2500,
-    imageUrl: 'https://placehold.co/300x300?text=Desk'
-  },
-  {
-    id: 3,
-    title: 'Skis',
-    location: 'Trondheim',
-    price: 3000,
-    imageUrl: 'https://placehold.co/300x300?text=Skis'
-  },
-  {
-    id: 4,
-    title: 'Snowboard',
-    location: 'Oslo',
-    price: 2700,
-    imageUrl: 'https://placehold.co/300x300?text=Snowboard'
-  }
-]
-
-const favorites = [
-  {
-    id: 5,
-    title: 'Bicycle',
-    location: 'Oslo',
-    price: 4500,
-    imageUrl: 'https://placehold.co/300x300?text=Bicycle'
-  },
-  {
-    id: 6,
-    title: 'Tickets',
-    location: 'Stavanger',
-    price: 800,
-    imageUrl: 'https://placehold.co/300x300?text=Tickets'
-  },
-  {
-    id: 7,
-    title: 'Pants',
-    location: 'Bergen',
-    price: 600,
-    imageUrl: 'https://placehold.co/300x300?text=Pants'
-  },
-  {
-    id: 8,
-    title: 'Shoes',
-    location: 'Oslo',
-    price: 1200,
-    imageUrl: 'https://placehold.co/300x300?text=Shoes'
-  },
-  {
-    id: 9,
-    title: 'Suit',
-    location: 'Trondheim',
-    price: 3500,
-    imageUrl: 'https://placehold.co/300x300?text=Suit'
-  },
-  {
-    id: 10,
-    title: 'Phone',
-    location: 'Bergen',
-    price: 6000,
-    imageUrl: 'https://placehold.co/300x300?text=Phone'
-  },
-  {
-    id: 11,
-    title: 'Laptop',
-    location: 'Oslo',
-    price: 12000,
-    imageUrl: 'https://placehold.co/300x300?text=Laptop'
-  }
-]
-const purchased = []
+const posts = ref([])
+const favorites = ref([])
+const currentPage = ref(1)
+const pageSize = ref(20)
 
 const itemsToShow = computed(() => {
   if (activeTab.value === 'posts') return posts
-  if (activeTab.value === 'favorites') return favorites
-  return purchased
+  return favorites
+})
+
+watch(activeTab, async () => {
+  await fetchPosts()
+})
+
+const fetchPosts = async () => {
+  if (activeTab.value === 'posts') {
+    await listingStore.fetchPersonalListings(userId, currentPage, pageSize)
+    posts.value = listingStore.listings
+  }
+  else {
+    await listingStore.fetchFavoriteListings(userId, currentPage, pageSize)
+    favorites.value = listingStore.listings
+  }
+}
+
+onMounted(async () => {
+  await fetchPosts()
 })
 </script>
 
@@ -106,7 +49,7 @@ const itemsToShow = computed(() => {
       <!-- Reference to access the component instance -->
       <ProfilePostsNav v-model="activeTab" />
       <!-- Pass the items from the computed property -->
-      <ItemGrid :items="itemsToShow" class="grid-layout" />
+      <ItemGrid :items="itemsToShow.value" class="grid-layout" />
     </div>
   </div>
 </template>

@@ -36,12 +36,6 @@ const setActiveTab = (tab) => {
     >
       <img src="../../assets/heart1.svg" class="icon" /> {{ t('profilePage.favorites') }}
     </button>
-    <button
-        :class="{ active: modelValue === 'purchased' }"
-        @click="setActiveTab('purchased')"
-    >
-      <img src="../../assets/purchased.svg" class="icon" /> {{ t('profilePage.purchased') }}
-    </button>
   </div>
 </template>
 

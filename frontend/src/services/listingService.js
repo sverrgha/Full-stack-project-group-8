@@ -29,5 +29,24 @@ export const listingService = {
                 ...pageable
             }
         });
+    },
+
+    getPersonalListings(userId, pageable = {}) {
+        return apiClient.get(`/listing/${userId}/posted`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
+    },
+
+    getFavoriteListings(userId, pageable = {}) {
+        console.log(pageable);
+        return apiClient.get(`/favorites/${userId}`, {
+            params: {
+                size: pageable.size?.value,
+                page: pageable.page?.value,
+            }
+        });
     }
 };

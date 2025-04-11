@@ -101,8 +101,55 @@ export const useListingStore = defineStore('listing', {
             }
         },
 
+        async fetchPersonalListings(userId, page = 1, size = 20) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const pageable = { page, size };
+                const response = await listingService.getPersonalListings(userId, pageable);
+                return this.handleMultipleListings(response, page.value);
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to fetch personal listings';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchFavoriteListings(userId, page = 1, size = 20) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const pageable = { page, size };
+                const response = await listingService.getFavoriteListings(userId, pageable);
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to fetch favorite listings';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         clearCurrentListing() {
             this.currentListing = null;
+        },
+
+        handleMultipleListings(response, page) {
+            if (page === 1) {
+                this.listings = response.data.elements;
+            } else {
+                this.listings = [...this.listings, ...response.data.elements];
+            }
+            this.totalElements = response.data.totalElements;
+            this.totalPages = response.data.totalPages;
+            this.currentPage = response.data.currentPage;
+            this.pageSize = response.data.pageSize;
+            this.hasNext = response.data.hasNext;
+            this.hasPrevious = response.data.hasPrevious;
+            return response.data;
         }
     }
 })
