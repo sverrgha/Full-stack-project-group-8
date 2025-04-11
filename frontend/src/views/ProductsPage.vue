@@ -24,7 +24,6 @@ const isMapview = ref(false);
 
 // Filter state
 const filters = ref({
-  searchQuery: '',
   priceMin: null,
   priceMax: null,
   city: '',
@@ -38,7 +37,6 @@ const filters = ref({
 const fetchListings = async (resetPage = true) => {
   // Filter parameters
   const filterParams = {
-    ...(filters.value.searchQuery && {query: filters.value.searchQuery}),
     ...(filters.value.priceMin && {minPrice: filters.value.priceMin}),
     ...(filters.value.priceMax && {maxPrice: filters.value.priceMax}),
     ...(filters.value.city && {city: filters.value.city}),
@@ -203,10 +201,6 @@ const saveSearch = () => {
 
   // Hide history after search
   showHistory.value = false;
-
-  // Update filters and fetch results
-  filters.value.searchQuery = query;
-  fetchListings();
 };
 
 // Set the input value to the selected history item
@@ -236,9 +230,12 @@ const handleFocus = () => {
 };
 
 // Handle form submission
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   saveSearch();
+
+  await listingStore.searchListings(searchQuery.value);
+
   // Remove focus from input element after submission
   if (inputElement.value) {
     inputElement.value.$el.querySelector('input').blur();
@@ -561,7 +558,7 @@ const handleSortChange = () => {
 
 .search-history {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px);
   left: 0;
   width: 100%;
   background: white;
@@ -569,7 +566,7 @@ const handleSortChange = () => {
   border-radius: 15px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
-  margin-top: -22px;
+  margin-top: 0px;
 }
 
 .history-header {

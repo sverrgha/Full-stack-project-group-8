@@ -119,6 +119,34 @@ export const useListingStore = defineStore('listing', {
             } finally {
                 this.loading = false;
             }
+        },
+
+        async searchListings(query, page = 0, size = 20) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const pageable = {
+                    page,
+                    size
+                };
+
+                const response = await listingService.searchListings(query, pageable);
+                this.listings = response.data.elements || [];
+                this.totalElements = response.data.totalElements;
+                this.totalPages = response.data.totalPages;
+                this.currentPage = response.data.currentPage;
+                this.pageSize = response.data.pageSize;
+                this.hasNext = response.data.hasNext;
+                this.hasPrevious = response.data.hasPrevious;
+
+                return response.data;
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Failed to search listings';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
         }
     }
 });
